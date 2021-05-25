@@ -341,6 +341,22 @@ func (gp *gressPolicy) addACLAllow(match, l4Match, portGroupUUID string, ipBlock
 	}
 
 	if uuid != "" {
+		// We already have an ACL. We will update it.
+		_, stderr, err = util.RunOVNNbctl("set", "acl", uuid,
+			match,
+			fmt.Sprintf("priority=%s", types.DefaultAllowPriority),
+			fmt.Sprintf("direction=%s", direction),
+			fmt.Sprintf("action=%s", action),
+			fmt.Sprintf("log=%t", aclLogging != ""),
+			fmt.Sprintf("severity=%s", getACLLoggingSeverity(aclLogging)),
+			fmt.Sprintf("meter=%s", types.OvnACLLoggingMeter),
+			fmt.Sprintf("name=%.63s", aclName),
+		)
+		if err != nil {
+			return fmt.Errorf("failed to modify the allow-from rule for "+
+				"namespace=%s, policy=%s, stderr: %q (%v)",
+				gp.policyNamespace, gp.policyName, stderr, err)
+		}
 		return nil
 	}
 
