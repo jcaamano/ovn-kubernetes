@@ -501,7 +501,7 @@ func (oc *Controller) addLogicalPort(pod *kapi.Pod) (err error) {
 		return err
 	}
 	if oc.multicastSupport && isNamespaceMulticastEnabled(ns.Annotations) {
-		if err := podAddAllowMulticastPolicy(oc.ovnNBClient, pod.Namespace, portInfo); err != nil {
+		if err := podAddAllowMulticastPolicy(oc.nbClient, pod.Namespace, portInfo); err != nil {
 			return err
 		}
 	}
