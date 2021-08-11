@@ -6,10 +6,17 @@ import (
 
 	"github.com/mitchellh/copystructure"
 	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/format"
 	gomegaformat "github.com/onsi/gomega/format"
 	gomegatypes "github.com/onsi/gomega/types"
 	libovsdbclient "github.com/ovn-org/libovsdb/client"
 )
+
+func init() {
+	// libovsdb matcher might produce a lengthy output that will be cropped by
+	// default gomega output limit, set to 0 to unlimit.
+	format.MaxLength = 0
+}
 
 // isSetEqual compares a slice as an unordered set
 func isSetEqual(x, y interface{}) bool {
@@ -250,6 +257,10 @@ func matchTestData(ignoreUUID bool, expected TestData) *testDataMatcher {
 		expected:   expected,
 		ignoreUUID: ignoreUUID,
 	}
+}
+
+func EqualIgnoringUUIDs(expected TestData) gomegatypes.GomegaMatcher {
+	return matchTestData(true, expected)
 }
 
 type testDataMatcher struct {
