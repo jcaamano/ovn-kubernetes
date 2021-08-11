@@ -2,6 +2,7 @@ package libovsdb
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 
 	"github.com/mitchellh/copystructure"
@@ -237,6 +238,10 @@ func matchTestData(ignoreUUID bool, expected TestData) *testDataMatcher {
 		expected:   expected,
 		ignoreUUID: ignoreUUID,
 	}
+}
+
+func EqualIgnoringUUIDs(expected TestData) gomegatypes.GomegaMatcher {
+	return matchTestData(true, expected)
 }
 
 type testDataMatcher struct {

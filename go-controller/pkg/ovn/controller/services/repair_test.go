@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
+	. "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/libovsdb"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,10 +37,17 @@ func newServiceInformer() coreinformers.ServiceInformer {
 }
 
 func TestRepair_Empty(t *testing.T) {
+	stopChan := make(chan struct{})
+	defer close(stopChan)
+	nbClient, err := NewNBTestHarness(TestSetup{}, stopChan)
+	if err != nil {
+		t.Errorf("libovsdb test harness error: %v", err)
+	}
 	serviceInformer := newServiceInformer()
 	r := &Repair{
 		interval:      0,
 		serviceLister: serviceInformer.Lister(),
+		nbClient:      nbClient,
 	}
 	// Expected OVN commands
 	fexec := ovntest.NewFakeExec()
@@ -93,12 +101,8 @@ func TestRepair_Empty(t *testing.T) {
 		Cmd:    "ovn-nbctl --timeout=15 --data=bare --no-heading get load_balancer " + idlingUDPLB + " vips",
 		Output: "",
 	})
-	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
-		Cmd:    "ovn-nbctl --timeout=15 --columns=_uuid --format=csv --data=bare --no-headings find acl action=reject",
-		Output: "",
-	})
 
-	err := util.SetExec(fexec)
+	err = util.SetExec(fexec)
 	if err != nil {
 		t.Errorf("fexec error: %v", err)
 	}
@@ -109,10 +113,17 @@ func TestRepair_Empty(t *testing.T) {
 }
 
 func TestRepair_OVNStaleData(t *testing.T) {
+	stopChan := make(chan struct{})
+	defer close(stopChan)
+	nbClient, err := NewNBTestHarness(TestSetup{}, stopChan)
+	if err != nil {
+		t.Errorf("libovsdb test harness error: %v", err)
+	}
 	serviceInformer := newServiceInformer()
 	r := &Repair{
 		interval:      0,
 		serviceLister: serviceInformer.Lister(),
+		nbClient:      nbClient,
 	}
 	fexec := ovntest.NewLooseCompareFakeExec()
 	initializeClusterIPLBs(fexec)
@@ -171,13 +182,9 @@ func TestRepair_OVNStaleData(t *testing.T) {
 		LooseBatchCompare: true,
 		Output:            "",
 	})
-	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
-		Cmd:    "ovn-nbctl --timeout=15 --columns=_uuid --format=csv --data=bare --no-headings find acl action=reject",
-		Output: "",
-	})
 
 	// The repair loop must delete them
-	err := util.SetExec(fexec)
+	err = util.SetExec(fexec)
 	if err != nil {
 		t.Errorf("fexec error: %v", err)
 	}
@@ -188,6 +195,12 @@ func TestRepair_OVNStaleData(t *testing.T) {
 }
 
 func TestRepair_OVNSynced(t *testing.T) {
+	stopChan := make(chan struct{})
+	defer close(stopChan)
+	nbClient, err := NewNBTestHarness(TestSetup{}, stopChan)
+	if err != nil {
+		t.Errorf("libovsdb test harness error: %v", err)
+	}
 	// Initialize informer cache
 	serviceInformer := newServiceInformer()
 	serviceStore := serviceInformer.Informer().GetStore()
@@ -197,6 +210,7 @@ func TestRepair_OVNSynced(t *testing.T) {
 	r := &Repair{
 		interval:      0,
 		serviceLister: serviceInformer.Lister(),
+		nbClient:      nbClient,
 	}
 	// Expected OVN commands
 	fexec := ovntest.NewLooseCompareFakeExec()
@@ -251,12 +265,8 @@ func TestRepair_OVNSynced(t *testing.T) {
 		Cmd:    "ovn-nbctl --timeout=15 --data=bare --no-heading get load_balancer " + idlingUDPLB + " vips",
 		Output: "",
 	})
-	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
-		Cmd:    "ovn-nbctl --timeout=15 --columns=_uuid --format=csv --data=bare --no-headings find acl action=reject",
-		Output: "",
-	})
 
-	err := util.SetExec(fexec)
+	err = util.SetExec(fexec)
 	if err != nil {
 		t.Errorf("fexec error: %v", err)
 	}
@@ -267,6 +277,12 @@ func TestRepair_OVNSynced(t *testing.T) {
 }
 
 func TestRepair_OVNMissingService(t *testing.T) {
+	stopChan := make(chan struct{})
+	defer close(stopChan)
+	nbClient, err := NewNBTestHarness(TestSetup{}, stopChan)
+	if err != nil {
+		t.Errorf("libovsdb test harness error: %v", err)
+	}
 	// Initialize informer cache
 	serviceInformer := newServiceInformer()
 	serviceStore := serviceInformer.Informer().GetStore()
@@ -276,6 +292,7 @@ func TestRepair_OVNMissingService(t *testing.T) {
 	r := &Repair{
 		interval:      0,
 		serviceLister: serviceInformer.Lister(),
+		nbClient:      nbClient,
 	}
 	fexec := ovntest.NewFakeExec()
 	initializeClusterIPLBs(fexec)
@@ -329,13 +346,9 @@ func TestRepair_OVNMissingService(t *testing.T) {
 		Cmd:    "ovn-nbctl --timeout=15 --data=bare --no-heading get load_balancer " + idlingUDPLB + " vips",
 		Output: "",
 	})
-	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
-		Cmd:    "ovn-nbctl --timeout=15 --columns=_uuid --format=csv --data=bare --no-headings find acl action=reject",
-		Output: "",
-	})
 
 	// The repair loop must do nothing, the controller will add the new service
-	err := util.SetExec(fexec)
+	err = util.SetExec(fexec)
 	if err != nil {
 		t.Errorf("fexec error: %v", err)
 	}
