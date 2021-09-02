@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	libovsdbclient "github.com/ovn-org/libovsdb/client"
 	globalconfig "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	ovnlb "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/loadbalancer"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
@@ -18,7 +19,7 @@ import (
 // the legacy shared load balancers.
 // This misses cleaning up NodePort services, but those will be caught
 // when the repair PostSync is done.
-func deleteServiceFromLegacyLBs(service *v1.Service) error {
+func deleteServiceFromLegacyLBs(nbClient libovsdbclient.Client, service *v1.Service) error {
 	vipPortsPerProtocol := map[v1.Protocol]sets.String{}
 
 	// Generate list of vip:port by proto
@@ -72,7 +73,7 @@ func deleteServiceFromLegacyLBs(service *v1.Service) error {
 		}
 	}
 
-	if err := ovnlb.DeleteLoadBalancerVIPs(toRemove); err != nil {
+	if err := ovnlb.DeleteLoadBalancerVIPs(nbClient, toRemove); err != nil {
 		return fmt.Errorf("failed to delete vip(s) from legacy load balancers: %w", err)
 	}
 	return nil

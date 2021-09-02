@@ -108,7 +108,7 @@ func (r *repair) runBeforeSync() {
 	}
 
 	// Delete those stale load balancers
-	if err := ovnlb.DeleteLBs(nil, staleLBs); err != nil {
+	if err := ovnlb.DeleteLBs(r.nbClient, staleLBs); err != nil {
 		klog.Errorf("Failed to delete stale LBs: %v", err)
 	}
 	klog.V(2).Infof("Deleted %d stale service LBs", len(staleLBs))

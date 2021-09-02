@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"reflect"
 	"sync/atomic"
 
 	"github.com/ovn-org/libovsdb/client"
+	libovsdbmodel "github.com/ovn-org/libovsdb/model"
 	"github.com/ovn-org/libovsdb/ovsdb"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 )
 
 const (
@@ -46,4 +49,63 @@ func TransactAndCheck(client client.Client, ops []ovsdb.Operation) ([]ovsdb.Oper
 	}
 
 	return results, nil
+}
+
+func TransactAndCheckAndSetUUIDs(client client.Client, models interface{}, ops []ovsdb.Operation) ([]ovsdb.OperationResult, error) {
+	results, err := TransactAndCheck(client, ops)
+	if err != nil {
+		return nil, err
+	}
+
+	s := reflect.ValueOf(models)
+	if s.Kind() != reflect.Slice {
+		panic("models given a non-slice type")
+	}
+
+	if s.IsNil() {
+		return results, nil
+	}
+
+	namedModelMap := map[string]libovsdbmodel.Model{}
+	for i := 0; i < s.Len(); i++ {
+		model := s.Index(i).Interface()
+		uuid := getUUID(model)
+		if IsNamedUUID(uuid) {
+			namedModelMap[uuid] = model
+		}
+	}
+
+	for i, op := range ops {
+		if op.Op != ovsdb.OperationInsert {
+			continue
+		}
+
+		if !IsNamedUUID(op.UUIDName) {
+			continue
+		}
+
+		if model, ok := namedModelMap[op.UUIDName]; ok {
+			setUUID(model, results[i].UUID.GoUUID)
+		}
+	}
+
+	return results, nil
+}
+
+func getUUID(model libovsdbmodel.Model) string {
+	switch t := model.(type) {
+	case *nbdb.LoadBalancer:
+		return t.UUID
+	default:
+		panic("Can't get UUID of an unknown libovsdb model")
+	}
+}
+
+func setUUID(model libovsdbmodel.Model, uuid string) {
+	switch t := model.(type) {
+	case *nbdb.LoadBalancer:
+		t.UUID = uuid
+	default:
+		panic("Can't set UUID of an unknown libovsdb model")
+	}
 }
