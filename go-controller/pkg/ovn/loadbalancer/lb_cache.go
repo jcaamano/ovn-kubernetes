@@ -1,12 +1,13 @@
 package loadbalancer
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"sync"
 
-	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
+	libovsdbclient "github.com/ovn-org/libovsdb/client"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/libovsdbops"
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
@@ -15,7 +16,7 @@ var globalCacheLock sync.Mutex = sync.Mutex{}
 
 // GetLBCache returns the global load balancer cache, and initializes it
 // if not yet set.
-func GetLBCache() (*LBCache, error) {
+func GetLBCache(nbClient libovsdbclient.Client) (*LBCache, error) {
 	globalCacheLock.Lock()
 	defer globalCacheLock.Unlock()
 
@@ -23,7 +24,7 @@ func GetLBCache() (*LBCache, error) {
 		return globalCache, nil
 	}
 
-	c, err := newCache()
+	c, err := newCache(nbClient)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func (c *LBCache) update(existing []LB, toDelete []string) {
 
 	for _, lb := range existing {
 		if lb.UUID == "" {
-			panic("coding error: cache add LB with no UUID")
+			panic(fmt.Sprintf("coding error: cache add LB %s with no UUID", lb.Name))
 		}
 		c.existing[lb.UUID] = &CachedLB{
 			Name:        lb.Name,
@@ -171,9 +172,9 @@ func extIDsMatch(want, have map[string]string) bool {
 }
 
 // newCache creates a lbCache, populated with all existing load balancers
-func newCache() (*LBCache, error) {
+func newCache(nbClient libovsdbclient.Client) (*LBCache, error) {
 	// first, list all load balancers
-	lbs, err := listLBs()
+	lbs, err := listLBs(nbClient)
 	if err != nil {
 		return nil, err
 	}
@@ -185,140 +186,63 @@ func newCache() (*LBCache, error) {
 		c.existing[lbs[i].UUID] = &lbs[i]
 	}
 
-	switches, err := findTableLBs("logical_switch")
+	switches, err := libovsdbops.ListSwitchesWithLoadBalancers(nbClient)
 	if err != nil {
 		return nil, err
 	}
 
-	for switchname, lbuuids := range switches {
-		for _, lbuuid := range lbuuids {
+	for _, ls := range switches {
+		for _, lbuuid := range ls.LoadBalancer {
 			if lb, ok := c.existing[lbuuid]; ok {
-				lb.Switches.Insert(switchname)
+				lb.Switches.Insert(ls.Name)
 			}
 		}
 	}
 
-	routers, err := findTableLBs("logical_router")
+	routers, err := libovsdbops.ListRoutersWithLoadBalancers(nbClient)
 	if err != nil {
 		return nil, err
 	}
 
-	for routername, lbuuids := range routers {
-		for _, lbuuid := range lbuuids {
+	for _, router := range routers {
+		for _, lbuuid := range router.LoadBalancer {
 			if lb, ok := c.existing[lbuuid]; ok {
-				lb.Routers.Insert(routername)
+				lb.Routers.Insert(router.Name)
 			}
 		}
 	}
 
+	log.Printf("New Cache %+v", c)
 	return &c, nil
 }
 
 // listLBs lists all load balancers in nbdb
-func listLBs() ([]CachedLB, error) {
-	stdout, _, err := util.RunOVNNbctlRawOutput(15, "--format=json", "--data=json",
-		"--columns=name,_uuid,protocol,external_ids,vips", "find", "load_balancer")
-
+func listLBs(nbClient libovsdbclient.Client) ([]CachedLB, error) {
+	lbs, err := libovsdbops.ListLoadBalancers(nbClient)
 	if err != nil {
 		return nil, fmt.Errorf("could not list load_balancer: %w", err)
 	}
 
-	data := struct {
-		Data     [][]interface{} `json:"data"`
-		Headings []string        `json:"headings"`
-	}{}
-
-	err = json.Unmarshal([]byte(stdout), &data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse find load_balancer response: %w", err)
-	}
-
-	out := make([]CachedLB, 0, len(data.Data))
-
-	for _, row := range data.Data {
-		if len(row) != 5 {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: wrong number of columns (want 5) in row %#v", row)
-		}
-
+	log.Printf("Listed LBs: %+v", lbs)
+	out := make([]CachedLB, 0, len(lbs))
+	for _, lb := range lbs {
 		res := CachedLB{
+			UUID:     lb.UUID,
+			Name:     lb.Name,
 			VIPs:     sets.String{},
 			Switches: sets.String{},
 			Routers:  sets.String{},
 		}
-		// parse the row
 
-		// name
-		if str, ok := row[0].(string); ok {
-			res.Name = str
-		} else {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: name: expected string, got %#v", row[0])
+		if lb.Protocol != nil {
+			res.Protocol = *lb.Protocol
 		}
 
-		// uuid is a pair
-		if cell, ok := row[1].([]interface{}); ok {
-			if len(cell) != 2 {
-				return nil, fmt.Errorf("failed to parse find load_balancer response: uuid: expected pair, got %#v", cell)
-			} else {
-				if str, ok := cell[1].(string); ok {
-					res.UUID = str
-				} else {
-					return nil, fmt.Errorf("failed to parse find load_balancer response: uuid: expected string, got %#v", cell[1])
-				}
-			}
-		} else {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: uuid: expected slice, got %#v", row[1])
-		}
-
-		// protocol may be a string or an empty set
-		if str, ok := row[2].(string); ok {
-			res.Protocol = str
-		} else if _, ok := row[2].([]interface{}); ok { //empty set
-			// empty protocol, assume tcp
-			res.Protocol = "tcp"
-		} else {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: protocol: expected string, got %#v", row[2])
-		}
-
-		res.ExternalIDs, err = extractMap(row[3])
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: external_ids: %w", err)
-		}
-
-		vips, err := extractMap(row[4])
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse find load_balancer response: vips: %w", err)
-		}
-		for vip := range vips {
+		for vip, _ := range lb.Vips {
 			res.VIPs.Insert(vip)
 		}
+
 		out = append(out, res)
-	}
-
-	return out, nil
-}
-
-// findTableLBs returns a list of router name -> lb uuids
-func findTableLBs(tablename string) (map[string][]string, error) {
-	// this is CSV and not JSON because ovn-nbctl is inconsistent when a set has a single value :-/
-	rows, err := util.RunOVNNbctlCSV([]string{"--data=bare", "--columns=name,load_balancer", "find", tablename})
-	if err != nil {
-		return nil, fmt.Errorf("failed to find existing LBs for %s: %w", tablename, err)
-	}
-
-	out := make(map[string][]string, len(rows))
-	for _, row := range rows {
-		if len(row) != 2 {
-			return nil, fmt.Errorf("invalid row returned when listing LBs for %s: %#v", tablename, row)
-		}
-		if row[0] == "" {
-			continue
-		}
-
-		lbs := strings.Split(row[1], " ")
-		if row[1] == "" {
-			lbs = []string{}
-		}
-		out[row[0]] = lbs
 	}
 
 	return out, nil

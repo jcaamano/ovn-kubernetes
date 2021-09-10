@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 
 	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/libovsdb"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
 )
 
@@ -112,7 +113,13 @@ GR_ovn-control-plane,31bb6bff-93b9-4080-a1b9-9a1fa898b1f0 cb6ebcb0-c12d-4404-ada
 		t.Fatal(err)
 	}
 
-	lbs, err := listLBs()
+	stopChan := make(chan struct{})
+	nbClient, err := libovsdb.NewNBTestHarness(libovsdb.TestSetup{}, stopChan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	lbs, err := listLBs(nbClient)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +152,7 @@ GR_ovn-control-plane,31bb6bff-93b9-4080-a1b9-9a1fa898b1f0 cb6ebcb0-c12d-4404-ada
 			Routers:  sets.String{},
 		},
 	}, lbs)
-
+/*
 	routerLBs, err := findTableLBs("logical_router")
 	if err != nil {
 		t.Fatal(err)
@@ -156,7 +163,7 @@ GR_ovn-control-plane,31bb6bff-93b9-4080-a1b9-9a1fa898b1f0 cb6ebcb0-c12d-4404-ada
 		"ovn_cluster_router":   {},
 		"GR_ovn-control-plane": {"31bb6bff-93b9-4080-a1b9-9a1fa898b1f0", "cb6ebcb0-c12d-4404-ada7-5aa2b898f06b", "f0747ebb-71c2-4249-bdca-f33670ae544f"},
 	})
-
+*/
 	globalCache := &LBCache{}
 	globalCache.existing = make(map[string]*CachedLB, len(lbs))
 	for i := range lbs {
@@ -175,4 +182,7 @@ GR_ovn-control-plane,31bb6bff-93b9-4080-a1b9-9a1fa898b1f0 cb6ebcb0-c12d-4404-ada
 		"ovn-control-plane": {}, "ovn-worker2": {},
 	})
 	assert.Equal(t, globalCache.existing["cb6ebcb0-c12d-4404-ada7-5aa2b898f06b"].Switches, sets.String{}) // nothing changed
+
+	nbClient.Close()
+	close(stopChan)
 }

@@ -15,8 +15,8 @@ func findSwitch(nbClient libovsdbclient.Client, lswitch *nbdb.LogicalSwitch) (st
 		return lswitch.UUID, nil
 	}
 
-	switches := []nbdb.LogicalRouter{}
-	err := nbClient.WhereCache(func(item *nbdb.LogicalRouter) bool {
+	switches := []nbdb.LogicalSwitch{}
+	err := nbClient.WhereCache(func(item *nbdb.LogicalSwitch) bool {
 		return item.Name == lswitch.Name
 	}).List(&switches)
 	if err != nil {
@@ -39,9 +39,16 @@ func AddLoadBalancersToSwitchOps(nbClient libovsdbclient.Client, ops []libovsdb.
 		ops = []libovsdb.Operation{}
 	}
 
+	if len(lbs) == 0 {
+		return ops, nil 
+	}
+
 	uuid, err := findSwitch(nbClient, lswitch)
-	if uuid == "" {
+	if err != nil {
 		return nil, err
+	}
+	if uuid == "" {
+		return nil, fmt.Errorf("error, logical switch not found %+v", lswitch)
 	}
 	lswitch.UUID = uuid
 
@@ -59,7 +66,6 @@ func AddLoadBalancersToSwitchOps(nbClient libovsdbclient.Client, ops []libovsdb.
 		return nil, err
 	}
 	ops = append(ops, op...)
-
 	return ops, nil
 }
 
@@ -68,9 +74,16 @@ func RemoveLoadBalancersFromSwitchOps(nbClient libovsdbclient.Client, ops []libo
 		ops = []libovsdb.Operation{}
 	}
 
+	if len(lbs) == 0 {
+		return ops, nil 
+	}
+
 	uuid, err := findSwitch(nbClient, lswitch)
-	if uuid == "" {
+	if err != nil {
 		return nil, err
+	}
+	if uuid == "" {
+		return nil, fmt.Errorf("error, logical switch not found %+v", lswitch)
 	}
 	lswitch.UUID = uuid
 
@@ -90,4 +103,12 @@ func RemoveLoadBalancersFromSwitchOps(nbClient libovsdbclient.Client, ops []libo
 	ops = append(ops, op...)
 
 	return ops, nil
+}
+
+func ListSwitchesWithLoadBalancers(nbClient libovsdbclient.Client) ([]nbdb.LogicalSwitch, error) {
+	switches := &[]nbdb.LogicalSwitch{}
+	err := nbClient.WhereCache(func(item *nbdb.LogicalSwitch) bool {
+		return item.LoadBalancer != nil
+	}).List(switches)
+	return *switches, err
 }

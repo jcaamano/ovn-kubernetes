@@ -39,9 +39,16 @@ func AddLoadBalancersToRouterOps(nbClient libovsdbclient.Client, ops []libovsdb.
 		ops = []libovsdb.Operation{}
 	}
 
+	if len(lbs) == 0 {
+		return ops, nil 
+	}
+
 	uuid, err := findRouter(nbClient, router)
-	if uuid == "" {
+	if err != nil {
 		return nil, err
+	}
+	if uuid == "" {
+		return nil, fmt.Errorf("error, logical router not found %+v", router)
 	}
 	router.UUID = uuid
 
@@ -68,9 +75,16 @@ func RemoveLoadBalancersFromRouterOps(nbClient libovsdbclient.Client, ops []libo
 		ops = []libovsdb.Operation{}
 	}
 
+	if len(lbs) == 0 {
+		return ops, nil 
+	}
+
 	uuid, err := findRouter(nbClient, router)
-	if uuid == "" {
+	if err != nil {
 		return nil, err
+	}
+	if uuid == "" {
+		return nil, fmt.Errorf("error, logical router not found %+v", router)
 	}
 	router.UUID = uuid
 
@@ -90,4 +104,12 @@ func RemoveLoadBalancersFromRouterOps(nbClient libovsdbclient.Client, ops []libo
 	ops = append(ops, op...)
 
 	return ops, nil
+}
+
+func ListRoutersWithLoadBalancers(nbClient libovsdbclient.Client) ([]nbdb.LogicalRouter, error) {
+	routers := &[]nbdb.LogicalRouter{}
+	err := nbClient.WhereCache(func(item *nbdb.LogicalRouter) bool {
+		return item.LoadBalancer != nil
+	}).List(routers)
+	return *routers, err
 }

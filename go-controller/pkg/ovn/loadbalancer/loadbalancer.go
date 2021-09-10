@@ -2,6 +2,7 @@ package loadbalancer
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -35,12 +36,14 @@ import (
 // It is assumed that names are meaningful and somewhat stable, to minimize churn. This
 // function doesn't work with Load_Balancers without a name.
 func EnsureLBs(nbClient libovsdbclient.Client, externalIDs map[string]string, LBs []LB) error {
-	lbCache, err := GetLBCache()
+	lbCache, err := GetLBCache(nbClient)
 	if err != nil {
 		return fmt.Errorf("failed initialize LBcache: %w", err)
 	}
 
 	existing := lbCache.Find(externalIDs)
+	log.Printf("existing LBS: %+v", existing)
+	log.Printf("wanted LBs: %+v", LBs)
 	existingByName := make(map[string]*CachedLB, len(existing))
 	toDelete := sets.NewString()
 
@@ -55,8 +58,8 @@ func EnsureLBs(nbClient libovsdbclient.Client, externalIDs map[string]string, LB
 	addLBsToRouter := map[string][]*nbdb.LoadBalancer{}
 	removesLBsFromRouter := map[string][]*nbdb.LoadBalancer{}
 	wantedByName := make(map[string]*LB, len(LBs))
-	for _, lb := range LBs {
-		wantedByName[lb.Name] = &lb
+	for i, lb := range LBs {
+		wantedByName[lb.Name] = &LBs[i]
 		blb := buildLB(&lb)
 		lbs = append(lbs, blb)
 		existingLB := existingByName[lb.Name]
@@ -84,7 +87,8 @@ func EnsureLBs(nbClient libovsdbclient.Client, externalIDs map[string]string, LB
 	lswitches := map[string]*nbdb.LogicalSwitch{}
 	getSwitch := func(name string) *nbdb.LogicalSwitch {
 		var lswitch *nbdb.LogicalSwitch
-		if lswitch, ok := lswitches[name]; !ok {
+		var found bool
+		if lswitch, found = lswitches[name]; !found {
 			lswitch = &nbdb.LogicalSwitch{Name: name}
 			lswitches[name] = lswitch
 		}
@@ -107,7 +111,8 @@ func EnsureLBs(nbClient libovsdbclient.Client, externalIDs map[string]string, LB
 	routers := map[string]*nbdb.LogicalRouter{}
 	getRouter := func(name string) *nbdb.LogicalRouter {
 		var router *nbdb.LogicalRouter
-		if router, ok := routers[name]; !ok {
+		var found bool
+		if router, found = routers[name]; !found {
 			router = &nbdb.LogicalRouter{Name: name}
 			routers[name] = router
 		}
@@ -138,6 +143,7 @@ func EnsureLBs(nbClient libovsdbclient.Client, externalIDs map[string]string, LB
 	}
 
 	for _, lb := range lbs {
+		log.Printf("Setting uuid %s for %s", lb.UUID, lb.Name)
 		wantedByName[lb.Name].UUID = lb.UUID
 	}
 
@@ -216,7 +222,7 @@ func DeleteLBs(nbClient libovsdbclient.Client, uuids []string) error {
 		return nil
 	}
 
-	cache, err := GetLBCache()
+	cache, err := GetLBCache(nbClient)
 	if err != nil {
 		return err
 	}
@@ -242,7 +248,7 @@ type DeleteVIPEntry struct {
 
 // DeleteLoadBalancerVIPs removes VIPs from load-balancers in a single shot.
 func DeleteLoadBalancerVIPs(nbClient libovsdbclient.Client, toRemove []DeleteVIPEntry) error {
-	lbCache, err := GetLBCache()
+	lbCache, err := GetLBCache(nbClient)
 	if err != nil {
 		return err
 	}

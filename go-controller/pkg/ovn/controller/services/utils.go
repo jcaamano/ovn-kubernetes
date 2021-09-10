@@ -45,7 +45,7 @@ func deleteServiceFromLegacyLBs(nbClient libovsdbclient.Client, service *v1.Serv
 		}
 	}
 
-	legacyLBs, err := findLegacyLBs()
+	legacyLBs, err := findLegacyLBs(nbClient)
 	if err != nil {
 		return err
 	}
@@ -84,8 +84,8 @@ func deleteServiceFromLegacyLBs(nbClient libovsdbclient.Client, service *v1.Serv
 // - k8s-worker-lb-<proto>
 // - k8s-cluster-lb-<proto>
 // - <PROTO>_lb_gateway_router
-func findLegacyLBs() ([]ovnlb.CachedLB, error) {
-	lbCache, err := ovnlb.GetLBCache()
+func findLegacyLBs(nbClient libovsdbclient.Client) ([]ovnlb.CachedLB, error) {
+	lbCache, err := ovnlb.GetLBCache(nbClient)
 	if err != nil {
 		return nil, err
 	}

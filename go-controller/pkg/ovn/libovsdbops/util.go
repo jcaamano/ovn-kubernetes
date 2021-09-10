@@ -3,6 +3,7 @@ package libovsdbops
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"reflect"
 	"sync/atomic"
@@ -31,8 +32,8 @@ func BuildNamedUUID() string {
 	return fmt.Sprintf("%c%010d", namedUUIDPrefix, atomic.AddUint32(&namedUUIDCounter, 1))
 }
 
-// TransactAndCheck trasntacs the given ops againts client and returns
-// results of no error ocurred or an error otherwise.
+// TransactAndCheck transacts the given ops againts client and returns
+// results if no error ocurred or an error otherwise.
 func TransactAndCheck(client client.Client, ops []ovsdb.Operation) ([]ovsdb.OperationResult, error) {
 	if len(ops) <= 0 {
 		return []ovsdb.OperationResult{{}}, nil
@@ -51,6 +52,10 @@ func TransactAndCheck(client client.Client, ops []ovsdb.Operation) ([]ovsdb.Oper
 	return results, nil
 }
 
+// TransactAndCheckAndSetUUIDs transacts the given ops againts client and returns
+// results if no error ocurred or an error otherwise. It sets the real uuids for
+// the passed models if they were inserted and have a named-uuid (as built by
+// BuildNamedUUID)
 func TransactAndCheckAndSetUUIDs(client client.Client, models interface{}, ops []ovsdb.Operation) ([]ovsdb.OperationResult, error) {
 	results, err := TransactAndCheck(client, ops)
 	if err != nil {
@@ -71,20 +76,26 @@ func TransactAndCheckAndSetUUIDs(client client.Client, models interface{}, ops [
 		model := s.Index(i).Interface()
 		uuid := getUUID(model)
 		if IsNamedUUID(uuid) {
+			log.Printf("Add %s to named model map", uuid)
 			namedModelMap[uuid] = model
 		}
 	}
 
+	log.Printf("Considering %d ops", len(ops))
 	for i, op := range ops {
 		if op.Op != ovsdb.OperationInsert {
+			log.Printf("Ignoring op %s", op.Op)
 			continue
 		}
 
 		if !IsNamedUUID(op.UUIDName) {
+			log.Printf("Ignoring non named-uuid %s", op.UUIDName)
 			continue
 		}
 
+		log.Printf("Considering named-uuid %s", op.UUIDName)
 		if model, ok := namedModelMap[op.UUIDName]; ok {
+			log.Printf("Setting real uuid %s for named-uuid %s", results[i].UUID.GoUUID, op.UUIDName)
 			setUUID(model, results[i].UUID.GoUUID)
 		}
 	}

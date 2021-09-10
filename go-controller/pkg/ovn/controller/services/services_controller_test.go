@@ -5,11 +5,13 @@ import (
 	"net"
 	"testing"
 
+	"github.com/onsi/gomega"
 	globalconfig "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	ovnlb "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/loadbalancer"
 	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
 	libovsdbtest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/libovsdb"
-	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
+	// "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
 
 	v1 "k8s.io/api/core/v1"
 	discovery "k8s.io/api/discovery/v1beta1"
@@ -104,6 +106,8 @@ func TestSyncServices(t *testing.T) {
 		name        string
 		slice       *discovery.EndpointSlice
 		service     *v1.Service
+		initialDb   []libovsdbtest.TestData
+		expectedDb  []libovsdbtest.TestData
 		ovnCmd      []ovntest.ExpectedCmd
 		gatewayMode string
 	}{
@@ -132,6 +136,63 @@ func TestSyncServices(t *testing.T) {
 						Protocol:   v1.ProtocolTCP,
 						TargetPort: intstr.FromInt(3456),
 					}},
+				},
+			},
+			initialDb: []libovsdbtest.TestData{
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-a",
+					Name: "switch-node-a",
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-b",
+					Name: "switch-node-b",
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-a",
+					Name: "gr-node-a",
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-b",
+					Name: "gr-node-b",
+				},
+			},
+			expectedDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:80": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-a",
+					Name:         "switch-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-b",
+					Name:         "switch-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-b",
+					Name:         "gr-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
 				},
 			},
 			ovnCmd: []ovntest.ExpectedCmd{
@@ -180,6 +241,99 @@ func TestSyncServices(t *testing.T) {
 					}},
 				},
 			},
+			initialDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.0.1:6443": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-a",
+					Name: "switch-node-a",
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-b",
+					Name: "switch-node-b",
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "wrong-switch",
+					Name:         "wrong-switch",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-b",
+					Name: "gr-node-b",
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-c",
+					Name:         "gr-node-c",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+			},
+			expectedDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:80": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-a",
+					Name:         "switch-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-b",
+					Name:         "switch-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "wrong-switch",
+					Name: "wrong-switch",
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-b",
+					Name:         "gr-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-c",
+					Name: "gr-node-c",
+				},
+			},
 			ovnCmd: []ovntest.ExpectedCmd{
 				{
 					Cmd:    `ovn-nbctl --timeout=15 --format=json --data=json --columns=name,_uuid,protocol,external_ids,vips find load_balancer`,
@@ -223,6 +377,93 @@ func TestSyncServices(t *testing.T) {
 						Protocol:   v1.ProtocolTCP,
 						TargetPort: intstr.FromInt(3456),
 					}},
+				},
+			},
+			initialDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:6443": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LoadBalancer{
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:80": "",
+					},
+					ExternalIDs: map[string]string{
+						"TCP_lb_gateway_router": "",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-a",
+					Name:         "switch-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-b",
+					Name:         "switch-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-b",
+					Name:         "gr-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+			},
+			expectedDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:80": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-a",
+					Name:         "switch-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-b",
+					Name:         "switch-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-b",
+					Name:         "gr-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
 				},
 			},
 			ovnCmd: []ovntest.ExpectedCmd{
@@ -285,6 +526,130 @@ func TestSyncServices(t *testing.T) {
 					}},
 				},
 			},
+			initialDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:6443": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-a",
+					Name:         "switch-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalSwitch{
+					UUID:         "switch-node-b",
+					Name:         "switch-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-a",
+					Name:         "gr-node-a",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+				&nbdb.LogicalRouter{
+					UUID:         "gr-node-b",
+					Name:         "gr-node-b",
+					LoadBalancer: []string{"Service_testns/foo_TCP_cluster"},
+				},
+			},
+			expectedDb: []libovsdbtest.TestData{
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_cluster",
+					Name: "Service_testns/foo_TCP_cluster",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"192.168.1.1:80": "",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_node_router+switch_node-a",
+					Name: "Service_testns/foo_TCP_node_router+switch_node-a",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"10.0.0.1:8989": "10.128.0.2:3456,10.128.1.2:3456",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LoadBalancer{
+					UUID: "Service_testns/foo_TCP_node_router+switch_node-b",
+					Name: "Service_testns/foo_TCP_node_router+switch_node-b",
+					Options: map[string]string{
+						"event":     "false",
+						"reject":    "true",
+						"skip_snat": "false",
+					},
+					Protocol: &nbdb.LoadBalancerProtocolTCP,
+					Vips: map[string]string{
+						"10.0.0.2:8989": "10.128.0.2:3456,10.128.1.2:3456",
+					},
+					ExternalIDs: map[string]string{
+						"k8s.ovn.org/kind":  "Service",
+						"k8s.ovn.org/owner": "testns/foo",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-a",
+					Name: "switch-node-a",
+					LoadBalancer: []string{
+						"Service_testns/foo_TCP_cluster",
+						"Service_testns/foo_TCP_node_router+switch_node-a",
+					},
+				},
+				&nbdb.LogicalSwitch{
+					UUID: "switch-node-b",
+					Name: "switch-node-b",
+					LoadBalancer: []string{
+						"Service_testns/foo_TCP_cluster",
+						"Service_testns/foo_TCP_node_router+switch_node-b",
+					},
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-a",
+					Name: "gr-node-a",
+					LoadBalancer: []string{
+						"Service_testns/foo_TCP_cluster",
+						"Service_testns/foo_TCP_node_router+switch_node-a",
+					},
+				},
+				&nbdb.LogicalRouter{
+					UUID: "gr-node-b",
+					Name: "gr-node-b",
+					LoadBalancer: []string{
+						"Service_testns/foo_TCP_cluster",
+						"Service_testns/foo_TCP_node_router+switch_node-b",
+					},
+				},
+			},
 			ovnCmd: []ovntest.ExpectedCmd{
 				{
 					Cmd:    `ovn-nbctl --timeout=15 --format=json --data=json --columns=name,_uuid,protocol,external_ids,vips find load_balancer`,
@@ -317,6 +682,8 @@ func TestSyncServices(t *testing.T) {
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("%d_%s", i, tt.name), func(t *testing.T) {
+			g := gomega.NewGomegaWithT(t)
+
 			if tt.gatewayMode != "" {
 				globalconfig.Gateway.Mode = globalconfig.GatewayMode(tt.gatewayMode)
 			} else {
@@ -324,7 +691,7 @@ func TestSyncServices(t *testing.T) {
 			}
 
 			ovnlb.TestOnlySetCache(nil)
-			controller, err := newController()
+			controller, err := newControllerWithDBSetup(libovsdbtest.TestSetup{NBData: tt.initialDb})
 			if err != nil {
 				t.Fatalf("Error creating controller: %v", err)
 			}
@@ -335,23 +702,25 @@ func TestSyncServices(t *testing.T) {
 
 			controller.nodeTracker.nodes = defaultNodes
 			// Expected OVN commands
-			fexec := ovntest.NewLooseCompareFakeExec()
-			for _, cmd := range tt.ovnCmd {
-				cmd := cmd
-				fexec.AddFakeCmd(&cmd)
-			}
-			err = util.SetExec(fexec)
-			if err != nil {
-				t.Errorf("fexec error: %v", err)
-			}
+			//fexec := ovntest.NewLooseCompareFakeExec()
+			//for _, cmd := range tt.ovnCmd {
+			//	cmd := cmd
+			//	fexec.AddFakeCmd(&cmd)
+			//}
+			//err = util.SetExec(fexec)
+			//if err != nil {
+			//	t.Errorf("fexec error: %v", err)
+			//}
 			err = controller.syncService(ns + "/" + serviceName)
 			if err != nil {
 				t.Errorf("syncServices error: %v", err)
 			}
 
-			if !fexec.CalledMatchesExpected() {
-				t.Error(fexec.ErrorDesc())
-			}
+			g.Eventually(controller.nbClient).Should(libovsdbtest.HaveData(tt.expectedDb))
+
+			//if !fexec.CalledMatchesExpected() {
+			//	t.Error(fexec.ErrorDesc())
+			//}
 		})
 	}
 }

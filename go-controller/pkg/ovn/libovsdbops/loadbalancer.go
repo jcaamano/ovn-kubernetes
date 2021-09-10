@@ -188,3 +188,12 @@ func DeleteLoadBalancers(nbClient libovsdbclient.Client, lbs []*nbdb.LoadBalance
 	_, err = TransactAndCheck(nbClient, ops)
 	return err
 }
+
+func ListLoadBalancers(nbClient libovsdbclient.Client) ([]nbdb.LoadBalancer, error) {
+	lbs := &[]nbdb.LoadBalancer{} 
+	err := nbClient.List(lbs)
+	if err != nil {
+		return nil, err
+	}
+	return *lbs, nil
+}
