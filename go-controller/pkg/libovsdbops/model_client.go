@@ -409,8 +409,20 @@ func (m *ModelClient) whereCache(opModel *OperationModel) error {
 
 func addToExistingResult(model interface{}, existingResult interface{}) {
 	resultPtr := reflect.ValueOf(existingResult)
+	if resultPtr.Type().Kind() != reflect.Ptr {
+		panic("Expected pointer to slice of valid Models")
+	}
+
 	resultVal := reflect.Indirect(resultPtr)
-	resultVal.Set(reflect.Append(resultVal, reflect.Indirect(reflect.ValueOf(model))))
+	if resultVal.Type().Kind() != reflect.Slice {
+		panic("Expected pointer to slice of valid Models")
+	}
+
+	if resultVal.Type().Elem().Kind() == reflect.Ptr {
+		resultVal.Set(reflect.Append(resultVal, reflect.ValueOf(model)))
+	} else {
+		resultVal.Set(reflect.Append(resultVal, reflect.Indirect(reflect.ValueOf(model))))
+	}
 }
 
 func getString(field interface{}) string {
