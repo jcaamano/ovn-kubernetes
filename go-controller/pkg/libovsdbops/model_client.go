@@ -315,12 +315,14 @@ func (m *ModelClient) create(opModel *OperationModel) ([]ovsdb.Operation, error)
 			return nil, err
 		}
 		ops = append(ops, waitOps...)
-	} else if info, err := m.client.Cache().DatabaseModel().NewModelInfo(opModel.Model); err == nil {
-		if name, err := info.FieldByColumn("name"); err == nil {
-			objName := getString(name)
-			if len(objName) > 0 {
-				klog.Warningf("OVSDB Create operation detected without setting opModel Name. Name: %s, %#v",
-					objName, info)
+	} else if cache := m.client.Cache(); cache != nil { // cache might be nil if disconnected
+		if info, err := cache.DatabaseModel().NewModelInfo(opModel.Model); err == nil {
+			if name, err := info.FieldByColumn("name"); err == nil {
+				objName := getString(name)
+				if len(objName) > 0 {
+					klog.Warningf("OVSDB Create operation detected without setting opModel Name. Name: %s, %#v",
+						objName, info)
+				}
 			}
 		}
 	}
