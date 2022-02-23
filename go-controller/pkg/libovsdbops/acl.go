@@ -21,10 +21,10 @@ func getACLName(acl *nbdb.ACL) string {
 	return ""
 }
 
-// IsEquivalentACL if it has same uuid, or if it has same name
+// isEquivalentACL if it has same uuid, or if it has same name
 // and external ids, or if it has same priority, direction, match
 // and action.
-func IsEquivalentACL(existing *nbdb.ACL, searched *nbdb.ACL) bool {
+func isEquivalentACL(existing *nbdb.ACL, searched *nbdb.ACL) bool {
 	if searched.UUID != "" && existing.UUID == searched.UUID {
 		return true
 	}
@@ -60,7 +60,7 @@ func findACL(nbClient libovsdbclient.Client, acl *nbdb.ACL) error {
 	}
 
 	acls, err := FindACLsWithPredicate(nbClient, func(item *nbdb.ACL) bool {
-		return IsEquivalentACL(item, acl)
+		return isEquivalentACL(item, acl)
 	})
 
 	if err != nil {
@@ -121,7 +121,7 @@ func CreateOrUpdateACLsOps(nbClient libovsdbclient.Client, ops []libovsdb.Operat
 		opModel := OperationModel{
 			Name:           getACLName(acl),
 			Model:          acl,
-			ModelPredicate: func(item *nbdb.ACL) bool { return IsEquivalentACL(item, acl) },
+			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			OnModelUpdates: []interface{}{}, // update all fields
 			ErrNotFound:    false,
 			BulkOp:         false,
@@ -153,7 +153,7 @@ func UpdateACLsLoggingOps(nbClient libovsdbclient.Client, ops []libovsdb.Operati
 		acl := acls[i]
 		opModel := OperationModel{
 			Model:          acl,
-			ModelPredicate: func(item *nbdb.ACL) bool { return IsEquivalentACL(item, acl) },
+			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			OnModelUpdates: []interface{}{&acl.Severity, &acl.Log},
 			ErrNotFound:    true,
 			BulkOp:         false,
@@ -173,7 +173,7 @@ func UpdateACLsDirection(nbClient libovsdbclient.Client, acls ...*nbdb.ACL) erro
 		acl := acls[i]
 		opModel := OperationModel{
 			Model:          acl,
-			ModelPredicate: func(item *nbdb.ACL) bool { return IsEquivalentACL(item, acl) },
+			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			OnModelUpdates: []interface{}{&acl.Direction},
 			ErrNotFound:    true,
 			BulkOp:         false,
@@ -195,7 +195,7 @@ func DeleteACLs(nbClient libovsdbclient.Client, acls ...*nbdb.ACL) error {
 		opModel := OperationModel{
 			Name:           getACLName(acl),
 			Model:          acl,
-			ModelPredicate: func(item *nbdb.ACL) bool { return IsEquivalentACL(item, acl) },
+			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			ErrNotFound:    false,
 			BulkOp:         false,
 		}
