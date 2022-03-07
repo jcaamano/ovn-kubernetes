@@ -9,7 +9,7 @@ import (
 // GetNBGlobal looks up the SB Global entry from the cache
 func GetSBGlobal(sbClient libovsdbclient.Client) (*sbdb.SBGlobal, error) {
 	found := []*sbdb.SBGlobal{}
-	opModel := OperationModel{
+	opModel := operationModel{
 		ModelPredicate: func(item *sbdb.SBGlobal) bool { return true },
 		ExistingResult: &found,
 		OnModelUpdates: nil, // no update
@@ -17,7 +17,7 @@ func GetSBGlobal(sbClient libovsdbclient.Client) (*sbdb.SBGlobal, error) {
 		BulkOp:         false,
 	}
 
-	m := NewModelClient(sbClient)
+	m := newModelClient(sbClient)
 	_, err := m.CreateOrUpdate(opModel)
 	return found[0], err
 }
