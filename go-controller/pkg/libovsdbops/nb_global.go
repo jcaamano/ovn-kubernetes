@@ -12,13 +12,12 @@ func GetNBGlobal(nbClient libovsdbclient.Client) (*nbdb.NBGlobal, error) {
 	opModel := operationModel{
 		ModelPredicate: func(item *nbdb.NBGlobal) bool { return true },
 		ExistingResult: &found,
-		OnModelUpdates: nil, // no update
 		ErrNotFound:    true,
 		BulkOp:         false,
 	}
 
 	m := newModelClient(nbClient)
-	_, err := m.CreateOrUpdate(opModel)
+	err := m.Lookup(opModel)
 	return found[0], err
 }
 

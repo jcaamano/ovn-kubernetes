@@ -12,12 +12,11 @@ func GetSBGlobal(sbClient libovsdbclient.Client) (*sbdb.SBGlobal, error) {
 	opModel := operationModel{
 		ModelPredicate: func(item *sbdb.SBGlobal) bool { return true },
 		ExistingResult: &found,
-		OnModelUpdates: nil, // no update
 		ErrNotFound:    true,
 		BulkOp:         false,
 	}
 
 	m := newModelClient(sbClient)
-	_, err := m.CreateOrUpdate(opModel)
+	err := m.Lookup(opModel)
 	return found[0], err
 }
