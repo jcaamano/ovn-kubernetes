@@ -93,7 +93,6 @@ func CreateOrUpdateACLsOps(nbClient libovsdbclient.Client, ops []libovsdb.Operat
 		// can't use i in the predicate, for loop replaces it in-memory
 		acl := acls[i]
 		opModel := operationModel{
-			Name:           getACLName(acl),
 			Model:          acl,
 			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			OnModelUpdates: []interface{}{}, // update all fields
@@ -167,7 +166,6 @@ func DeleteACLs(nbClient libovsdbclient.Client, acls ...*nbdb.ACL) error {
 		// can't use i in the predicate, for loop replaces it in-memory
 		acl := acls[i]
 		opModel := operationModel{
-			Name:           getACLName(acl),
 			Model:          acl,
 			ModelPredicate: func(item *nbdb.ACL) bool { return isEquivalentACL(item, acl) },
 			ErrNotFound:    false,
