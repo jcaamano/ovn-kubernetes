@@ -51,7 +51,7 @@ func CreateOrUpdateLogicalRouter(nbClient libovsdbclient.Client, router *nbdb.Lo
 	opModel := operationModel{
 		Model:          router,
 		ModelPredicate: func(item *nbdb.LogicalRouter) bool { return item.Name == router.Name },
-		OnModelUpdates: []interface{}{}, // update all provided values
+		OnModelUpdates: onModelUpdatesAll(),
 		ErrNotFound:    false,
 		BulkOp:         false,
 	}
@@ -139,7 +139,7 @@ func CreateOrUpdateLogicalRouterPorts(nbClient libovsdbclient.Client, router *nb
 		lrp := lrps[i]
 		opModel := operationModel{
 			Model:          lrp,
-			OnModelUpdates: []interface{}{}, // update all provided values
+			OnModelUpdates: onModelUpdatesAll(),
 			DoAfter:        func() { router.Ports = append(router.Ports, lrp.UUID) },
 			ErrNotFound:    false,
 			BulkOp:         false,
@@ -170,11 +170,10 @@ func DeleteLogicalRouterPorts(nbClient libovsdbclient.Client, router *nbdb.Logic
 	for i := range lrps {
 		lrp := lrps[i]
 		opModel := operationModel{
-			Model:          lrp,
-			OnModelUpdates: []interface{}{}, // update all provided values
-			DoAfter:        func() { router.Ports = append(router.Ports, lrp.UUID) },
-			ErrNotFound:    false,
-			BulkOp:         false,
+			Model:       lrp,
+			DoAfter:     func() { router.Ports = append(router.Ports, lrp.UUID) },
+			ErrNotFound: false,
+			BulkOp:      false,
 		}
 		opModels = append(opModels, opModel)
 	}
