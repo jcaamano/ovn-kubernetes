@@ -239,7 +239,7 @@ func CreateOrUpdateLogicalRouterPolicyWithPredicate(nbClient libovsdbclient.Clie
 		{
 			Model:          lrp,
 			ModelPredicate: p,
-			OnModelUpdates: []interface{}{}, // update all provided values
+			OnModelUpdates: onModelUpdatesAll(),
 			DoAfter:        func() { router.Policies = []string{lrp.UUID} },
 			ErrNotFound:    false,
 			BulkOp:         false,
@@ -277,7 +277,7 @@ func DeleteLogicalRouterPoliciesWithPredicate(nbClient libovsdbclient.Client, ro
 		},
 		{
 			Model:            router,
-			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == routerName },
+			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == router.Name },
 			OnModelMutations: []interface{}{&router.Policies},
 			ErrNotFound:      true,
 			BulkOp:           false,
@@ -331,7 +331,7 @@ func deleteNextHopsFromLogicalRouterPolicyOps(nbClient libovsdbclient.Client, op
 
 	for i := range lrps {
 		lrp := lrps[i]
-		if len(lrp.Nexthops) == len(nextHops) && nextHopSet.HasAll(nextHops...) {
+		if nextHopSet.HasAll(lrp.Nexthops...) {
 			// if no next-hops remain in the policy, remove it alltogether
 			router.Policies = append(router.Policies, lrp.UUID)
 			opModel := operationModel{
@@ -356,7 +356,7 @@ func deleteNextHopsFromLogicalRouterPolicyOps(nbClient libovsdbclient.Client, op
 	if len(router.Policies) > 0 {
 		opModel := operationModel{
 			Model:            router,
-			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == routerName },
+			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == router.Name },
 			OnModelMutations: []interface{}{&router.Policies},
 			BulkOp:           false,
 			ErrNotFound:      false,
@@ -481,7 +481,7 @@ func CreateOrUpdateLogicalRouterStaticRoutesWithPredicateOps(nbClient libovsdbcl
 		{
 			Model:          lrsr,
 			ModelPredicate: p,
-			OnModelUpdates: []interface{}{}, // update all provided values
+			OnModelUpdates: onModelUpdatesAll(),
 			DoAfter:        func() { router.StaticRoutes = []string{lrsr.UUID} },
 			ErrNotFound:    false,
 			BulkOp:         false,
@@ -586,7 +586,7 @@ func CreateOrUpdateBFDOps(nbClient libovsdbclient.Client, ops []libovsdb.Operati
 		bfd := bfds[i]
 		opModel := operationModel{
 			Model:          bfd,
-			OnModelUpdates: []interface{}{}, // update all provided values
+			OnModelUpdates: onModelUpdatesAll(),
 			ErrNotFound:    false,
 			BulkOp:         false,
 		}
