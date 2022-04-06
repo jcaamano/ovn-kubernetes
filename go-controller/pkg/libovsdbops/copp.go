@@ -19,7 +19,7 @@ func CreateOrUpdateCOPPsOps(nbClient libovsdbclient.Client, ops []ovsdb.Operatio
 		opModel := operationModel{
 			Model:          copp,
 			ModelPredicate: func(item *nbdb.Copp) bool { return reflect.DeepEqual(item.Meters, copp.Meters) },
-			OnModelUpdates: nil, // no update
+			OnModelUpdates: onModelUpdatesNone(),
 			ErrNotFound:    false,
 			BulkOp:         false,
 		}

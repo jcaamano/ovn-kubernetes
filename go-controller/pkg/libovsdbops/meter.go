@@ -23,7 +23,7 @@ func CreateMeterBandOps(nbClient libovsdbclient.Client, ops []ovsdb.Operation, m
 	opModel := operationModel{
 		Model:          meterBand,
 		ModelPredicate: func(item *nbdb.MeterBand) bool { return equalsMeterBand(item, meterBand) },
-		OnModelUpdates: nil, // no update
+		OnModelUpdates: onModelUpdatesNone(),
 		ExistingResult: &bands,
 		DoAfter: func() {
 			// in case we have multiple equal bands, pick the first one for
@@ -53,7 +53,7 @@ func CreateOrUpdateMeterOps(nbClient libovsdbclient.Client, ops []ovsdb.Operatio
 	}
 	opModel := operationModel{
 		Model:          meter,
-		OnModelUpdates: []interface{}{}, // update all
+		OnModelUpdates: onModelUpdatesAll(),
 		ErrNotFound:    false,
 		BulkOp:         false,
 	}
