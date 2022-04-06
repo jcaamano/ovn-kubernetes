@@ -66,7 +66,7 @@ func CreateAddressSets(nbClient libovsdbclient.Client, ass ...*nbdb.AddressSet) 
 		as := ass[i]
 		opModel := operationModel{
 			Model:          as,
-			OnModelUpdates: nil, // no updates
+			OnModelUpdates: onModelUpdatesNone(),
 			ErrNotFound:    false,
 			BulkOp:         false,
 		}
