@@ -144,6 +144,14 @@ type operationModel struct {
 	DoAfter func()
 }
 
+func onModelUpdatesNone() []interface{} {
+	return nil
+}
+
+func onModelUpdatesAll() []interface{} {
+	return []interface{}{}
+}
+
 /*
  CreateOrUpdate performs idempotent operations against libovsdb according to the
  following logic:
