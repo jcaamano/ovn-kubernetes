@@ -10,7 +10,7 @@ import (
 func CreateOrUpdateMacBinding(sbClient libovsdbclient.Client, mb *sbdb.MACBinding) error {
 	opModel := operationModel{
 		Model:          mb,
-		OnModelUpdates: []interface{}{},
+		OnModelUpdates: onModelUpdatesAll(),
 		ErrNotFound:    false,
 		BulkOp:         false,
 	}
