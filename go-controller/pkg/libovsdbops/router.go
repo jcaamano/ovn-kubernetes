@@ -969,7 +969,7 @@ func CreateOrUpdateGatewayChassis(nbClient libovsdbclient.Client, port *nbdb.Log
 	opModels := []operationModel{
 		{
 			Model:          chassis,
-			OnModelUpdates: []interface{}{},
+			OnModelUpdates: onModelUpdatesAll(),
 			DoAfter:        func() { port.GatewayChassis = []string{chassis.UUID} },
 			ErrNotFound:    false,
 			BulkOp:         false,
@@ -977,7 +977,7 @@ func CreateOrUpdateGatewayChassis(nbClient libovsdbclient.Client, port *nbdb.Log
 		{
 			Model: port,
 			// use update here, as of now we only ever want a single chassis
-			// assciated with a port
+			// associated with a port
 			OnModelUpdates: []interface{}{&port.GatewayChassis},
 			ErrNotFound:    true,
 			BulkOp:         false,
