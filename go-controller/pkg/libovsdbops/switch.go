@@ -15,7 +15,7 @@ import (
 
 type switchPredicate func(*nbdb.LogicalSwitch) bool
 
-// FindLogicalSwitchesWithPredicate looks up logical swiotches from the cache
+// FindLogicalSwitchesWithPredicate looks up logical switches from the cache
 // based on a given predicate
 func FindLogicalSwitchesWithPredicate(nbClient libovsdbclient.Client, p switchPredicate) ([]*nbdb.LogicalSwitch, error) {
 	found := []*nbdb.LogicalSwitch{}
@@ -50,7 +50,7 @@ func CreateOrUpdateLogicalSwitch(nbClient libovsdbclient.Client, sw *nbdb.Logica
 	opModel := operationModel{
 		Model:          sw,
 		ModelPredicate: func(item *nbdb.LogicalSwitch) bool { return item.Name == sw.Name },
-		OnModelUpdates: []interface{}{}, // update all provided values
+		OnModelUpdates: onModelUpdatesAll(),
 		ErrNotFound:    false,
 		BulkOp:         false,
 	}
@@ -225,7 +225,7 @@ func createOrUpdateLogicalSwitchPortsOps(nbClient libovsdbclient.Client, ops []l
 		lsp := lsps[i]
 		opModel := operationModel{
 			Model:          lsp,
-			OnModelUpdates: []interface{}{}, // update all provided values
+			OnModelUpdates: onModelUpdatesAll(),
 			DoAfter:        func() { sw.Ports = append(sw.Ports, lsp.UUID) },
 			ErrNotFound:    false,
 			BulkOp:         false,
