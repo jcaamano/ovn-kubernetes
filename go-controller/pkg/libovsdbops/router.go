@@ -845,7 +845,7 @@ func CreateOrUpdateNATsOps(nbClient libovsdbclient.Client, ops []libovsdb.Operat
 		}
 		opModel := operationModel{
 			Model:          inputNat,
-			OnModelUpdates: []interface{}{},
+			OnModelUpdates: onModelUpdatesAll(),
 			ErrNotFound:    false,
 			BulkOp:         false,
 			DoAfter:        func() { router.Nat = append(router.Nat, inputNat.UUID) },
@@ -950,7 +950,7 @@ func DeleteNATsWithPredicateOps(nbClient libovsdbclient.Client, ops []libovsdb.O
 		},
 		{
 			Model:            router,
-			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == routerName },
+			ModelPredicate:   func(lr *nbdb.LogicalRouter) bool { return lr.Name == router.Name },
 			OnModelMutations: []interface{}{&router.Nat},
 			ErrNotFound:      true,
 			BulkOp:           false,
