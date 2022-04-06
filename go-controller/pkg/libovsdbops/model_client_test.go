@@ -1067,6 +1067,7 @@ func TestDeleteForNonRootObjects(t *testing.T) {
 }
 
 func TestLookup(t *testing.T) {
+	lookupUUID := "b9998337-2498-4d1e-86e6-fc0417abb2f0"
 	tt := []OperationModelTestCase{
 		{
 			name: "Test lookup by index over predicate",
@@ -1086,6 +1087,37 @@ func TestLookup(t *testing.T) {
 			initialDB: []libovsdbtest.TestData{
 				&nbdb.AddressSet{
 					UUID:      adressSetTestUUID,
+					Name:      adressSetTestName,
+					Addresses: []string{adressSetTestAdress},
+				},
+			},
+			expectedRes: [][]libovsdbtest.TestData{
+				{
+					&nbdb.AddressSet{
+						Name:      adressSetTestName,
+						Addresses: []string{adressSetTestAdress},
+					},
+				},
+			},
+		},
+		{
+			name: "Test lookup by UUID over predicate",
+			op:   "Lookup",
+			generateOp: func() []operationModel {
+				return []operationModel{
+					{
+						Model: &nbdb.AddressSet{
+							UUID: lookupUUID,
+						},
+						ModelPredicate: func(item *nbdb.AddressSet) bool { return false },
+						ExistingResult: &[]*nbdb.AddressSet{},
+						ErrNotFound:    true,
+					},
+				}
+			},
+			initialDB: []libovsdbtest.TestData{
+				&nbdb.AddressSet{
+					UUID:      lookupUUID,
 					Name:      adressSetTestName,
 					Addresses: []string{adressSetTestAdress},
 				},
