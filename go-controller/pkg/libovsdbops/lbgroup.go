@@ -15,7 +15,7 @@ import (
 func CreateOrUpdateLoadBalancerGroup(nbClient libovsdbclient.Client, group *nbdb.LoadBalancerGroup) error {
 	opModel := operationModel{
 		Model:          group,
-		OnModelUpdates: []interface{}{}, // update all provided values
+		OnModelUpdates: onModelUpdatesAll(),
 		ErrNotFound:    false,
 		BulkOp:         false,
 	}
