@@ -46,44 +46,70 @@ func extractUUIDsFromModels(models interface{}) []string {
 	return ids
 }
 
-// buildMutationsFromFields builds mutations that use the fields as values.
-func buildMutationsFromFields(fields []interface{}, mutator ovsdb.Mutator) []model.Mutation {
-	mutations := make([]model.Mutation, 0, len(fields))
+// buildMutationsFromFields builds mutations that use the fields as values
+// filtering out mutations for empty values.
+func buildMutationsFromFields(fields []interface{}, mutator ovsdb.Mutator) ([]model.Mutation, error) {
+	mutations := []model.Mutation{}
 	for _, field := range fields {
-		v := reflect.ValueOf(field)
-		if v.Kind() != reflect.Ptr {
-			panic(fmt.Sprintf("Expected Ptr but got %s", v.Kind()))
-		}
-		if v.IsNil() || v.Elem().IsNil() {
-			continue
-		}
-
-		if m, ok := field.(*map[string]string); ok {
-			// check if all values on m are zero, if so create slice of keys of m and set that to field
-			allEmpty := true
-			keySlice := []string{}
-			for key, value := range *m {
-				keySlice = append(keySlice, key)
-				if len(value) > 0 {
-					allEmpty = false
-					break
+		// we only support mutations over []string or map[string]string
+		// and input should be a pointer
+		switch v := field.(type) {
+		case *map[string]string:
+			if v == nil || len(*v) == 0 {
+				continue
+			}
+			// turn empty map values into a mutation to remove the key for
+			// delete mutations
+			removeKeys := make([]string, 0, len(*v))
+			updateKeys := make(map[string]string, len(*v))
+			for key, value := range *v {
+				if value == "" && mutator == ovsdb.MutateOperationDelete {
+					removeKeys = append(removeKeys, key)
+				} else {
+					updateKeys[key] = value
 				}
 			}
-			if allEmpty {
-				v = reflect.ValueOf(&keySlice)
+			if len(removeKeys) > 0 {
+				mutation := model.Mutation{
+					Field:   field,
+					Mutator: mutator,
+					Value:   removeKeys,
+				}
+				mutations = append(mutations, mutation)
 			}
-		} else if v.Elem().Kind() == reflect.Map {
-			panic(fmt.Sprintf("map type %v is not supported", v.Elem().Kind()))
+			if len(updateKeys) > 0 {
+				mutation := model.Mutation{
+					Field:   field,
+					Mutator: mutator,
+					Value:   updateKeys,
+				}
+				mutations = append(mutations, mutation)
+			}
+		case *[]string:
+			if v == nil || len(*v) == 0 {
+				continue
+			}
+			// filter out mutations with empty values
+			updateValues := make([]string, 0, len(*v))
+			for _, value := range *v {
+				if value != "" {
+					updateValues = append(updateValues, value)
+				}
+			}
+			if len(updateValues) > 0 {
+				mutation := model.Mutation{
+					Field:   field,
+					Mutator: mutator,
+					Value:   updateValues,
+				}
+				mutations = append(mutations, mutation)
+			}
+		default:
+			return nil, fmt.Errorf("expected *[]string or *map[string]string but got %T", v)
 		}
-
-		mutation := model.Mutation{
-			Field:   field,
-			Mutator: mutator,
-			Value:   v.Elem().Interface(),
-		}
-		mutations = append(mutations, mutation)
 	}
-	return mutations
+
+	return mutations, nil
 }
 
 /*
@@ -304,9 +330,9 @@ func (m *modelClient) mutate(lookUpModel interface{}, opModel *operationModel, m
 	if opModel.OnModelMutations == nil {
 		return nil, nil
 	}
-	modelMutations := buildMutationsFromFields(opModel.OnModelMutations, mutator)
-	if len(modelMutations) == 0 {
-		return nil, nil
+	modelMutations, err := buildMutationsFromFields(opModel.OnModelMutations, mutator)
+	if len(modelMutations) == 0 || err != nil {
+		return nil, err
 	}
 	o, err = m.client.Where(lookUpModel).Mutate(opModel.Model, modelMutations...)
 	if err != nil {
