@@ -706,9 +706,11 @@ func setNbE2eTimestamp(ovnNBClient libovsdbclient.Client, timestamp int64) bool 
 func getGlobalOptionsValue(client libovsdbclient.Client, field string) float64 {
 	var options map[string]string
 	dbName := client.Schema().Name
+	nbGlobal := nbdb.NBGlobal{}
+	sbGlobal := sbdb.SBGlobal{}
 
 	if dbName == "OVN_Northbound" {
-		if nbGlobal, err := libovsdbops.GetNBGlobal(client); err != nil && err != libovsdbclient.ErrNotFound {
+		if nbGlobal, err := libovsdbops.GetNBGlobal(client, &nbGlobal); err != nil && err != libovsdbclient.ErrNotFound {
 			klog.Errorf("Failed to get NB_Global table err: %v", err)
 			return 0
 		} else {
@@ -717,7 +719,7 @@ func getGlobalOptionsValue(client libovsdbclient.Client, field string) float64 {
 	}
 
 	if dbName == "OVN_Southbound" {
-		if sbGlobal, err := libovsdbops.GetSBGlobal(client); err != nil && err != libovsdbclient.ErrNotFound {
+		if sbGlobal, err := libovsdbops.GetSBGlobal(client, &sbGlobal); err != nil && err != libovsdbclient.ErrNotFound {
 			klog.Errorf("Failed to get SB_Global table err: %v", err)
 			return 0
 		} else {
