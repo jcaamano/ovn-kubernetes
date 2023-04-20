@@ -38,20 +38,21 @@ func (c CIDRNetworkEntry) String() string {
 	return fmt.Sprintf("%s/%d", c.CIDR.String(), c.HostSubnetLength)
 }
 
-// ParseClusterSubnetEntriesWithDefaults returns the parsed set of
+// parseClusterSubnetEntriesWithHostSubnets returns the parsed set of
 // CIDRNetworkEntries. These entries define a network space by specifying a set
 // of CIDR and netmasks the SDN can allocate addresses from including how that
-// network space is partitioned for each of the cluster nodes. When no host
-// specific prefix length is specified, the provided ones are assumed as
-// default. The host specific prefix length is validated to be greater than the
-// overall subnet length. When 0 is specified as default host specific prefix
-// length, no host specific prefix length is allowed or validated.
-func ParseClusterSubnetEntriesWithDefaults(clusterSubnetCmd string, ipv4HostLength, ipv6HostLength int) ([]CIDRNetworkEntry, error) {
+// network space is partitioned. Allows specifying min, max and default host
+// subnet lengths for each IP family. Specify a default host subnet length of 0
+// if no host subnet length should be allowed when parsing.
+func parseClusterSubnetEntriesWithHostSubnets(
+	clusterSubnetCmd string,
+	defaultIPv4HostSubnetLength, minIPv4HostSubnetLength, maxIPv4HostSubnetLength int,
+	defaultIPv6HostSubnetLength, minIPv6HostSubnetLength, maxIPv6HostSubnetLength int) ([]CIDRNetworkEntry, error) {
 	var parsedClusterList []CIDRNetworkEntry
 	clusterEntriesList := strings.Split(clusterSubnetCmd, ",")
 
-	ipv4HostLengthAllowed := ipv4HostLength != 0
-	ipv6HostLengthAllowed := ipv6HostLength != 0
+	ipv4HostLengthAllowed := defaultIPv4HostSubnetLength != 0
+	ipv6HostLengthAllowed := defaultIPv6HostSubnetLength != 0
 
 	for _, clusterEntry := range clusterEntriesList {
 		clusterEntry := strings.TrimSpace(clusterEntry)
@@ -83,18 +84,47 @@ func ParseClusterSubnetEntriesWithDefaults(clusterSubnetCmd string, ipv4HostLeng
 			parsedClusterEntry.HostSubnetLength = tmp
 		} else {
 			if ipv6 {
-				parsedClusterEntry.HostSubnetLength = ipv6HostLength
+				parsedClusterEntry.HostSubnetLength = defaultIPv6HostSubnetLength
 			} else {
-				// default for backward compatibility
-				parsedClusterEntry.HostSubnetLength = ipv4HostLength
+				parsedClusterEntry.HostSubnetLength = defaultIPv4HostSubnetLength
+			}
+		}
+
+		if !ipv6 && ipv4HostLengthAllowed {
+			if parsedClusterEntry.HostSubnetLength < minIPv4HostSubnetLength {
+				return nil, fmt.Errorf("IPv6 host subnet /%d smaller than minimum supported /%d",
+					parsedClusterEntry.HostSubnetLength,
+					minIPv4HostSubnetLength,
+				)
+			}
+			if parsedClusterEntry.HostSubnetLength > maxIPv4HostSubnetLength {
+				return nil, fmt.Errorf("IPv6 host subnet /%d bigger than maximum supported /%d",
+					parsedClusterEntry.HostSubnetLength,
+					maxIPv4HostSubnetLength,
+				)
+			}
+		}
+
+		if ipv6 && ipv6HostLengthAllowed {
+			if parsedClusterEntry.HostSubnetLength < 64 {
+				return nil, fmt.Errorf("IPv6 host subnet /%d smaller than minimum supported /64",
+					parsedClusterEntry.HostSubnetLength)
+			}
+			if parsedClusterEntry.HostSubnetLength < minIPv6HostSubnetLength {
+				return nil, fmt.Errorf("IPv6 host subnet /%d smaller than minimum supported /%d",
+					parsedClusterEntry.HostSubnetLength,
+					minIPv6HostSubnetLength,
+				)
+			}
+			if parsedClusterEntry.HostSubnetLength > maxIPv6HostSubnetLength {
+				return nil, fmt.Errorf("IPv6 host subnet /%d bigger than maximum supported /%d",
+					parsedClusterEntry.HostSubnetLength,
+					maxIPv6HostSubnetLength,
+				)
 			}
 		}
 
 		if hostLengthAllowed {
-			if ipv6 && ipv6HostLengthAllowed && parsedClusterEntry.HostSubnetLength != 64 {
-				return nil, fmt.Errorf("IPv6 only supports /64 host subnets")
-			}
-
 			if parsedClusterEntry.HostSubnetLength <= entryMaskLength {
 				return nil, fmt.Errorf("cannot use a host subnet length mask shorter than or equal to the cluster subnet mask. "+
 					"host subnet length: %d, cluster subnet length: %d", parsedClusterEntry.HostSubnetLength, entryMaskLength)
@@ -111,12 +141,19 @@ func ParseClusterSubnetEntriesWithDefaults(clusterSubnetCmd string, ipv4HostLeng
 	return parsedClusterList, nil
 }
 
-// ParseClusterSubnetEntries returns the parsed set of
-// CIDRNetworkEntries. If not specified, it assumes a default host specific
-// prefix length of 24 or 64 bits for ipv4 and ipv6 respectively.
+// ParseClusterSubnetEntries returns the parsed set of CIDRNetworkEntries
+// including the subnet length to be allocated for each node.
 func ParseClusterSubnetEntries(clusterSubnetCmd string) ([]CIDRNetworkEntry, error) {
-	// default to 24 bits host specific prefix length for backward compatibility
-	return ParseClusterSubnetEntriesWithDefaults(clusterSubnetCmd, 24, 64)
+	// IPv4: for backward compatibility, default to 24 bits host prefix
+	// length and don't specifically check maximums and minimums
+	// IPv6: only allow 64 bits for host prefix length
+	return parseClusterSubnetEntriesWithHostSubnets(clusterSubnetCmd, 24, 0, 32, 64, 64, 64)
+}
+
+// ParseClusterSubnetEntriesNoPartitions parses a set of CIDRNetworkEntries
+// allowing no host subnet allocation.
+func ParseClusterSubnetEntriesNoPartitions(clusterSubnetCmd string) ([]CIDRNetworkEntry, error) {
+	return parseClusterSubnetEntriesWithHostSubnets(clusterSubnetCmd, 0, 0, 0, 0, 0, 0)
 }
 
 // ParseFlowCollectors returns the parsed set of HostPorts passed by the user on the command line

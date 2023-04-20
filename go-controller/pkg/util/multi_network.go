@@ -293,13 +293,13 @@ func parseSubnets(subnetsString, excludeSubnetsString, topology string) ([]confi
 	var parseSubnets func(clusterSubnetCmd string) ([]config.CIDRNetworkEntry, error)
 	switch topology {
 	case types.Layer3Topology:
-		// For L3 topology, subnet is validated
+		// For L3 topology, cluster subnet partitions are validated as for the
+		// default network
 		parseSubnets = config.ParseClusterSubnetEntries
 	case types.LocalnetTopology, types.Layer2Topology:
-		// For L2 topologies, host specific prefix length is ignored (using 0 as
-		// prefix length)
+		// For L2 topologies, cluster subnet paritions are not allowed
 		parseSubnets = func(clusterSubnetCmd string) ([]config.CIDRNetworkEntry, error) {
-			return config.ParseClusterSubnetEntriesWithDefaults(clusterSubnetCmd, 0, 0)
+			return config.ParseClusterSubnetEntriesNoPartitions(clusterSubnetCmd)
 		}
 	}
 
@@ -314,9 +314,8 @@ func parseSubnets(subnetsString, excludeSubnetsString, topology string) ([]confi
 
 	var excludeIPNets []*net.IPNet
 	if strings.TrimSpace(excludeSubnetsString) != "" {
-		// For L2 topologies, host specific prefix length is ignored (using 0 as
-		// prefix length)
-		excludeSubnets, err := config.ParseClusterSubnetEntriesWithDefaults(excludeSubnetsString, 0, 0)
+		// Parse exclude subnets which should not use any partitions
+		excludeSubnets, err := config.ParseClusterSubnetEntriesNoPartitions(excludeSubnetsString)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -12,9 +12,13 @@ func TestParseClusterSubnetEntries(t *testing.T) {
 		name                        string
 		cmdLineArg                  string
 		clusterNetworks             []CIDRNetworkEntry
-		withDefaultHostSubnetLength bool
+		withPartitionLenth          bool
 		defaultIPv4HostSubnetLength int
+		minIPv4HostSubnetLength     int
+		maxIPv4HostSubnetLength     int
 		defaultIPv6HostSubnetLength int
+		minIPv6HostSubnetLength     int
+		maxIPv6HostSubnetLength     int
 		expectedErr                 bool
 	}{
 		{
@@ -120,54 +124,127 @@ func TestParseClusterSubnetEntries(t *testing.T) {
 			expectedErr: false,
 		},
 		{
-			name:                        "Single IPv4 CIDR with default host subnet length",
+			name:                        "Single IPv4 CIDR with default partition length",
 			cmdLineArg:                  "10.132.0.0/26",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv4HostSubnetLength: 28,
+			minIPv4HostSubnetLength:     28,
+			maxIPv4HostSubnetLength:     28,
 			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("10.132.0.0/26"), HostSubnetLength: 28}},
 			expectedErr:                 false,
 		},
 		{
-			name:                        "Single IPv4 CIDR with invalid default host subnet length",
+			name:                        "Single IPv4 CIDR with invalid default partition length",
 			cmdLineArg:                  "10.132.0.0/26",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv4HostSubnetLength: 26,
+			minIPv4HostSubnetLength:     26,
+			maxIPv4HostSubnetLength:     26,
 			expectedErr:                 true,
 		},
 		{
-			name:                        "Single IPv4 CIDR no host subnet length allowed or validated",
+			name:                        "Single IPv4 CIDR with partition length",
+			cmdLineArg:                  "10.132.0.0/26/28",
+			withPartitionLenth:          true,
+			defaultIPv4HostSubnetLength: 29,
+			minIPv4HostSubnetLength:     27,
+			maxIPv4HostSubnetLength:     29,
+			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("10.132.0.0/26"), HostSubnetLength: 28}},
+			expectedErr:                 false,
+		},
+		{
+			name:                        "Single IPv4 CIDR with partition length bigger than allowed",
+			cmdLineArg:                  "10.132.0.0/26/28",
+			withPartitionLenth:          true,
+			defaultIPv4HostSubnetLength: 27,
+			minIPv4HostSubnetLength:     27,
+			maxIPv4HostSubnetLength:     27,
+			expectedErr:                 true,
+		},
+		{
+			name:                        "Single IPv4 CIDR with partition length smaller than allowed",
+			cmdLineArg:                  "10.132.0.0/26/28",
+			withPartitionLenth:          true,
+			defaultIPv4HostSubnetLength: 29,
+			minIPv4HostSubnetLength:     29,
+			maxIPv4HostSubnetLength:     29,
+			expectedErr:                 true,
+		},
+		{
+			name:                        "Single IPv4 CIDR no partition length allowed or validated",
 			cmdLineArg:                  "10.132.0.1/32",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv4HostSubnetLength: 0,
 			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("10.132.0.1/32")}},
 			expectedErr:                 false,
 		},
 		{
-			name:                        "Single IPv4 CIDR no host subnet length allowed",
+			name:                        "Single IPv4 CIDR no partition length allowed",
 			cmdLineArg:                  "10.132.0.0/26/28",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv4HostSubnetLength: 0,
 			expectedErr:                 true,
 		},
 		{
-			name:                        "Single IPv6 CIDR with default host subnet length",
+			name:                        "Single IPv6 CIDR with default partition length",
 			cmdLineArg:                  "fda6::/48",
-			withDefaultHostSubnetLength: true,
-			defaultIPv6HostSubnetLength: 64,
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 120,
+			minIPv6HostSubnetLength:     120,
+			maxIPv6HostSubnetLength:     120,
+			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("fda6::/48"), HostSubnetLength: 120}},
+			expectedErr:                 false,
+		},
+		{
+			name:                        "Single IPv6 CIDR with invalid default partition length",
+			cmdLineArg:                  "fda6::/48",
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 48,
+			minIPv6HostSubnetLength:     48,
+			maxIPv6HostSubnetLength:     48,
+			expectedErr:                 true,
+		},
+		{
+			name:                        "Single IPv6 CIDR with partition length",
+			cmdLineArg:                  "fda6::/48/64",
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 65,
+			minIPv6HostSubnetLength:     64,
+			maxIPv6HostSubnetLength:     65,
 			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("fda6::/48"), HostSubnetLength: 64}},
 			expectedErr:                 false,
 		},
 		{
-			name:                        "Single IPv6 CIDR with invalid default host subnet length",
-			cmdLineArg:                  "fda6::/64",
-			withDefaultHostSubnetLength: true,
-			defaultIPv6HostSubnetLength: 48,
+			name:                        "Single IPv6 CIDR with partition length bigger than allowed",
+			cmdLineArg:                  "fda6::/48/120",
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 65,
+			minIPv6HostSubnetLength:     64,
+			maxIPv6HostSubnetLength:     65,
+			expectedErr:                 true,
+		},
+		{
+			name:                        "Single IPv6 CIDR with partition length smaller than allowed",
+			cmdLineArg:                  "fda6::/48/64",
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 120,
+			minIPv6HostSubnetLength:     120,
+			maxIPv6HostSubnetLength:     120,
+			expectedErr:                 true,
+		},
+		{
+			name:                        "Single IPv6 CIDR with partition length smaller than 64",
+			cmdLineArg:                  "fda6::/48/62",
+			withPartitionLenth:          true,
+			defaultIPv6HostSubnetLength: 64,
+			minIPv6HostSubnetLength:     62,
+			maxIPv6HostSubnetLength:     64,
 			expectedErr:                 true,
 		},
 		{
 			name:                        "Single IPv6 CIDR no host subnet length allowed or validated",
 			cmdLineArg:                  "fda6::1/128",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv6HostSubnetLength: 0,
 			clusterNetworks:             []CIDRNetworkEntry{{CIDR: ovntest.MustParseIPNet("fda6::1/128")}},
 			expectedErr:                 false,
@@ -175,35 +252,45 @@ func TestParseClusterSubnetEntries(t *testing.T) {
 		{
 			name:                        "Single IPv6 CIDR no host subnet length allowed",
 			cmdLineArg:                  "fda6::/48/64",
-			withDefaultHostSubnetLength: true,
+			withPartitionLenth:          true,
 			defaultIPv6HostSubnetLength: 0,
 			expectedErr:                 true,
 		},
 	}
 
 	for _, tc := range tests {
-		var err error
-		var parsedList []CIDRNetworkEntry
-		if tc.withDefaultHostSubnetLength {
-			parsedList, err = ParseClusterSubnetEntriesWithDefaults(tc.cmdLineArg, tc.defaultIPv4HostSubnetLength, tc.defaultIPv6HostSubnetLength)
-		} else {
-			parsedList, err = ParseClusterSubnetEntries(tc.cmdLineArg)
-		}
-		if err != nil && !tc.expectedErr {
-			t.Errorf("Test case \"%s\" expected no errors, got %v", tc.name, err)
-		}
-		if len(tc.clusterNetworks) != len(parsedList) {
-			t.Errorf("Test case \"%s\" expected to output the same number of entries as parseClusterSubnetEntries", tc.name)
-		} else {
-			for index, entry := range parsedList {
-				if entry.CIDR.String() != tc.clusterNetworks[index].CIDR.String() {
-					t.Errorf("Test case \"%s\" expected entry[%d].CIDR: %s to equal tc.clusterNetworks[%d].CIDR: %s", tc.name, index, entry.CIDR.String(), index, tc.clusterNetworks[index].CIDR.String())
-				}
-				if entry.HostSubnetLength != tc.clusterNetworks[index].HostSubnetLength {
-					t.Errorf("Test case \"%s\" expected entry[%d].HostSubnetLength: %d to equal tc.clusterNetworks[%d].HostSubnetLength: %d", tc.name, index, entry.HostSubnetLength, index, tc.clusterNetworks[index].HostSubnetLength)
+		t.Run(tc.name, func(t *testing.T) {
+			var err error
+			var parsedList []CIDRNetworkEntry
+			if tc.withPartitionLenth {
+				parsedList, err = parseClusterSubnetEntriesWithHostSubnets(
+					tc.cmdLineArg,
+					tc.defaultIPv4HostSubnetLength,
+					tc.minIPv4HostSubnetLength,
+					tc.maxIPv4HostSubnetLength,
+					tc.defaultIPv6HostSubnetLength,
+					tc.minIPv6HostSubnetLength,
+					tc.maxIPv6HostSubnetLength,
+				)
+			} else {
+				parsedList, err = ParseClusterSubnetEntries(tc.cmdLineArg)
+			}
+			if err != nil && !tc.expectedErr {
+				t.Errorf("Test case \"%s\" expected no errors, got %v", tc.name, err)
+			}
+			if len(tc.clusterNetworks) != len(parsedList) {
+				t.Errorf("Test case \"%s\" expected to output the same number of entries as parseClusterSubnetEntries", tc.name)
+			} else {
+				for index, entry := range parsedList {
+					if entry.CIDR.String() != tc.clusterNetworks[index].CIDR.String() {
+						t.Errorf("Test case \"%s\" expected entry[%d].CIDR: %s to equal tc.clusterNetworks[%d].CIDR: %s", tc.name, index, entry.CIDR.String(), index, tc.clusterNetworks[index].CIDR.String())
+					}
+					if entry.HostSubnetLength != tc.clusterNetworks[index].HostSubnetLength {
+						t.Errorf("Test case \"%s\" expected entry[%d].HostSubnetLength: %d to equal tc.clusterNetworks[%d].HostSubnetLength: %d", tc.name, index, entry.HostSubnetLength, index, tc.clusterNetworks[index].HostSubnetLength)
+					}
 				}
 			}
-		}
+		})
 	}
 }
 
