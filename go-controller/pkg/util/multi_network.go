@@ -297,9 +297,23 @@ func parseSubnets(subnetsString, excludeSubnetsString, topology string) ([]confi
 		// default network
 		parseSubnets = config.ParseClusterSubnetEntries
 	case types.LocalnetTopology, types.Layer2Topology:
-		// For L2 topologies, cluster subnet paritions are not allowed
 		parseSubnets = func(clusterSubnetCmd string) ([]config.CIDRNetworkEntry, error) {
-			return config.ParseClusterSubnetEntriesNoPartitions(clusterSubnetCmd)
+			if !config.OVNKubernetesFeature.EnableInterconnect {
+				return config.ParseClusterSubnetEntriesNoPartitions(clusterSubnetCmd)
+			}
+
+			// On IPv6, default to 120 bits partitions given the limited LSP
+			// tunnel id space.
+			subnets, err := config.ParseClusterSubnetEntriesWithDefaultIPv6Partition(clusterSubnetCmd, 120)
+			if err != nil {
+				return nil, err
+			}
+			for _, subnet := range subnets {
+				if CompareNetSize(subnet.CIDR, types.MaxLayer2InterconnectSubnetSize) > 0 {
+					return nil, fmt.Errorf("subnet %s is bigger than maximum allowed size of %d", subnet.CIDR.String(), types.MaxLayer2InterconnectSubnetSize)
+				}
+			}
+			return subnets, nil
 		}
 	}
 

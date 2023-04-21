@@ -156,6 +156,13 @@ func ParseClusterSubnetEntriesNoPartitions(clusterSubnetCmd string) ([]CIDRNetwo
 	return parseClusterSubnetEntriesWithHostSubnets(clusterSubnetCmd, 0, 0, 0, 0, 0, 0)
 }
 
+// ParseClusterSubnetEntriesWithDefaultIPv6Partition returns the parsed set of
+// CIDRNetworkEntries including the subnet length to be allocated for each node.
+// It allows specifying IPv6 partitions bigger than 64 bits.
+func ParseClusterSubnetEntriesWithDefaultIPv6Partition(clusterSubnetCmd string, defaultIPv6Partition int) ([]CIDRNetworkEntry, error) {
+	return parseClusterSubnetEntriesWithHostSubnets(clusterSubnetCmd, 24, 0, 32, defaultIPv6Partition, 64, 128)
+}
+
 // ParseFlowCollectors returns the parsed set of HostPorts passed by the user on the command line
 // These entries define the flow collectors OVS will send flow metadata by using NetFlow/SFlow/IPFIX.
 func ParseFlowCollectors(flowCollectors string) ([]HostPort, error) {

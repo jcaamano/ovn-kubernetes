@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"math/big"
 	"net"
 	"strconv"
 	"strings"
@@ -301,4 +302,12 @@ func ContainsCIDR(ipnet1, ipnet2 *net.IPNet) bool {
 	mask1, _ := ipnet1.Mask.Size()
 	mask2, _ := ipnet2.Mask.Size()
 	return mask1 <= mask2 && ipnet1.Contains(ipnet2.IP)
+}
+
+// CompareNetSize compares the size of ipnet with the provided value and returns 
+// -1 if x < y, 0 if x == y or 1 if x > y
+func CompareNetSize(ipnet *net.IPNet, to int64) int {
+	ones, bits := ipnet.Mask.Size()
+	size := big.NewInt(0).Lsh(big.NewInt(1), uint(bits-ones))
+	return size.Cmp(big.NewInt(to))
 }

@@ -191,4 +191,9 @@ const (
 	PrimaryIDKey = OvnK8sPrefix + "/id"
 
 	OvnDefaultZone = "global"
+
+	// MaxLayer2InterconnectSubnetSize is the maximum subnet size as limited by
+	// the range of available tunnel IDs for an LSP.
+	// See LSP `requested-tnl-key` documentation.
+	MaxLayer2InterconnectSubnetSize = 32768
 )

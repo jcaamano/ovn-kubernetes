@@ -19,6 +19,7 @@ func TestParseSubnets(t *testing.T) {
 		excludes         string
 		expectedSubnets  []config.CIDRNetworkEntry
 		expectedExcludes []*net.IPNet
+		interconnect     bool
 		expectError      bool
 	}{
 		{
@@ -74,6 +75,13 @@ func TestParseSubnets(t *testing.T) {
 			expectError: true,
 		},
 		{
+			desc:         "invalid interconnect subnet too big layer 2 topology",
+			topology:     types.LocalnetTopology,
+			subnets:      "192.168.1.1/16",
+			interconnect: true,
+			expectError:  true,
+		},
+		{
 			desc:     "multiple subnets and excludes localnet topology",
 			topology: types.LocalnetTopology,
 			subnets:  "192.168.1.1/26, fda6::/48",
@@ -106,11 +114,19 @@ func TestParseSubnets(t *testing.T) {
 			excludes:    "192.168.2.38/32",
 			expectError: true,
 		},
+		{
+			desc:         "invalid interconnect subnet too big localnet topology",
+			topology:     types.LocalnetTopology,
+			subnets:      "fda6::/48",
+			interconnect: true,
+			expectError:  true,
+		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			g := gomega.NewWithT(t)
+			config.OVNKubernetesFeature.EnableInterconnect = tc.interconnect
 			subnets, excludes, err := parseSubnets(tc.subnets, tc.excludes, tc.topology)
 			if tc.expectError {
 				g.Expect(err).To(gomega.HaveOccurred())
