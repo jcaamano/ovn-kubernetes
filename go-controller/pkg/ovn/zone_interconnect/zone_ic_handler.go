@@ -3,6 +3,7 @@ package zoneinterconnect
 import (
 	"errors"
 	"fmt"
+	"math/big"
 	"net"
 	"strconv"
 
@@ -242,8 +243,7 @@ func (zic *ZoneInterconnectHandler) Cleanup() error {
 	return libovsdbops.DeleteLogicalSwitch(zic.nbClient, zic.networkTransitSwitchName)
 }
 
-// createLocalZoneNodeResources creates the local zone node resources for interconnect
-//   - creates Transit switch if it doesn't yet exit
+// createLocalZoneNodeResources creates the transit switch if it doesn't yet exist. Additionally, for layer 3 topologies:
 //   - creates a logical switch port of type "router" in the transit switch with the name as - <network_name>.tstor-<node_name>
 //     Eg. if the node name is ovn-worker and the network is default, the name would be - tstor-ovn-worker
 //     if the node name is ovn-worker and the network name is blue, the logical port name would be - blue.tstor-ovn-worker
@@ -281,6 +281,11 @@ func (zic *ZoneInterconnectHandler) createLocalZoneNodeResources(node *corev1.No
 	// Create transit switch if it doesn't exist
 	if err := libovsdbops.CreateOrUpdateLogicalSwitch(zic.nbClient, ts); err != nil {
 		return fmt.Errorf("failed to create/update transit switch %s: %w", zic.networkTransitSwitchName, err)
+	}
+
+	if !zic.isLayer3Network() {
+		// no need to do anything else for non layer3 topologies
+		return nil
 	}
 
 	// Connect transit switch to the cluster router by creating a pair of logical switch port - logical router port
@@ -390,6 +395,11 @@ func (zic *ZoneInterconnectHandler) createRemoteZoneNodeResources(node *corev1.N
 	// Cleanup the logical router port connecting to the transit switch for the remote node (if present)
 	// Cleanup would be required when a local zone node moves to a remote zone.
 	return zic.cleanupNodeClusterRouterPort(node.Name)
+}
+
+func (zic *ZoneInterconnectHandler) createRemoteZonePodResources() error {
+	//return zic.addNodeLogicalSwitchPort(zic.networkTransitSwitchName, remotePortName, lportTypeRemote, []string{remotePortAddr}, lspOptions, externalIDs)
+	return nil
 }
 
 func (zic *ZoneInterconnectHandler) addNodeLogicalSwitchPort(logicalSwitchName, portName, portType string, addresses []string, options, externalIDs map[string]string) error {
@@ -639,4 +649,20 @@ func (zic *ZoneInterconnectHandler) getStaticRoutes(ipPrefixes []*net.IPNet, nex
 	}
 
 	return staticRoutes
+}
+
+func (zic *ZoneInterconnectHandler) isLayer3Network() bool {
+	return zic.TopologyType() == types.Layer3Topology || zic.GetNetworkName() == types.DefaultNetworkName
+}
+
+func getPodIDFromIP(podIP *net.IPNet) int {
+	ip4 := podIP.IP.To4()
+	var ip *big.Int
+	if ip4 != nil {
+		ip = big.NewInt(0).SetBytes(ip4)
+	} else {
+		ip = big.NewInt(0).SetBytes(podIP.IP.To16())
+	}
+	mask := big.NewInt(0).SetBytes(podIP.Mask)
+	return int(big.NewInt(0).AndNot(ip, mask).Int64())
 }

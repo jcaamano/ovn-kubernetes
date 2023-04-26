@@ -2,14 +2,17 @@ package ovn
 
 import (
 	"context"
+	"sync"
+
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/libovsdbops"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	addressset "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/address_set"
 	lsm "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/logical_switch_manager"
+	zoneic "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/zone_interconnect"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/syncmap"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
-	"sync"
 
 	"k8s.io/klog/v2"
 )
@@ -27,6 +30,12 @@ func NewSecondaryLocalnetNetworkController(cnci *CommonNetworkControllerInfo, ne
 
 	ipv4Mode, ipv6Mode := netInfo.IPMode()
 	addressSetFactory := addressset.NewOvnAddressSetFactory(cnci.nbClient, ipv4Mode, ipv6Mode)
+
+	var zoneICHandler *zoneic.ZoneInterconnectHandler
+	if config.OVNKubernetesFeature.EnableInterconnect {
+		zoneICHandler = zoneic.NewZoneInterconnectHandler(netInfo, cnci.nbClient, cnci.sbClient)
+	}
+
 	oc := &SecondaryLocalnetNetworkController{
 		BaseSecondaryLayer2NetworkController{
 			BaseSecondaryNetworkController: BaseSecondaryNetworkController{
@@ -46,6 +55,7 @@ func NewSecondaryLocalnetNetworkController(cnci *CommonNetworkControllerInfo, ne
 					wg:                          &sync.WaitGroup{},
 				},
 			},
+			zoneICHandler: zoneICHandler,
 		},
 	}
 
@@ -74,6 +84,16 @@ func (oc *SecondaryLocalnetNetworkController) Cleanup(netName string) error {
 }
 
 func (oc *SecondaryLocalnetNetworkController) Init() error {
+	// if interconnect is enabled, the switch is handled by IC handler as a
+	// transit switch
+	if !config.OVNKubernetesFeature.EnableInterconnect {
+		return oc.initializeLocalnetSwitch()
+	}
+
+	return nil
+}
+
+func (oc *SecondaryLocalnetNetworkController) initializeLocalnetSwitch() error {
 	switchName := oc.GetNetworkScopedName(types.OVNLocalnetSwitch)
 
 	logicalSwitch, err := oc.InitializeLogicalSwitch(switchName, oc.Subnets(), oc.ExcludeSubnets())

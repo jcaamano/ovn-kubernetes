@@ -12,9 +12,9 @@ import (
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 )
 
-// This handles the annotations related to subnets assigned to a node. The annotations are
-// created by the master, and then read by the node. In a single-stack cluster, they look
-// like:
+// This handles the annotations related to subnets assigned to a node. The
+// annotations are created by the master, and then read by the node. In a
+// single-stack cluster, they look like:
 //
 //   annotations:
 //     k8s.ovn.org/node-subnets: |
@@ -22,8 +22,8 @@ import (
 //         "default": "10.130.0.0/23"
 //       }
 //
-// (This allows for specifying multiple network attachments, but currently only "default"
-// is used.)
+// Allows specifying subnets per network attachment where "default" relates to
+// the first attachment to the kubernetes network.
 //
 // In a dual-stack cluster, the values are lists:
 //

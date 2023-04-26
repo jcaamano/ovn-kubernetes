@@ -3,25 +3,26 @@ package zoneinterconnect
 import (
 	"context"
 	"fmt"
+	"net"
 	"sort"
-
-	"github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	"testing"
 
 	cnitypes "github.com/containernetworking/cni/pkg/types"
-	"github.com/urfave/cli/v2"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	"github.com/onsi/ginkgo"
+	"github.com/onsi/gomega"
 	libovsdbclient "github.com/ovn-org/libovsdb/client"
 	ovncnitypes "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/cni/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/libovsdbops"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/sbdb"
+	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
 	libovsdbtest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/libovsdb"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
+	"github.com/urfave/cli/v2"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -838,3 +839,34 @@ var _ = ginkgo.Describe("Zone Interconnect Operations", func() {
 
 	})
 })
+
+func Test_getPodIDFromIP(t *testing.T) {
+	type args struct {
+		podIP *net.IPNet
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			args: args{
+				podIP: ovntest.MustParseIPNet("192.168.0.123/24"),
+			},
+			want: 123,
+		},
+		{
+			args: args{
+				podIP: ovntest.MustParseIPNet("2001:4860::7235/32"),
+			},
+			want: 29237,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getPodIDFromIP(tt.args.podIP); got != tt.want {
+				t.Errorf("getPodIDFromIP() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
