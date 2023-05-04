@@ -217,12 +217,13 @@ func (h *secondaryLayer2NetworkControllerEventHandler) DeleteResource(obj, cache
 		}
 		// Check if the pod is local zone pod or not. If its not a local zone pod, we can ignore it.
 		if !h.oc.isPodScheduledinLocalZone(pod) {
-			return nil
+			return h.oc.deleteRemotePod(pod)
 		}
-		fallthrough
-	default:
+
 		return h.oc.DeleteSecondaryNetworkResourceCommon(h.objType, obj, cachedObj)
 	}
+
+	return nil
 }
 
 func (h *secondaryLayer2NetworkControllerEventHandler) SyncFunc(objs []interface{}) error {
@@ -618,5 +619,34 @@ func (oc *BaseSecondaryLayer2NetworkController) ensureRemotePod(pod *kapi.Pod) e
 	if len(errs) != 0 {
 		return kerrors.NewAggregate(errs)
 	}
+	return nil
+}
+
+func (oc *BaseSecondaryLayer2NetworkController) deleteRemotePod(pod *kapi.Pod) error {
+	podDesc := pod.Namespace + "/" + pod.Name
+	klog.Infof("Deleting pod: %s for network %s", podDesc, oc.GetNetworkName())
+
+	if util.PodWantsHostNetwork(pod) || !util.PodScheduled(pod) {
+		return nil
+	}
+
+	// for a specific NAD belongs to this network, Pod's logical port might already be created half-way
+	// without its lpInfo cache being created; need to deleted resources created for that NAD as well.
+	// So, first get all nadNames from pod annotation, but handle NADs belong to this network only.
+	podNetworks, err := util.UnmarshalPodAnnotationAllNetworks(pod.Annotations)
+	if err != nil {
+		return err
+	}
+
+	for nadName := range podNetworks {
+		if !oc.HasNAD(nadName) {
+			continue
+		}
+		err := oc.zoneICHandler.DeleteRemoteZonePod(pod, nadName)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
