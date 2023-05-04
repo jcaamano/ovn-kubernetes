@@ -345,7 +345,12 @@ var _ = ginkgo.Describe("OVN MultiNetworkPolicy Operations", func() {
 		for _, testPod := range pods {
 			testPod.populateLogicalSwitchCache(fakeOvn, getLogicalSwitchUUID(fakeOvn.controller.nbClient, nodeName))
 		}
+
 		var err error
+
+		err = fakeOvn.controller.WatchNodes()
+		gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
 		if namespaces != nil {
 			err = fakeOvn.controller.WatchNamespaces()
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -365,6 +370,8 @@ var _ = ginkgo.Describe("OVN MultiNetworkPolicy Operations", func() {
 			for _, testPod := range pods {
 				testPod.populateSecondaryNetworkLogicalSwitchCache(fakeOvn, ocInfo)
 			}
+			err = ocInfo.bnc.WatchNodes()
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 			if namespaces != nil {
 				err = ocInfo.bnc.WatchNamespaces()
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
