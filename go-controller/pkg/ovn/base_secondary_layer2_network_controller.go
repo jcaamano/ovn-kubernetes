@@ -15,7 +15,6 @@ import (
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/libovsdbops"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/metrics"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
-	zoneic "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/zone_interconnect"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/retry"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
@@ -141,12 +140,10 @@ func (h *secondaryLayer2NetworkControllerEventHandler) AddResource(obj interface
 		if !ok {
 			return fmt.Errorf("could not cast %T object to *knet.Pod", obj)
 		}
-		// Check if the pod is local zone pod or not. If its not a local zone pod, we can ignore it.
+		// Check if the pod is local zone pod or not.
 		if !h.oc.isPodScheduledinLocalZone(pod) {
-			return nil
+			return h.oc.ensureRemotePod(pod)
 		}
-		fallthrough
-	default:
 		return h.oc.AddSecondaryNetworkResourceCommon(h.objType, obj)
 	}
 	return nil
@@ -191,14 +188,14 @@ func (h *secondaryLayer2NetworkControllerEventHandler) UpdateResource(oldObj, ne
 		if !ok {
 			return fmt.Errorf("could not cast %T object to *knet.Pod", newObj)
 		}
-		// Check if the pod is local zone pod or not. If its not a local zone pod, we can ignore it.
+		// Check if the pod is local zone pod or not.
 		if !h.oc.isPodScheduledinLocalZone(pod) {
-			return nil
+			return h.oc.ensureRemotePod(pod)
 		}
-		fallthrough
-	default:
 		return h.oc.UpdateSecondaryNetworkResourceCommon(h.objType, oldObj, newObj, inRetryCache)
 	}
+
+	return nil
 }
 
 // DeleteResource deletes the object from the cluster according to the delete logic of its resource type.
@@ -275,11 +272,11 @@ type BaseSecondaryLayer2NetworkController struct {
 
 	//List of nodes which belong to the local zone (stored as a sync map)
 	localZoneNodes sync.Map
-	zoneICHandler  *zoneic.ZoneInterconnectHandler
 }
 
 func (oc *BaseSecondaryLayer2NetworkController) initRetryFramework() {
 	oc.retryPods = oc.newRetryFramework(factory.PodType)
+
 	if oc.doesNetworkRequireIPAM() {
 		oc.retryNamespaces = oc.newRetryFramework(factory.NamespaceType)
 		oc.retryNetworkPolicies = oc.newRetryFramework(factory.MultiNetworkPolicyType)
@@ -563,5 +560,63 @@ func (oc *BaseSecondaryLayer2NetworkController) syncNodes(nodes []interface{}) e
 		}
 	}
 
+	return nil
+}
+
+// ensurePodForSecondaryNetwork tries to set up secondary network for a pod. It returns nil on success and error
+// on failure; failure indicates the pod set up should be retried later.
+func (oc *BaseSecondaryLayer2NetworkController) ensureRemotePod(pod *kapi.Pod) error {
+
+	// Try unscheduled pods later
+	if !util.PodScheduled(pod) {
+		return nil
+	}
+
+	if util.PodWantsHostNetwork(pod) {
+		return nil
+	}
+
+	// If a node does not have an assigned hostsubnet don't wait for the logical switch to appear
+	/*
+		switchName, err := oc.getExpectedSwitchName(pod)
+		if err != nil {
+			return err
+		}
+	*/
+	subnetName, err := oc.getExpectedSubnetName(pod)
+	if err != nil {
+		return err
+	}
+	on, networkMap, err := util.GetPodNADToNetworkMapping(pod, oc.NetInfo)
+	if err != nil {
+		// configuration error, no need to retry, do not return error
+		klog.Errorf("Error getting network-attachment for pod %s/%s network %s: %v",
+			pod.Namespace, pod.Name, oc.GetNetworkName(), err)
+		return nil
+	}
+
+	if !on {
+		// the pod is not attached to this specific network
+		klog.V(5).Infof("Pod %s/%s is not attached on this network controller %s",
+			pod.Namespace, pod.Name, oc.GetNetworkName())
+		return nil
+	}
+
+	if oc.doesNetworkRequireIPAM() && oc.lsManager.IsNonHostSubnetSwitch(subnetName) {
+		klog.V(5).Infof(
+			"Pod %s/%s requires IPAM but does not have an assigned IP address", pod.Namespace, pod.Name)
+		return nil
+	}
+
+	var errs []error
+	for nadName := range networkMap {
+		err := oc.zoneICHandler.AddRemoteZonePod(pod, nadName)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to add remotelogical  port of Pod %s/%s for NAD %s", pod.Namespace, pod.Name, nadName))
+		}
+	}
+	if len(errs) != 0 {
+		return kerrors.NewAggregate(errs)
+	}
 	return nil
 }

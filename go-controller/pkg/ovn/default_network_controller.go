@@ -134,10 +134,6 @@ type DefaultNetworkController struct {
 	// connecting to the join switch
 	ovnClusterLRPToJoinIfAddrs []*net.IPNet
 
-	// zoneICHandler creates the interconnect resources for local nodes and remote nodes.
-	// Interconnect resources are Transit switch and logical ports connecting this transit switch
-	// to the cluster router. Please see zone_interconnect/interconnect_handler.go for more details.
-	zoneICHandler *zoneic.ZoneInterconnectHandler
 	// zoneChassisHandler handles the local node and remote nodes in creating or updating the chassis entries in the OVN Southbound DB.
 	// Please see zone_interconnect/chassis_handler.go for more details.
 	zoneChassisHandler *zoneic.ZoneChassisHandler
@@ -191,6 +187,7 @@ func newDefaultNetworkControllerCommon(cnci *CommonNetworkControllerInfo,
 			stopChan:                    defaultStopChan,
 			wg:                          defaultWg,
 			localZoneNodes:              &sync.Map{},
+			zoneICHandler:               zoneICHandler,
 		},
 		externalGWCache: make(map[ktypes.NamespacedName]*externalRouteInfo),
 		exGWCacheMutex:  sync.RWMutex{},
@@ -214,7 +211,6 @@ func newDefaultNetworkControllerCommon(cnci *CommonNetworkControllerInfo,
 		svcController:                svcController,
 		svcFactory:                   svcFactory,
 		egressSvcController:          egressSvcController,
-		zoneICHandler:                zoneICHandler,
 		zoneChassisHandler:           zoneChassisHandler,
 	}
 

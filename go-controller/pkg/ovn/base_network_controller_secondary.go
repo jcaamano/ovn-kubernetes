@@ -204,6 +204,11 @@ func (bsnc *BaseSecondaryNetworkController) ensureLocalZonePodForSecondaryNetwor
 		return err
 	}
 
+	subnetName, err := bsnc.getExpectedSubnetName(pod)
+	if err != nil {
+		return err
+	}
+
 	on, networkMap, err := util.GetPodNADToNetworkMapping(pod, bsnc.NetInfo)
 	if err != nil {
 		// configuration error, no need to retry, do not return error
@@ -219,7 +224,7 @@ func (bsnc *BaseSecondaryNetworkController) ensureLocalZonePodForSecondaryNetwor
 		return nil
 	}
 
-	if bsnc.doesNetworkRequireIPAM() && bsnc.lsManager.IsNonHostSubnetSwitch(switchName) {
+	if bsnc.doesNetworkRequireIPAM() && bsnc.lsManager.IsNonHostSubnetSwitch(subnetName) {
 		klog.V(5).Infof(
 			"Pod %s/%s requires IPAM but does not have an assigned IP address", pod.Namespace, pod.Name)
 		return nil
@@ -231,7 +236,7 @@ func (bsnc *BaseSecondaryNetworkController) ensureLocalZonePodForSecondaryNetwor
 			// logical switch port of this specific NAD has already been set up for this Pod
 			continue
 		}
-		if err = bsnc.addLogicalPortToNetworkForNAD(pod, nadName, switchName, network); err != nil {
+		if err = bsnc.addLogicalPortToNetworkForNAD(pod, nadName, switchName, subnetName, network); err != nil {
 			errs = append(errs, fmt.Errorf("failed to add logical port of Pod %s/%s for NAD %s", pod.Namespace, pod.Name, nadName))
 		}
 	}
@@ -273,7 +278,7 @@ func (bsnc *BaseSecondaryNetworkController) ensureRemoteZonePodForSecondaryNetwo
 	return nil
 }
 
-func (bsnc *BaseSecondaryNetworkController) addLogicalPortToNetworkForNAD(pod *kapi.Pod, nadName, switchName string,
+func (bsnc *BaseSecondaryNetworkController) addLogicalPortToNetworkForNAD(pod *kapi.Pod, nadName, switchName, subnetName string,
 	network *nadapi.NetworkSelectionElement) error {
 	var libovsdbExecuteTime time.Duration
 
@@ -317,7 +322,7 @@ func (bsnc *BaseSecondaryNetworkController) addLogicalPortToNetworkForNAD(pod *k
 		return fmt.Errorf("UUID is empty from LSP: %+v", *lsp)
 	}
 
-	_ = bsnc.logicalPortCache.add(pod, switchName, nadName, lsp.UUID, podAnnotation.MAC, podAnnotation.IPs)
+	_ = bsnc.logicalPortCache.add(pod, switchName, subnetName, nadName, lsp.UUID, podAnnotation.MAC, podAnnotation.IPs)
 
 	if newlyCreated {
 		metrics.RecordPodCreated(pod, bsnc.NetInfo)

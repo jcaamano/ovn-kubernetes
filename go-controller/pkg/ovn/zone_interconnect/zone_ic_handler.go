@@ -131,6 +131,10 @@ func NewZoneInterconnectHandler(nInfo util.NetInfo, nbClient, sbClient libovsdbc
 	return zic
 }
 
+func (zic *ZoneInterconnectHandler) GetTransitSwitchName() string {
+	return zic.networkTransitSwitchName
+}
+
 // AddLocalZoneNode creates the interconnect resources in OVN NB DB for the local zone node.
 // See createLocalZoneNodeResources() below for more details.
 func (zic *ZoneInterconnectHandler) AddLocalZoneNode(node *corev1.Node) error {
@@ -397,8 +401,54 @@ func (zic *ZoneInterconnectHandler) createRemoteZoneNodeResources(node *corev1.N
 	return zic.cleanupNodeClusterRouterPort(node.Name)
 }
 
-func (zic *ZoneInterconnectHandler) createRemoteZonePodResources() error {
-	//return zic.addNodeLogicalSwitchPort(zic.networkTransitSwitchName, remotePortName, lportTypeRemote, []string{remotePortAddr}, lspOptions, externalIDs)
+func (zic *ZoneInterconnectHandler) AddRemoteZonePod(pod *corev1.Pod, nadName string) error {
+	// This is only used for secondary networks
+	podName := util.GetSecondaryNetworkLogicalPortName(pod.Namespace, pod.Name, nadName)
+	remotePortName := zic.GetNetworkScopedName(types.TransitSwitchToRouterPrefix + podName)
+
+	podAnnotation, err := util.UnmarshalPodAnnotation(pod.Annotations, nadName)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal pod annotation for nad %s", nadName)
+	}
+	podMac := podAnnotation.MAC
+	podIfAddrs := podAnnotation.IPs
+
+	if len(podMac) == 0 || len(podIfAddrs) == 0 {
+		return fmt.Errorf("pod does not have a MAC or an IP assigned")
+	}
+
+	addresses := []string{podMac.String()}
+	for _, podIfAddr := range podIfAddrs {
+		addresses[0] = addresses[0] + " " + podIfAddr.IP.String()
+	}
+
+	// derive the pod ID from the IPv4 address preferably
+	ip, err := util.MatchFirstIPNetFamily(false, podIfAddrs)
+	if err != nil {
+		ip = podIfAddrs[0]
+	}
+
+	lspOptions := map[string]string{
+		"requested-tnl-key": strconv.Itoa(getPodIDFromIP(ip)),
+	}
+
+	externalIDs := map[string]string{
+		types.NetworkExternalID:  zic.GetNetworkName(),
+		types.TopologyExternalID: zic.TopologyType(),
+		types.NADExternalID:      nadName,
+	}
+
+	return zic.addNodeLogicalSwitchPort(zic.networkTransitSwitchName, remotePortName, lportTypeRemote, addresses, lspOptions, externalIDs)
+}
+
+func (zic *ZoneInterconnectHandler) DeleteRemoteZonePod(pod *corev1.Pod, nadName string) error {
+	// This is only used for secondary networks
+	podName := util.GetSecondaryNetworkLogicalPortName(pod.Namespace, pod.Name, nadName)
+	remotePortName := zic.GetNetworkScopedName(types.TransitSwitchToRouterPrefix + podName)
+	err := zic.cleanupNodeTransitSwitchPort(remotePortName)
+	if err != nil {
+		return fmt.Errorf("failed to remove transit switch port for pod %s/%s on NAD %s", pod.Namespace, pod.Name, nadName)
+	}
 	return nil
 }
 
@@ -432,8 +482,9 @@ func (zic *ZoneInterconnectHandler) cleanupNode(nodeName string) error {
 
 	// Cleanup the logical switch port in the transit switch for the node
 	// if it exists.
-	if err := zic.cleanupNodeTransitSwitchPort(nodeName); err != nil {
-		return err
+	portName := zic.GetNetworkScopedName(types.TransitSwitchToRouterPrefix + nodeName)
+	if err := zic.cleanupNodeTransitSwitchPort(portName); err != nil {
+		return fmt.Errorf("failed to remove logical switch port for node %s: %w", nodeName, err)
 	}
 
 	// Delete any static routes in the cluster router for this node
@@ -468,16 +519,16 @@ func (zic *ZoneInterconnectHandler) cleanupNodeClusterRouterPort(nodeName string
 	return nil
 }
 
-func (zic *ZoneInterconnectHandler) cleanupNodeTransitSwitchPort(nodeName string) error {
+func (zic *ZoneInterconnectHandler) cleanupNodeTransitSwitchPort(portName string) error {
 	logicalSwitch := &nbdb.LogicalSwitch{
 		Name: zic.networkTransitSwitchName,
 	}
 	logicalSwitchPort := &nbdb.LogicalSwitchPort{
-		Name: zic.GetNetworkScopedName(types.TransitSwitchToRouterPrefix + nodeName),
+		Name: portName,
 	}
 
 	if err := libovsdbops.DeleteLogicalSwitchPorts(zic.nbClient, logicalSwitch, logicalSwitchPort); err != nil {
-		return fmt.Errorf("failed to delete logical switch port %s from transit switch %s for the node %s, error: %w", logicalSwitchPort.Name, zic.networkTransitSwitchName, nodeName, err)
+		return fmt.Errorf("failed to delete logical switch port %s from transit switch %s, error: %w", portName, zic.networkTransitSwitchName, err)
 	}
 	return nil
 }

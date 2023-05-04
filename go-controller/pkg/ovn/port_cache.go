@@ -26,6 +26,7 @@ type lpInfo struct {
 	name          string
 	uuid          string
 	logicalSwitch string
+	subnetName    string
 	ips           []*net.IPNet
 	mac           net.HardwareAddr
 	// expires, if non-nil, indicates that this object is scheduled to be
@@ -75,7 +76,7 @@ func (c *portCache) getAll(pod *kapi.Pod) (map[string]*lpInfo, error) {
 	return nil, fmt.Errorf("logical port cache for pod %s not found", podName)
 }
 
-func (c *portCache) add(pod *kapi.Pod, logicalSwitch, nadName, uuid string, mac net.HardwareAddr, ips []*net.IPNet) *lpInfo {
+func (c *portCache) add(pod *kapi.Pod, logicalSwitch, subnetName, nadName, uuid string, mac net.HardwareAddr, ips []*net.IPNet) *lpInfo {
 	var logicalPort string
 
 	podName := fmt.Sprintf("%s/%s", pod.Namespace, pod.Name)
@@ -88,6 +89,7 @@ func (c *portCache) add(pod *kapi.Pod, logicalSwitch, nadName, uuid string, mac 
 	defer c.Unlock()
 	portInfo := &lpInfo{
 		logicalSwitch: logicalSwitch,
+		subnetName:    subnetName,
 		name:          logicalPort,
 		uuid:          uuid,
 		ips:           ips,
