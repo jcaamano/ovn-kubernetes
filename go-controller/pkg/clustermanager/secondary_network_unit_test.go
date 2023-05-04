@@ -8,6 +8,7 @@ import (
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/extensions/table"
 	"github.com/onsi/gomega"
 	"github.com/urfave/cli/v2"
 	v1 "k8s.io/api/core/v1"
@@ -51,7 +52,78 @@ var _ = ginkgo.Describe("Secondary Layer3 Cluster Controller Manager", func() {
 	})
 
 	ginkgo.Context("Secondary networks", func() {
-		ginkgo.It("Attach secondary layer3 network", func() {
+
+		table.DescribeTable("are succesafully attached",
+			func(topology string) {
+				app.Action = func(ctx *cli.Context) error {
+					nodes := []v1.Node{
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "node1",
+							},
+						},
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "node2",
+							},
+						},
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "node3",
+							},
+						},
+					}
+					kubeFakeClient := fake.NewSimpleClientset(&v1.NodeList{
+						Items: nodes,
+					})
+					fakeClient := &util.OVNClusterManagerClientset{
+						KubeClient: kubeFakeClient,
+					}
+
+					_, err := config.InitConfig(ctx, nil, nil)
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					config.Kubernetes.HostNetworkNamespace = ""
+
+					f, err = factory.NewClusterManagerWatchFactory(fakeClient)
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					err = f.Start()
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+					sncm, err := newSecondaryNetworkClusterManager(fakeClient, f, record.NewFakeRecorder(0))
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					netInfo, err := util.NewNetInfo(&ovncnitypes.NetConf{NetConf: types.NetConf{Name: "blue"}, Topology: topology, Subnets: "192.168.0.0/16/24"})
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					nc, err := sncm.NewNetworkController(netInfo)
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					gomega.Expect(nc).NotTo(gomega.BeNil())
+					nc.Start(ctx.Context)
+					defer nc.Stop()
+
+					// Check that network controller for "blue" network has set the subnet annotation for each node.
+					for _, n := range nodes {
+						gomega.Eventually(func() ([]*net.IPNet, error) {
+							updatedNode, err := fakeClient.KubeClient.CoreV1().Nodes().Get(context.TODO(), n.Name, metav1.GetOptions{})
+							if err != nil {
+								return nil, err
+							}
+
+							return util.ParseNodeHostSubnetAnnotation(updatedNode, "blue")
+						}, 2).Should(gomega.HaveLen(1))
+					}
+
+					return nil
+				}
+
+				err := app.Run([]string{
+					app.Name,
+				})
+				gomega.Expect(err).NotTo(gomega.HaveOccurred())
+			},
+			table.Entry("when using layer 3 topology", ovntypes.Layer3Topology),
+			table.Entry("when using layer 2 topology", ovntypes.Layer3Topology),
+		)
+
+		ginkgo.It("Attach secondary localnet network", func() {
 			app.Action = func(ctx *cli.Context) error {
 				nodes := []v1.Node{
 					{
@@ -88,73 +160,7 @@ var _ = ginkgo.Describe("Secondary Layer3 Cluster Controller Manager", func() {
 
 				sncm, err := newSecondaryNetworkClusterManager(fakeClient, f, record.NewFakeRecorder(0))
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				netInfo, err := util.NewNetInfo(&ovncnitypes.NetConf{NetConf: types.NetConf{Name: "blue"}, Topology: ovntypes.Layer3Topology, Subnets: "192.168.0.0/16/24"})
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				nc, err := sncm.NewNetworkController(netInfo)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				gomega.Expect(nc).NotTo(gomega.BeNil())
-				nc.Start(ctx.Context)
-				defer nc.Stop()
-
-				// Check that network controller for "blue" network has set the subnet annotation for each node.
-				for _, n := range nodes {
-					gomega.Eventually(func() ([]*net.IPNet, error) {
-						updatedNode, err := fakeClient.KubeClient.CoreV1().Nodes().Get(context.TODO(), n.Name, metav1.GetOptions{})
-						if err != nil {
-							return nil, err
-						}
-
-						return util.ParseNodeHostSubnetAnnotation(updatedNode, "blue")
-					}, 2).Should(gomega.HaveLen(1))
-				}
-
-				return nil
-			}
-
-			err := app.Run([]string{
-				app.Name,
-			})
-			gomega.Expect(err).NotTo(gomega.HaveOccurred())
-		})
-
-		ginkgo.It("Attach secondary layer2 network", func() {
-			app.Action = func(ctx *cli.Context) error {
-				nodes := []v1.Node{
-					{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "node1",
-						},
-					},
-					{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "node2",
-						},
-					},
-					{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "node3",
-						},
-					},
-				}
-				kubeFakeClient := fake.NewSimpleClientset(&v1.NodeList{
-					Items: nodes,
-				})
-				fakeClient := &util.OVNClusterManagerClientset{
-					KubeClient: kubeFakeClient,
-				}
-
-				_, err := config.InitConfig(ctx, nil, nil)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				config.Kubernetes.HostNetworkNamespace = ""
-
-				f, err = factory.NewClusterManagerWatchFactory(fakeClient)
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				err = f.Start()
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-				sncm, err := newSecondaryNetworkClusterManager(fakeClient, f, record.NewFakeRecorder(0))
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-				netInfo, err := util.NewNetInfo(&ovncnitypes.NetConf{NetConf: types.NetConf{Name: "blue"}, Topology: ovntypes.Layer2Topology})
+				netInfo, err := util.NewNetInfo(&ovncnitypes.NetConf{NetConf: types.NetConf{Name: "blue"}, Topology: ovntypes.LocalnetTopology})
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				nc, err := sncm.NewNetworkController(netInfo)
 				gomega.Expect(err).To(gomega.Equal(nad.ErrNetworkControllerTopologyNotManaged))

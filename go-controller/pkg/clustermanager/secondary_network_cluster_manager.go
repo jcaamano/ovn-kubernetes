@@ -93,13 +93,12 @@ func (sncm *secondaryNetworkClusterManager) Stop() {
 // interface function.  This function is called by the net-attach-def controller when
 // a layer2 or layer3 secondary network is created.  Layer2 type is not handled here.
 func (sncm *secondaryNetworkClusterManager) NewNetworkController(nInfo util.NetInfo) (nad.NetworkController, error) {
-	topoType := nInfo.TopologyType()
-	if topoType == ovntypes.Layer3Topology {
+	switch nInfo.TopologyType() {
+	case ovntypes.Layer3Topology, ovntypes.Layer2Topology:
 		networkId, err := sncm.networkIDAllocator.allocateID(nInfo.GetNetworkName())
 		if err != nil {
-			return nil, fmt.Errorf("failed to create NetworkController for secondary layer3 network %s : %w", nInfo.GetNetworkName(), err)
+			return nil, err
 		}
-
 		sncc := newNetworkClusterController(nInfo.GetNetworkName(), networkId, nInfo.Subnets(),
 			sncm.ovnClient, sncm.watchFactory, false, nInfo)
 		return sncc, nil
