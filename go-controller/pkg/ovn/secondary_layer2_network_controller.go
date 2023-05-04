@@ -51,6 +51,7 @@ func NewSecondaryLayer2NetworkController(cnci *CommonNetworkControllerInfo, netI
 					podSelectorAddressSets:      syncmap.NewSyncMap[*PodSelectorAddressSet](),
 					stopChan:                    stopChan,
 					wg:                          &sync.WaitGroup{},
+					localZoneNodes:              &sync.Map{},
 					zoneICHandler:               zoneICHandler,
 				},
 			},

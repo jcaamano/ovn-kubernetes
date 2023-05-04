@@ -53,6 +53,7 @@ func NewSecondaryLocalnetNetworkController(cnci *CommonNetworkControllerInfo, ne
 					podSelectorAddressSets:      syncmap.NewSyncMap[*PodSelectorAddressSet](),
 					stopChan:                    stopChan,
 					wg:                          &sync.WaitGroup{},
+					localZoneNodes:              &sync.Map{},
 					zoneICHandler:               zoneICHandler,
 				},
 			},

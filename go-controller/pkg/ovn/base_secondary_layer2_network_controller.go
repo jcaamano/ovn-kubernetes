@@ -144,8 +144,11 @@ func (h *secondaryLayer2NetworkControllerEventHandler) AddResource(obj interface
 		if !h.oc.isPodScheduledinLocalZone(pod) {
 			return h.oc.ensureRemotePod(pod)
 		}
+		fallthrough
+	default:
 		return h.oc.AddSecondaryNetworkResourceCommon(h.objType, obj)
 	}
+
 	return nil
 }
 
@@ -192,10 +195,10 @@ func (h *secondaryLayer2NetworkControllerEventHandler) UpdateResource(oldObj, ne
 		if !h.oc.isPodScheduledinLocalZone(pod) {
 			return h.oc.ensureRemotePod(pod)
 		}
+		fallthrough
+	default:
 		return h.oc.UpdateSecondaryNetworkResourceCommon(h.objType, oldObj, newObj, inRetryCache)
 	}
-
-	return nil
 }
 
 // DeleteResource deletes the object from the cluster according to the delete logic of its resource type.
@@ -219,11 +222,10 @@ func (h *secondaryLayer2NetworkControllerEventHandler) DeleteResource(obj, cache
 		if !h.oc.isPodScheduledinLocalZone(pod) {
 			return h.oc.deleteRemotePod(pod)
 		}
-
+		fallthrough
+	default:
 		return h.oc.DeleteSecondaryNetworkResourceCommon(h.objType, obj, cachedObj)
 	}
-
-	return nil
 }
 
 func (h *secondaryLayer2NetworkControllerEventHandler) SyncFunc(objs []interface{}) error {
@@ -270,23 +272,15 @@ type BaseSecondaryLayer2NetworkController struct {
 	// Node-specific syncMaps used by node event handler
 	addNodeFailed    sync.Map
 	syncZoneICFailed sync.Map
-
-	//List of nodes which belong to the local zone (stored as a sync map)
-	localZoneNodes sync.Map
 }
 
 func (oc *BaseSecondaryLayer2NetworkController) initRetryFramework() {
 	oc.retryPods = oc.newRetryFramework(factory.PodType)
+	oc.retryNodes = oc.newRetryFramework(factory.NodeType)
 
 	if oc.doesNetworkRequireIPAM() {
 		oc.retryNamespaces = oc.newRetryFramework(factory.NamespaceType)
 		oc.retryNetworkPolicies = oc.newRetryFramework(factory.MultiNetworkPolicyType)
-	}
-
-	if config.OVNKubernetesFeature.EnableInterconnect {
-		// If interconnect is enabled, we need to be aware as nodes join or
-		// leave the zone
-		oc.retryNodes = oc.newRetryFramework(factory.NodeType)
 	}
 }
 
