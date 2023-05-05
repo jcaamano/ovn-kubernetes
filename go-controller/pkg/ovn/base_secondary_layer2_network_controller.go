@@ -362,6 +362,10 @@ func (oc *BaseSecondaryLayer2NetworkController) Run() error {
 	klog.Infof("Starting all the Watchers for network %s ...", oc.GetNetworkName())
 	start := time.Now()
 
+	if err := oc.WatchNodes(); err != nil {
+		return err
+	}
+
 	// WatchNamespaces() should be started first because it has no other
 	// dependencies, and WatchNodes() depends on it
 	if err := oc.WatchNamespaces(); err != nil {
