@@ -344,11 +344,9 @@ parse_args() {
             -mne | --multi-network-enable )     shift
                                                 ENABLE_MULTI_NET=true
                                                 ;;
-            -ic | --interconnect-enable )       shift
-                                                OVN_INTERCONNECT_ENABLE=true
+            -ic | --interconnect-enable )       OVN_INTERCONNECT_ENABLE=true 
                                                 ;;
-            -lz | --enable-local-zone )       shift
-                                                OVN_ENABLE_LOCAL_ZONE=true
+            -lz | --enable-local-zone )         OVN_ENABLE_LOCAL_ZONE=true 
                                                 ;;
             --delete )                          delete
                                                 exit

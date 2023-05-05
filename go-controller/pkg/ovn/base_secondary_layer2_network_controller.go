@@ -109,6 +109,11 @@ func (h *secondaryLayer2NetworkControllerEventHandler) IsResourceScheduled(obj i
 // if any, yielded during object creation.
 // Given an object to add and a boolean specifying if the function was executed from iterateRetryResources
 func (h *secondaryLayer2NetworkControllerEventHandler) AddResource(obj interface{}, fromRetryLoop bool) error {
+	err := h.oc.AddSecondaryNetworkResourceCommon(h.objType, obj)
+	if err != nil {
+		return err
+	}
+
 	switch h.objType {
 	case factory.NodeType:
 		node, ok := obj.(*kapi.Node)
@@ -140,13 +145,8 @@ func (h *secondaryLayer2NetworkControllerEventHandler) AddResource(obj interface
 		if !ok {
 			return fmt.Errorf("could not cast %T object to *knet.Pod", obj)
 		}
-		// Check if the pod is local zone pod or not.
-		if !h.oc.isPodScheduledinLocalZone(pod) {
-			return h.oc.ensureRemotePod(pod)
-		}
-		fallthrough
-	default:
-		return h.oc.AddSecondaryNetworkResourceCommon(h.objType, obj)
+
+		return h.oc.ensurePodZoneResources(pod)
 	}
 
 	return nil
@@ -157,6 +157,11 @@ func (h *secondaryLayer2NetworkControllerEventHandler) AddResource(obj interface
 // Given an old and a new object; The inRetryCache boolean argument is to indicate if the given resource
 // is in the retryCache or not.
 func (h *secondaryLayer2NetworkControllerEventHandler) UpdateResource(oldObj, newObj interface{}, inRetryCache bool) error {
+	err := h.oc.UpdateSecondaryNetworkResourceCommon(h.objType, oldObj, newObj, inRetryCache)
+	if err != nil {
+		return err
+	}
+
 	switch h.objType {
 	case factory.NodeType:
 		newNode, ok := newObj.(*kapi.Node)
@@ -191,20 +196,22 @@ func (h *secondaryLayer2NetworkControllerEventHandler) UpdateResource(oldObj, ne
 		if !ok {
 			return fmt.Errorf("could not cast %T object to *knet.Pod", newObj)
 		}
-		// Check if the pod is local zone pod or not.
-		if !h.oc.isPodScheduledinLocalZone(pod) {
-			return h.oc.ensureRemotePod(pod)
-		}
-		fallthrough
-	default:
-		return h.oc.UpdateSecondaryNetworkResourceCommon(h.objType, oldObj, newObj, inRetryCache)
+
+		return h.oc.ensurePodZoneResources(pod)
 	}
+
+	return nil
 }
 
 // DeleteResource deletes the object from the cluster according to the delete logic of its resource type.
 // Given an object and optionally a cachedObj; cachedObj is the internal cache entry for this object,
 // used for now for pods and network policies.
 func (h *secondaryLayer2NetworkControllerEventHandler) DeleteResource(obj, cachedObj interface{}) error {
+	err := h.oc.DeleteSecondaryNetworkResourceCommon(h.objType, obj, cachedObj)
+	if err != nil {
+		return err
+	}
+
 	switch h.objType {
 	case factory.NodeType:
 		node, ok := obj.(*kapi.Node)
@@ -222,10 +229,9 @@ func (h *secondaryLayer2NetworkControllerEventHandler) DeleteResource(obj, cache
 		if !h.oc.isPodScheduledinLocalZone(pod) {
 			return h.oc.deleteRemotePod(pod)
 		}
-		fallthrough
-	default:
-		return h.oc.DeleteSecondaryNetworkResourceCommon(h.objType, obj, cachedObj)
 	}
+
+	return nil
 }
 
 func (h *secondaryLayer2NetworkControllerEventHandler) SyncFunc(objs []interface{}) error {
@@ -384,10 +390,11 @@ func (oc *BaseSecondaryLayer2NetworkController) Run() error {
 	klog.Infof("Completing all the Watchers for network %s took %v", oc.GetNetworkName(), time.Since(start))
 
 	// controller is fully running and resource handlers have synced, update Topology version in OVN
-	if err := oc.updateL2TopologyVersion(); err != nil {
-		return fmt.Errorf("failed to update topology version for network %s: %v", oc.GetNetworkName(), err)
-	}
-
+	/*
+		if err := oc.updateL2TopologyVersion(); err != nil {
+			return fmt.Errorf("failed to update topology version for network %s: %v", oc.GetNetworkName(), err)
+		}
+	*/
 	return nil
 }
 
@@ -443,7 +450,7 @@ func (oc *BaseSecondaryLayer2NetworkController) addUpdateLocalNodeEvent(node *ka
 
 	_, _ = oc.localZoneNodes.LoadOrStore(node.Name, true)
 
-	klog.Infof("Adding or Updating Node %q for network %s", node.Name, oc.GetNetworkName())
+	klog.Infof("Adding or Updating Node %q for network %s with params %v", node.Name, oc.GetNetworkName(), *nSyncs)
 	if nSyncs.syncNode {
 		if err = oc.addNode(node); err != nil {
 			oc.addNodeFailed.Store(node.Name, true)
@@ -517,7 +524,8 @@ func (oc *BaseSecondaryLayer2NetworkController) addNode(node *kapi.Node) error {
 	}
 
 	// Add the switch to the logical switch cache
-	return oc.lsManager.AddSwitch(node.Name, "", hostSubnets)
+	klog.Infof("Adding node %s to logical switch cache for network %s", node.Name, oc.GetNetworkName())
+	return oc.lsManager.AddSwitch(oc.GetNetworkScopedName(node.Name), "", hostSubnets)
 }
 
 func (oc *BaseSecondaryLayer2NetworkController) deleteNodeEvent(node *kapi.Node) error {
@@ -564,7 +572,7 @@ func (oc *BaseSecondaryLayer2NetworkController) syncNodes(nodes []interface{}) e
 
 // ensurePodForSecondaryNetwork tries to set up secondary network for a pod. It returns nil on success and error
 // on failure; failure indicates the pod set up should be retried later.
-func (oc *BaseSecondaryLayer2NetworkController) ensureRemotePod(pod *kapi.Pod) error {
+func (oc *BaseSecondaryLayer2NetworkController) ensurePodZoneResources(pod *kapi.Pod) error {
 
 	// Try unscheduled pods later
 	if !util.PodScheduled(pod) {
@@ -607,11 +615,24 @@ func (oc *BaseSecondaryLayer2NetworkController) ensureRemotePod(pod *kapi.Pod) e
 		return nil
 	}
 
+	nodeName := pod.Spec.NodeName
+	node, err := oc.kube.GetNode(nodeName)
+	if err != nil {
+		return fmt.Errorf("failed to get node %s for pod %s/%s network %s: %w", nodeName, pod.Namespace, pod.Name, oc.GetNetworkName(), err)
+	}
+
 	var errs []error
 	for nadName := range networkMap {
-		err := oc.zoneICHandler.AddRemoteZonePod(pod, nadName)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("failed to add remotelogical  port of Pod %s/%s for NAD %s", pod.Namespace, pod.Name, nadName))
+		if oc.isPodScheduledinLocalZone(pod) {
+			err = oc.zoneICHandler.AddLocalZonePod(pod, nadName)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("failed to add local zone pod %s/%s for NAD %s: %w", pod.Namespace, pod.Name, nadName, err))
+			}
+		} else {
+			err = oc.zoneICHandler.AddRemoteZonePod(node, pod, nadName)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("failed to add remote zone pod %s/%s for NAD %s: %w", pod.Namespace, pod.Name, nadName, err))
+			}
 		}
 	}
 	if len(errs) != 0 {

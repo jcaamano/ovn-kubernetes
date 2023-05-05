@@ -76,10 +76,8 @@ func (bsnc *BaseSecondaryNetworkController) AddSecondaryNetworkResourceCommon(ob
 				mp.Namespace, mp.Name, err)
 			return err
 		}
-
-	default:
-		return fmt.Errorf("object type %s not supported", objType)
 	}
+
 	return nil
 }
 
@@ -130,10 +128,8 @@ func (bsnc *BaseSecondaryNetworkController) UpdateSecondaryNetworkResourceCommon
 				return err
 			}
 		}
-
-	default:
-		return fmt.Errorf("object type %s not supported", objType)
 	}
+
 	return nil
 }
 
@@ -168,10 +164,8 @@ func (bsnc *BaseSecondaryNetworkController) DeleteSecondaryNetworkResourceCommon
 				mp.Namespace, mp.Name, err)
 			return err
 		}
-
-	default:
-		return fmt.Errorf("object type %s not supported", objType)
 	}
+
 	return nil
 }
 
@@ -237,7 +231,7 @@ func (bsnc *BaseSecondaryNetworkController) ensureLocalZonePodForSecondaryNetwor
 			continue
 		}
 		if err = bsnc.addLogicalPortToNetworkForNAD(pod, nadName, switchName, subnetName, network); err != nil {
-			errs = append(errs, fmt.Errorf("failed to add logical port of Pod %s/%s for NAD %s", pod.Namespace, pod.Name, nadName))
+			errs = append(errs, fmt.Errorf("failed to add logical port of Pod %s/%s for NAD %s: %w", pod.Namespace, pod.Name, nadName, err))
 		}
 	}
 	if len(errs) != 0 {

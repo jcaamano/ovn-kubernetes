@@ -354,13 +354,13 @@ func (bnc *BaseNetworkController) waitForNodeLogicalSwitch(switchName, subnetNam
 	ls := &nbdb.LogicalSwitch{Name: switchName}
 	if err := wait.PollImmediate(30*time.Millisecond, 30*time.Second, func() (bool, error) {
 		if lsUUID, ok := bnc.lsManager.GetUUID(subnetName); !ok {
-			return false, fmt.Errorf("error getting logical switch %s: %s", switchName, "switch not in logical switch cache")
+			return false, fmt.Errorf("error getting logical switch %s subnet %s: %s", switchName, subnetName, "switch not in logical switch cache")
 		} else {
 			ls.UUID = lsUUID
 			return true, nil
 		}
 	}); err != nil {
-		return nil, fmt.Errorf("timed out waiting for logical switch in logical switch cache %q subnet: %v", switchName, err)
+		return nil, fmt.Errorf("timed out waiting for logical switch cache: %v", err)
 	}
 	return ls, nil
 }

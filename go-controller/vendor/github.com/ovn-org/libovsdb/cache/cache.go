@@ -1056,6 +1056,7 @@ func (t *TableCache) Populate2(tableUpdates ovsdb.TableUpdates2) error {
 				if modified == nil {
 					return NewErrCacheInconsistent(fmt.Sprintf("row with uuid %s does not exist", uuid))
 				}
+				dbgLogger.Info("applying modifications", "modify", *row.Modify)
 				changed, err := t.ApplyModifications(table, modified, *row.Modify)
 				if err != nil {
 					return fmt.Errorf("unable to apply row modifications: %w", err)

@@ -14,6 +14,7 @@ import (
 
 	libovsdbclient "github.com/ovn-org/libovsdb/client"
 
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/libovsdbops"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/sbdb"
@@ -364,6 +365,11 @@ func (zic *ZoneInterconnectHandler) createRemoteZoneNodeResources(node *corev1.N
 		return fmt.Errorf("failed to create/update transit switch %s: %w", zic.networkTransitSwitchName, err)
 	}
 
+	if !zic.isLayer3Network() {
+		// no need to do anything else for non layer3 topologies
+		return nil
+	}
+
 	transitRouterPortMac := util.IPAddrToHWAddr(nodeTransitSwitchPortIPs[0].IP)
 	var transitRouterPortNetworks []string
 	for _, ip := range nodeTransitSwitchPortIPs {
@@ -401,10 +407,43 @@ func (zic *ZoneInterconnectHandler) createRemoteZoneNodeResources(node *corev1.N
 	return zic.cleanupNodeClusterRouterPort(node.Name)
 }
 
-func (zic *ZoneInterconnectHandler) AddRemoteZonePod(pod *corev1.Pod, nadName string) error {
+func (zic *ZoneInterconnectHandler) AddLocalZonePod(pod *corev1.Pod, nadName string) error {
+	podAnnotation, err := util.UnmarshalPodAnnotation(pod.Annotations, nadName)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal pod annotation for nad %s", nadName)
+	}
+	podMac := podAnnotation.MAC
+	podIfAddrs := podAnnotation.IPs
+
+	if len(podMac) == 0 || len(podIfAddrs) == 0 {
+		return fmt.Errorf("pod does not have a MAC or an IP assigned")
+	}
+
+	addresses := []string{podMac.String()}
+	for _, podIfAddr := range podIfAddrs {
+		addresses[0] = addresses[0] + " " + podIfAddr.IP.String()
+	}
+
+	// derive the pod ID from the IPv4 address preferably
+	ip, err := util.MatchFirstIPNetFamily(false, podIfAddrs)
+	if err != nil {
+		ip = podIfAddrs[0]
+	}
+
+	portName := util.GetSecondaryNetworkLogicalPortName(pod.Namespace, pod.Name, nadName)
+	lsp := &nbdb.LogicalSwitchPort{
+		Name: portName,
+		Options: map[string]string{
+			"requested-tnl-key": strconv.Itoa(getPodIDFromIP(ip, zic.Subnets())),
+		},
+	}
+
+	return libovsdbops.UpdateLogicalSwitchPortSetOptions(zic.nbClient, lsp)
+}
+
+func (zic *ZoneInterconnectHandler) AddRemoteZonePod(node *corev1.Node, pod *corev1.Pod, nadName string) error {
 	// This is only used for secondary networks
-	podName := util.GetSecondaryNetworkLogicalPortName(pod.Namespace, pod.Name, nadName)
-	remotePortName := zic.GetNetworkScopedName(types.TransitSwitchToRouterPrefix + podName)
+	portName := util.GetSecondaryNetworkLogicalPortName(pod.Namespace, pod.Name, nadName)
 
 	podAnnotation, err := util.UnmarshalPodAnnotation(pod.Annotations, nadName)
 	if err != nil {
@@ -429,7 +468,7 @@ func (zic *ZoneInterconnectHandler) AddRemoteZonePod(pod *corev1.Pod, nadName st
 	}
 
 	lspOptions := map[string]string{
-		"requested-tnl-key": strconv.Itoa(getPodIDFromIP(ip)),
+		"requested-tnl-key": strconv.Itoa(getPodIDFromIP(ip, zic.Subnets())),
 	}
 
 	externalIDs := map[string]string{
@@ -438,7 +477,19 @@ func (zic *ZoneInterconnectHandler) AddRemoteZonePod(pod *corev1.Pod, nadName st
 		types.NADExternalID:      nadName,
 	}
 
-	return zic.addNodeLogicalSwitchPort(zic.networkTransitSwitchName, remotePortName, lportTypeRemote, addresses, lspOptions, externalIDs)
+	err = zic.addNodeLogicalSwitchPort(zic.networkTransitSwitchName, portName, lportTypeRemote, addresses, lspOptions, externalIDs)
+	if err != nil {
+		return err
+	}
+
+	// Get the chassis id.
+	chassisId, err := util.ParseNodeChassisIDAnnotation(node)
+	if err != nil {
+		return fmt.Errorf("failed to parse node chassis-id for node - %s, error: %w", node.Name, err)
+	}
+
+	// Set the port binding chassis.
+	return zic.setRemotePortBindingChassis(node.Name, portName, chassisId)
 }
 
 func (zic *ZoneInterconnectHandler) DeleteRemoteZonePod(pod *corev1.Pod, nadName string) error {
@@ -706,7 +757,7 @@ func (zic *ZoneInterconnectHandler) isLayer3Network() bool {
 	return zic.TopologyType() == types.Layer3Topology || zic.GetNetworkName() == types.DefaultNetworkName
 }
 
-func getPodIDFromIP(podIP *net.IPNet) int {
+func getPodIDFromIP(podIP *net.IPNet, subnets []config.CIDRNetworkEntry) int {
 	ip4 := podIP.IP.To4()
 	var ip *big.Int
 	if ip4 != nil {
@@ -714,6 +765,12 @@ func getPodIDFromIP(podIP *net.IPNet) int {
 	} else {
 		ip = big.NewInt(0).SetBytes(podIP.IP.To16())
 	}
-	mask := big.NewInt(0).SetBytes(podIP.Mask)
+	var mask *big.Int
+	for _, subnet := range subnets {
+		if subnet.CIDR.Contains(podIP.IP) {
+			mask = big.NewInt(0).SetBytes(subnet.CIDR.Mask)
+			break
+		}
+	}
 	return int(big.NewInt(0).AndNot(ip, mask).Int64())
 }

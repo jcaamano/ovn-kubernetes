@@ -506,6 +506,9 @@ func (bnc *BaseNetworkController) updateL2TopologyVersion() error {
 	default:
 		return fmt.Errorf("topology type %s is not supported", topoType)
 	}
+	if config.OVNKubernetesFeature.EnableInterconnect {
+		switchName = bnc.zoneICHandler.GetTransitSwitchName()
+	}
 	logicalSwitch := nbdb.LogicalSwitch{
 		Name:        switchName,
 		ExternalIDs: map[string]string{types.TopologyVersionExternalID: currentTopologyVersion},
@@ -568,6 +571,9 @@ func (bnc *BaseNetworkController) getOVNTopoVersionFromLogicalRouter(clusterRout
 }
 
 func (bnc *BaseNetworkController) getOVNTopoVersionFromLogicalSwitch(switchName string) (int, error) {
+	if config.OVNKubernetesFeature.EnableInterconnect {
+		switchName = bnc.zoneICHandler.GetTransitSwitchName()
+	}
 	logicalSwitch := &nbdb.LogicalSwitch{Name: switchName}
 	logicalSwitch, err := libovsdbops.GetLogicalSwitch(bnc.nbClient, logicalSwitch)
 	if err != nil && err != libovsdbclient.ErrNotFound {
