@@ -21,7 +21,7 @@ type podAnnotWaitCond func(map[string]string, string) (*util.PodAnnotation, bool
 // isOvnReady is a wait condition for OVN master to set pod-networks annotation
 func isOvnReady(podAnnotation map[string]string, nadName string) (*util.PodAnnotation, bool) {
 	podNADAnnotation, err := util.UnmarshalPodAnnotation(podAnnotation, nadName)
-	return podNADAnnotation, err == nil
+	return podNADAnnotation, err == nil && len(podNADAnnotation.MAC) > 0
 }
 
 // isDPUReady is a wait condition which waits for OVN master to set pod-networks annotation and

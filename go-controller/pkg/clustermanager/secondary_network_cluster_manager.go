@@ -94,14 +94,14 @@ func (sncm *secondaryNetworkClusterManager) Stop() {
 // a layer2 or layer3 secondary network is created.  Layer2 type is not handled here.
 func (sncm *secondaryNetworkClusterManager) NewNetworkController(nInfo util.NetInfo) (nad.NetworkController, error) {
 	topoType := nInfo.TopologyType()
-	if topoType == ovntypes.Layer3Topology {
+	klog.Infof("Creating new network constroller for network %s of topology %s", nInfo.GetNetworkName(), topoType)
+	if topoType == ovntypes.Layer3Topology || topoType == ovntypes.LocalnetTopology {
 		networkId, err := sncm.networkIDAllocator.allocateID(nInfo.GetNetworkName())
 		if err != nil {
 			return nil, fmt.Errorf("failed to create NetworkController for secondary layer3 network %s : %w", nInfo.GetNetworkName(), err)
 		}
 
-		sncc := newNetworkClusterController(nInfo.GetNetworkName(), networkId, nInfo.Subnets(),
-			sncm.ovnClient, sncm.watchFactory, false, nInfo)
+		sncc := newNetworkClusterController(networkId, nInfo, sncm.ovnClient, sncm.watchFactory)
 		return sncc, nil
 	}
 
@@ -163,6 +163,5 @@ func (sncm *secondaryNetworkClusterManager) CleanupDeletedNetworks(allController
 // newDummyNetworkController creates a dummy network controller used to clean up specific network
 func (sncm *secondaryNetworkClusterManager) newDummyLayer3NetworkController(netName string) nad.NetworkController {
 	netInfo, _ := util.NewNetInfo(&ovncnitypes.NetConf{NetConf: types.NetConf{Name: netName}, Topology: ovntypes.Layer3Topology})
-	return newNetworkClusterController(netInfo.GetNetworkName(), util.InvalidNetworkID, nil, sncm.ovnClient, sncm.watchFactory,
-		false, netInfo)
+	return newNetworkClusterController(util.InvalidNetworkID, netInfo, sncm.ovnClient, sncm.watchFactory)
 }

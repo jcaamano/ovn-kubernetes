@@ -302,3 +302,24 @@ func ContainsCIDR(ipnet1, ipnet2 *net.IPNet) bool {
 	mask2, _ := ipnet2.Mask.Size()
 	return mask1 <= mask2 && ipnet1.Contains(ipnet2.IP)
 }
+
+func ParseIPNets(ipNetStrings []string) ([]*net.IPNet, error) {
+	ipNets := make([]*net.IPNet, 0, len(ipNetStrings))
+	for _, ipNetString := range ipNetStrings {
+		ip, ipNet, err := utilnet.ParseCIDRSloppy(ipNetString)
+		if err != nil {
+			return nil, err
+		}
+		ipNet.IP = ip
+		ipNets = append(ipNets, ipNet)
+	}
+	return ipNets, nil
+}
+
+func StringIPNets(ipnets []*net.IPNet) []string {
+	s := make([]string, 0, len(ipnets))
+	for _, ipnet := range ipnets {
+		s = append(s, ipnet.String())
+	}
+	return s
+}

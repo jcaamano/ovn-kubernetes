@@ -464,6 +464,13 @@ func NewClusterManagerWatchFactory(ovnClientset *util.OVNClusterManagerClientset
 			return nil, err
 		}
 	}
+	if config.OVNKubernetesFeature.EnableInterconnect {
+		wf.informers[PodType], err = newQueuedInformer(PodType, wf.iFactory.Core().V1().Pods().Informer(), wf.stopChan, defaultNumEventQueues)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return wf, nil
 }
 

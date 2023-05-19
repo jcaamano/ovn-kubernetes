@@ -387,7 +387,7 @@ func (bnc *BaseNetworkController) createNodeLogicalSwitch(nodeName string, hostS
 	}
 
 	// Add the switch to the logical switch cache
-	return bnc.lsManager.AddSwitch(logicalSwitch.Name, logicalSwitch.UUID, hostSubnets)
+	return bnc.lsManager.AddSwitch(logicalSwitch.Name, hostSubnets)
 }
 
 // UpdateNodeAnnotationWithRetry update node's annotation with the given node annotations.
@@ -694,7 +694,7 @@ func (bnc *BaseNetworkController) recordNodeErrorEvent(node *kapi.Node, nodeErr 
 }
 
 func (bnc *BaseNetworkController) doesNetworkRequireIPAM() bool {
-	return !((bnc.TopologyType() == types.Layer2Topology || bnc.TopologyType() == types.LocalnetTopology) && len(bnc.Subnets()) == 0)
+	return util.DoesNetworkRequireIPAM(bnc.NetInfo)
 }
 
 func (bnc *BaseNetworkController) buildPortGroup(hashName, name string, ports []*nbdb.LogicalSwitchPort, acls []*nbdb.ACL) *nbdb.PortGroup {

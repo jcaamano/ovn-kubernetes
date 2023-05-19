@@ -1,16 +1,22 @@
 package util
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
+	"time"
 
 	nadapi "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	nadutils "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/utils"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/kube"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 
 	v1 "k8s.io/api/core/v1"
+	listers "k8s.io/client-go/listers/core/v1"
+	"k8s.io/client-go/util/retry"
 	"k8s.io/klog/v2"
 	utilnet "k8s.io/utils/net"
 )
@@ -178,9 +184,11 @@ func UnmarshalPodAnnotation(annotations map[string]string, nadName string) (*Pod
 	a := &tempA
 
 	podAnnotation := &PodAnnotation{}
-	podAnnotation.MAC, err = net.ParseMAC(a.MAC)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse pod MAC %q: %v", a.MAC, err)
+	if a.MAC != "" {
+		podAnnotation.MAC, err = net.ParseMAC(a.MAC)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse pod MAC %q: %v", a.MAC, err)
+		}
 	}
 
 	if len(a.IPs) == 0 {
@@ -374,4 +382,265 @@ func GetK8sPodAllNetworkSelections(pod *v1.Pod) ([]*nadapi.NetworkSelectionEleme
 		networks = []*nadapi.NetworkSelectionElement{}
 	}
 	return networks, nil
+}
+
+type ipAllocator interface {
+	GetSubnets() ([]*net.IPNet, error)
+	AllocateIPs(ips []*net.IPNet) error
+	AllocateNextIPs() ([]*net.IPNet, error)
+	ReleaseIPs(ips []*net.IPNet) error
+}
+
+type errAllocated struct{}
+
+func (e errAllocated) Is(target error) bool {
+	return target.Error() == "provided IP is already allocated"
+}
+
+func (e errAllocated) Error() string {
+	return "provided IP is already allocated"
+}
+
+type podAnnotationUpdate func(p *v1.Pod, a *PodAnnotation, nad string) error
+
+type PodAnnotationAllocator struct {
+	NetInfo             NetInfo
+	IPAllocator         ipAllocator
+	PodAnnotationUpdate podAnnotationUpdate
+}
+
+func (pa PodAnnotationAllocator) AllocatePodAnnotation(pod *v1.Pod, podAnnotation *PodAnnotation, network *nadapi.NetworkSelectionElement, reallocateOnError bool) (
+	*PodAnnotation, bool, error) {
+	var err error
+	var releaseIPs, needsAnnotationUpdate bool
+	nadName := types.DefaultNetworkName
+	if pa.NetInfo.IsSecondary() {
+		nadName = GetNADName(network.Namespace, network.Name)
+	}
+	podDesc := fmt.Sprintf("%s/%s/%s", nadName, pod.Namespace, pod.Name)
+
+	if podAnnotation == nil {
+		podAnnotation = &PodAnnotation{}
+	}
+
+	// the IPs we allocate in this function need to be released back to the IPAM
+	// pool if there is some error in any step past the point the IPs were
+	// assigned via the IPAM manager.
+	// this needs to be done only when ipsAllocated is set to true (the case where
+	// we truly have assigned podIPs in this call) AND when there is no error in
+	// the rest of the functionality. It is important to use a
+	// named return variable for defer to work correctly.
+	defer func() {
+		if releaseIPs && err != nil {
+			if relErr := pa.IPAllocator.ReleaseIPs(podAnnotation.IPs); relErr != nil {
+				klog.Errorf("Error when releasing IPs %v: %w", StringIPNets(podAnnotation.IPs), err)
+			} else {
+				klog.Infof("Released IPs %v", StringIPNets(podAnnotation.IPs))
+			}
+		}
+	}()
+
+	if len(podAnnotation.IPs) == 0 {
+		needsAnnotationUpdate = true
+
+		if network != nil && network.IPRequest != nil {
+			klog.V(5).Infof("Will use requested IP addresses %s for pod %s", network.IPRequest, podDesc)
+			podAnnotation.IPs, err = ParseIPNets(network.IPRequest)
+			if err != nil {
+				return nil, false, err
+			}
+		}
+	}
+
+	if pa.IPAllocator != nil {
+		if len(podAnnotation.IPs) > 0 {
+			if err = pa.IPAllocator.AllocateIPs(podAnnotation.IPs); err != nil && !errors.Is(err, errAllocated{}) {
+				err = fmt.Errorf("failed to ensure IPs %v allocated for already annotated pod %s: %w",
+					StringIPNets(podAnnotation.IPs), podDesc, err)
+				if !reallocateOnError {
+					return nil, false, err
+				}
+				klog.Warning(err.Error())
+				needsAnnotationUpdate = true
+				podAnnotation.IPs = nil
+			}
+		}
+
+		if len(podAnnotation.IPs) == 0 {
+			podAnnotation.IPs, err = pa.IPAllocator.AllocateNextIPs()
+			if err != nil {
+				return nil, false, fmt.Errorf("failed to assign pod addresses for pod %s: %w", podDesc, err)
+			}
+
+			klog.V(5).Infof("Allocated IP addresses %v for pod %s", StringIPNets(podAnnotation.IPs), podDesc)
+		}
+
+		releaseIPs = true
+	}
+
+	if needsAnnotationUpdate {
+		// handle mac address
+		if network != nil && network.MacRequest != "" {
+			podAnnotation.MAC, err = net.ParseMAC(network.MacRequest)
+		} else if len(podAnnotation.IPs) > 0 {
+			podAnnotation.MAC = IPAddrToHWAddr(podAnnotation.IPs[0].IP)
+		} else {
+			podAnnotation.MAC, err = generateRandMAC()
+		}
+		if err != nil {
+			return nil, false, err
+		}
+		klog.V(5).Infof("Allocated mac address %s for pod %s", podAnnotation.MAC.String(), podDesc)
+
+		// handle routes & gateways
+		nodeSubnets, err := pa.IPAllocator.GetSubnets()
+		if err != nil {
+			return nil, false, err
+		}
+		err = addRoutesGatewayIP(pod, pa.NetInfo, network, podAnnotation, nodeSubnets)
+		if err != nil {
+			return nil, false, err
+		}
+		klog.V(5).Infof("Allocated gateways %s for pod %s", podAnnotation.Gateways, podDesc)
+
+		// update annotation
+		annoStart := time.Now()
+		err = pa.PodAnnotationUpdate(pod, podAnnotation, nadName)
+		podAnnoTime := time.Since(annoStart)
+		klog.Infof("[%s] pod annotation time took %v", podDesc, podAnnoTime)
+		if err != nil {
+			return nil, false, err
+		}
+	}
+
+	return podAnnotation, needsAnnotationUpdate, nil
+}
+
+// GenerateRandMAC generates a random unicast and locally administered MAC address.
+// LOOTED FROM https://github.com/cilium/cilium/blob/v1.12.6/pkg/mac/mac.go#L106
+func generateRandMAC() (net.HardwareAddr, error) {
+	buf := make([]byte, 6)
+	if _, err := rand.Read(buf); err != nil {
+		return nil, fmt.Errorf("unable to retrieve 6 rnd bytes: %s", err)
+	}
+
+	// Set locally administered addresses bit and reset multicast bit
+	buf[0] = (buf[0] | 0x02) & 0xfe
+
+	return buf, nil
+}
+
+func addRoutesGatewayIP(pod *v1.Pod, netinfo NetInfo, network *nadapi.NetworkSelectionElement, podAnnotation *PodAnnotation, nodeSubnets []*net.IPNet) error {
+	if netinfo.IsSecondary() {
+		// for secondary network, see if its network-attachment's annotation has default-route key.
+		// If present, then we need to add default route for it
+		podAnnotation.Gateways = append(podAnnotation.Gateways, network.GatewayRequest...)
+		topoType := netinfo.TopologyType()
+		switch topoType {
+		case types.Layer2Topology, types.LocalnetTopology:
+			// no route needed for directly connected subnets
+			return nil
+		case types.Layer3Topology:
+			for _, podIfAddr := range podAnnotation.IPs {
+				isIPv6 := utilnet.IsIPv6CIDR(podIfAddr)
+				nodeSubnet, err := MatchFirstIPNetFamily(isIPv6, nodeSubnets)
+				if err != nil {
+					return err
+				}
+				gatewayIPnet := GetNodeGatewayIfAddr(nodeSubnet)
+				for _, clusterSubnet := range netinfo.Subnets() {
+					if isIPv6 == utilnet.IsIPv6CIDR(clusterSubnet.CIDR) {
+						podAnnotation.Routes = append(podAnnotation.Routes, PodRoute{
+							Dest:    clusterSubnet.CIDR,
+							NextHop: gatewayIPnet.IP,
+						})
+					}
+				}
+			}
+			return nil
+		}
+		return fmt.Errorf("topology type %s not supported", topoType)
+	}
+
+	// if there are other network attachments for the pod, then check if those network-attachment's
+	// annotation has default-route key. If present, then we need to skip adding default route for
+	// OVN interface
+	networks, err := GetK8sPodAllNetworkSelections(pod)
+	if err != nil {
+		return fmt.Errorf("error while getting network attachment definition for [%s/%s]: %v",
+			pod.Namespace, pod.Name, err)
+	}
+	otherDefaultRouteV4 := false
+	otherDefaultRouteV6 := false
+	for _, network := range networks {
+		for _, gatewayRequest := range network.GatewayRequest {
+			if utilnet.IsIPv6(gatewayRequest) {
+				otherDefaultRouteV6 = true
+			} else {
+				otherDefaultRouteV4 = true
+			}
+		}
+	}
+
+	for _, podIfAddr := range podAnnotation.IPs {
+		isIPv6 := utilnet.IsIPv6CIDR(podIfAddr)
+		nodeSubnet, err := MatchFirstIPNetFamily(isIPv6, nodeSubnets)
+		if err != nil {
+			return err
+		}
+
+		gatewayIPnet := GetNodeGatewayIfAddr(nodeSubnet)
+
+		otherDefaultRoute := otherDefaultRouteV4
+		if isIPv6 {
+			otherDefaultRoute = otherDefaultRouteV6
+		}
+		var gatewayIP net.IP
+		if otherDefaultRoute {
+			for _, clusterSubnet := range config.Default.ClusterSubnets {
+				if isIPv6 == utilnet.IsIPv6CIDR(clusterSubnet.CIDR) {
+					podAnnotation.Routes = append(podAnnotation.Routes, PodRoute{
+						Dest:    clusterSubnet.CIDR,
+						NextHop: gatewayIPnet.IP,
+					})
+				}
+			}
+			for _, serviceSubnet := range config.Kubernetes.ServiceCIDRs {
+				if isIPv6 == utilnet.IsIPv6CIDR(serviceSubnet) {
+					podAnnotation.Routes = append(podAnnotation.Routes, PodRoute{
+						Dest:    serviceSubnet,
+						NextHop: gatewayIPnet.IP,
+					})
+				}
+			}
+		} else {
+			gatewayIP = gatewayIPnet.IP
+		}
+
+		if gatewayIP != nil {
+			podAnnotation.Gateways = append(podAnnotation.Gateways, gatewayIP)
+		}
+	}
+	return nil
+}
+
+func UpdatePodAnnotationWithRetry(podLister listers.PodLister, kube kube.Interface, pod *v1.Pod, podInfo *PodAnnotation, nadName string) error {
+	resultErr := retry.RetryOnConflict(OvnConflictBackoff, func() error {
+		// Informer cache should not be mutated, so get a copy of the object
+		pod, err := podLister.Pods(pod.Namespace).Get(pod.Name)
+		if err != nil {
+			return err
+		}
+
+		cpod := pod.DeepCopy()
+		cpod.Annotations, err = MarshalPodAnnotation(cpod.Annotations, podInfo, nadName)
+		if err != nil {
+			return err
+		}
+		return kube.UpdatePod(cpod)
+	})
+	if resultErr != nil {
+		return fmt.Errorf("failed to update annotation on pod %s/%s: %v", pod.Namespace, pod.Name, resultErr)
+	}
+	return nil
 }
