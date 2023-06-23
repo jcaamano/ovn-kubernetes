@@ -3,6 +3,8 @@ on:
   issue_comment:
     types: [created]
 
+concurrency: commands-${{ github.ref }}
+
 jobs:
   retest:
     if: github.event.issue.pull_request
