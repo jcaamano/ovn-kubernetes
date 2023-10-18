@@ -95,6 +95,12 @@ var _ = ginkgo.Describe("Multi node zones interconnect", func() {
 	)
 	fr := wrappedTestFramework("multi-node-zones")
 
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
 	var (
 		cs clientset.Interface
 

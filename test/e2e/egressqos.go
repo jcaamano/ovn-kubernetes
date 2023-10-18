@@ -40,6 +40,12 @@ var _ = ginkgo.Describe("e2e EgressQoS validation", func() {
 	f := wrappedTestFramework("egressqos")
 
 	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
+	ginkgo.BeforeEach(func() {
 		clientSet := f.ClientSet
 		nodes, err := e2enode.GetBoundedReadySchedulableNodes(clientSet, 3)
 		framework.ExpectNoError(err)

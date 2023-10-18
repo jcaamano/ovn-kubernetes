@@ -49,6 +49,12 @@ var _ = ginkgo.Describe("Unidling", func() {
 	var cs clientset.Interface
 
 	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
+	ginkgo.BeforeEach(func() {
 		cs = f.ClientSet
 	})
 

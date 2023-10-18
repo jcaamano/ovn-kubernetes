@@ -165,6 +165,11 @@ func (h *egressNodeAvailabilityHandlerViaHealthCheck) Disable(nodeName string) {
 }
 
 var _ = ginkgo.Describe("e2e egress IP validation", func() {
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
 	const (
 		servicePort          int32  = 9999
 		podHTTPPort          string = "8080"

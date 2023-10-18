@@ -45,6 +45,12 @@ var _ = Describe("ACL Logging for NetworkPolicy", func() {
 	)
 
 	BeforeEach(func() {
+		if skipAll {
+			Skip("skipAll set")
+		}
+	})
+
+	BeforeEach(func() {
 		By("configuring the ACL logging level within the namespace")
 		nsName = fr.Namespace.Name
 		Expect(setNamespaceACLLogSeverity(fr, nsName, initialDenyACLSeverity, initialAllowACLSeverity, aclRemoveOptionDelete)).To(Succeed())
@@ -193,6 +199,12 @@ var _ = Describe("ACL Logging for EgressFirewall", func() {
 		pokePod          *v1.Pod
 		pokePodSecondary *v1.Pod
 	)
+
+	BeforeEach(func() {
+		if skipAll {
+			Skip("skipAll set")
+		}
+	})
 
 	BeforeEach(func() {
 		By("configuring the ACL logging level within the namespace")

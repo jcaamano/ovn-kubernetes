@@ -44,6 +44,12 @@ var _ = ginkgo.Describe("Egress Services", func() {
 	f := wrappedTestFramework("egress-services")
 
 	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
+	ginkgo.BeforeEach(func() {
 		var err error
 		clientSet := f.ClientSet
 		n, err := e2enode.GetBoundedReadySchedulableNodes(clientSet, 3)

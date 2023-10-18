@@ -82,6 +82,12 @@ spec:
 	)
 
 	BeforeEach(func() {
+		if skipAll {
+			Skip("skipAll set")
+		}
+	})
+
+	BeforeEach(func() {
 		By("Creating the temp directory")
 		var err error
 		tmpDirIPMigration, err = os.MkdirTemp("", "e2e")

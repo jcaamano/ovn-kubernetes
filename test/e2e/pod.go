@@ -30,6 +30,12 @@ var _ = ginkgo.Describe("Pod to external server PMTUD", func() {
 	f := wrappedTestFramework("pod2external-pmtud")
 	cleanupFn := func() {}
 
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
 	ginkgo.AfterEach(func() {
 		cleanupFn()
 	})

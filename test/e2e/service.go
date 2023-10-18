@@ -38,6 +38,7 @@ const (
 
 var (
 	reportPath string
+	skipAll bool
 )
 
 var _ = ginkgo.Describe("Services", func() {
@@ -54,8 +55,13 @@ var _ = ginkgo.Describe("Services", func() {
 	)
 
 	f := wrappedTestFramework("services")
-
 	var cs clientset.Interface
+
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
 
 	ginkgo.BeforeEach(func() {
 		cs = f.ClientSet
@@ -64,6 +70,8 @@ var _ = ginkgo.Describe("Services", func() {
 
 	ginkgo.AfterEach(func() {
 		cleanupFn()
+		ginkgo.By("Restoring DeleteNamespaceOnFailure to true")
+		framework.TestContext.DeleteNamespaceOnFailure = true
 	})
 
 	udpPort := int32(rand.Intn(1000) + 10000)
@@ -245,6 +253,8 @@ var _ = ginkgo.Describe("Services", func() {
 			// The payload is transmitted to and echoed from the echo service for both HTTP and UDP tests.
 			ginkgo.When("tests are run towards the agnhost echo service", func() {
 				ginkgo.It("queries to the nodePort service shall work for TCP", func() {
+					ginkgo.By("Setting DeleteNamespaceOnFailure to true")
+					framework.TestContext.DeleteNamespaceOnFailure = false
 					for _, size := range []string{"small", "large"} {
 						for _, serviceNodeIP := range serviceNodeInternalIPs {
 							ginkgo.By(fmt.Sprintf("Sending TCP %s payload to service IP %s "+
@@ -261,6 +271,10 @@ var _ = ginkgo.Describe("Services", func() {
 								cmd,
 								framework.Poll,
 								60*time.Second)
+							if err != nil {
+								skipAll = true
+								ginkgo.AbortSuite("aborting...")
+							}
 							framework.ExpectNoError(err, fmt.Sprintf("Testing TCP with %s payload failed", size))
 							gomega.Expect(stdout).To(gomega.Equal(echoPayloads[size]), fmt.Sprintf("Testing TCP with %s payload failed", size))
 						}

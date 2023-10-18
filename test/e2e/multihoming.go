@@ -43,6 +43,12 @@ var _ = Describe("Multi Homing", func() {
 	)
 	f := wrappedTestFramework("multi-homing")
 
+	BeforeEach(func() {
+		if skipAll {
+			Skip("skipAll set")
+		}
+	})
+
 	var (
 		cs        clientset.Interface
 		nadClient nadclient.K8sCniCncfIoV1Interface

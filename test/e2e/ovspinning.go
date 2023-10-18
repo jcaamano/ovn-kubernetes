@@ -9,6 +9,12 @@ var _ = ginkgo.Describe("OVS CPU affinity pinning", func() {
 
 	f := wrappedTestFramework("ovspinning")
 
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
 	ginkgo.It("can be enabled on specific nodes by creating enable_dynamic_cpu_affinity file", func() {
 
 		nodeWithEnabledOvsAffinityPinning := "ovn-worker2"

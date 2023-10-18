@@ -52,6 +52,12 @@ func newKubevirtClient() (kubecli.KubevirtClient, error) {
 
 var _ = Describe("Kubevirt Virtual Machines", func() {
 
+	BeforeEach(func() {
+		if skipAll {
+			Skip("skipAll set")
+		}
+	})
+
 	var (
 		fr                         = wrappedTestFramework("kv-live-migration")
 		kvcli                      kubecli.KubevirtClient

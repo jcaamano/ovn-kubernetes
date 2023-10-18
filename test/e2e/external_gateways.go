@@ -72,6 +72,12 @@ type gatewayTestIPs struct {
 
 var _ = ginkgo.Describe("External Gateway", func() {
 
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
 	// Validate pods can reach a network running in a container's looback address via
 	// an external gateway running on eth0 of the container without any tunnel encap.
 	// Next, the test updates the namespace annotation to point to a second container,

@@ -26,6 +26,12 @@ var _ = ginkgo.Describe("Multicast", func() {
 
 	fr := wrappedTestFramework("multicast")
 
+	ginkgo.BeforeEach(func() {
+		if skipAll {
+			ginkgo.Skip("skipAll set")
+		}
+	})
+
 	type nodeInfo struct {
 		name   string
 		nodeIP string
