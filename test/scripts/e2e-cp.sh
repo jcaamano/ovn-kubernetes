@@ -138,7 +138,7 @@ go test -test.timeout 180m -v . \
         -ginkgo.v \
         -ginkgo.focus ${FOCUS:-.} \
         -ginkgo.timeout 3h \
-        -ginkgo.flake-attempts ${FLAKE_ATTEMPTS:-2} \
+        -ginkgo.flake-attempts ${FLAKE_ATTEMPTS:-1} \
         -ginkgo.skip="${SKIPPED_TESTS}" \
         -provider skeleton \
         -kubeconfig ${KUBECONFIG} \
