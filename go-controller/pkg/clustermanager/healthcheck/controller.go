@@ -141,8 +141,11 @@ type controller struct {
 }
 
 func (c *controller) GetHealthState(node string) HealthState {
+	klog.Infof("HEALTH GetHealthState")
 	c.RLock()
 	defer c.RUnlock()
+	klog.Infof("HEALTH GetHealthState RLock")
+	defer klog.Infof("HEALTH GetHealthState RUnlock")
 	return c.nodeState[node].health
 }
 
@@ -155,8 +158,11 @@ func (c *controller) MonitorHealthState(node string) {
 }
 
 func (c *controller) Register(consumer Consumer) {
+	klog.Infof("HEALTH Register")
 	c.consumerLock.Lock()
 	defer c.consumerLock.Unlock()
+	klog.Infof("HEALTH Register Lock")
+	defer klog.Infof("HEALTH Register Unlock")
 	c.consumers = append(c.consumers, consumer)
 }
 
@@ -199,6 +205,7 @@ func (c *controller) start(ctx context.Context, nodeInformer coreinformers.NodeI
 		c.run()
 
 		// stop & cleanup
+		klog.Infof("Stopping health check controller")
 		controller.Stop()
 		c.cleanup()
 		klog.Infof("Stopped health check controller")
@@ -225,6 +232,7 @@ func (c *controller) run() {
 func (c *controller) probe(task *probeTask) {
 	// check if task was cancelled before probing
 	if task.cancelled() {
+		klog.Infof("Task was cancelled before probing for node %s", task.node)
 		task.client.disconnect()
 		return
 	}
@@ -232,6 +240,7 @@ func (c *controller) probe(task *probeTask) {
 	// probe
 	klog.V(5).Infof("Probing health state of node %s", task.node)
 	err := task.client.isReachable(task.ctx)
+	klog.Infof("Probing node result %v", err)
 	if err != nil {
 		klog.Errorf("Failed health state probe for node %s: %v", task.node, err)
 	}
@@ -300,6 +309,8 @@ func (c *controller) reconcile(nodeName string) error {
 		update = !cmp.Equal(nodeInfo.ips, mgmtIPs, cmpopts.SortSlices(less))
 	}
 
+	klog.Infof("Health check controller reconcile %s probed [%t] update [%t] IPs [%s]", nodeName, probed, update, util.StringSlice(mgmtIPs))
+
 	if !update {
 		// already probing and no config update, bail out
 		return nil
@@ -326,23 +337,31 @@ func (c *controller) reconcile(nodeName string) error {
 }
 
 func (c *controller) informConsumers(node string) {
+	klog.Infof("HEALTH informConsumers")
 	c.consumerLock.RLock()
 	defer c.consumerLock.RUnlock()
+	klog.Infof("HEALTH informConsumers RLock")
+	defer klog.Infof("HEALTH informConsumers RUnlock")
 	// note we don't query the interest of the consumers as that might be racey,
 	// it is up to the consumers to appropriately filter out uninteresting
 	// events
 	for _, consumer := range c.consumers {
+		klog.Infof("Informing consumer %s", consumer.Name())
 		consumer.HealthStateChanged(node)
 	}
 }
 
 func (c *controller) hasInterestedConsumers(node string, names *[]string) bool {
+	klog.Infof("HEALTH hasInterestedConsumers")
 	c.consumerLock.RLock()
 	defer c.consumerLock.RUnlock()
+	klog.Infof("HEALTH hasInterestedConsumers RLock")
+	defer klog.Infof("HEALTH hasInterestedConsumers RUnlock")
 	for _, consumer := range c.consumers {
 		if names != nil {
 			*names = append(*names, consumer.Name())
 		}
+		klog.Infof("Get consumer interest %s", consumer.Name())
 		if consumer.MonitorHealthState(node) {
 			return true
 		}
@@ -351,19 +370,26 @@ func (c *controller) hasInterestedConsumers(node string, names *[]string) bool {
 }
 
 func (c *controller) isProbedWithNodeInfo(node string) (nodeInfo, bool) {
+	klog.Infof("HEALTH isProbedWithNodeInfo")
 	c.RLock()
 	defer c.RUnlock()
+	klog.Infof("HEALTH isProbedWithNodeInfo RLock")
+	defer klog.Infof("HEALTH isProbedWithNodeInfo RUnlock")
 	nodeInfo, exists := c.nodeInfo[node]
 	return nodeInfo, exists
 }
 
 func (c *controller) startProbeWithNodeInfo(node string, nodeInfo nodeInfo) {
+	klog.Infof("HEALTH startProbeWithNodeInfo")
 	c.Lock()
 	defer c.Unlock()
+	klog.Infof("HEALTH startProbeWithNodeInfo Lock")
+	defer klog.Infof("HEALTH startProbeWithNodeInfo Unlock")
 
 	// cancel any previous task and schedule a new one in case config
 	// changed
 	if nodeInfo.cancelTask != nil {
+		klog.Infof("Canceling previous task for node %s", node)
 		nodeInfo.cancelTask()
 	}
 
@@ -377,13 +403,24 @@ func (c *controller) startProbeWithNodeInfo(node string, nodeInfo nodeInfo) {
 		time:   addPeriodAndJitter(time.Now(), 0, jitter),
 		ctx:    ctx,
 	}
+	klog.Infof("Task probing %s on %s", task.node, task.time)
 	c.probeTaskQueue.Push(task)
 }
 
 func (c *controller) setNodeStateAndRetask(task *probeTask, new HealthState) bool {
 	on := time.Now()
+	klog.Infof("HEALTH setNodeStateAndRetask")
 	c.Lock()
 	defer c.Unlock()
+	klog.Infof("HEALTH setNodeStateAndRetask Lock")
+	defer klog.Infof("HEALTH setNodeStateAndRetask Unlock")
+
+	// check if task was cancelled after probing
+	if task.cancelled() {
+		klog.Infof("Task was cancelled after probing for node %s", task.node)
+		task.client.disconnect()
+		return false
+	}
 
 	// check if task was cancelled after probing
 	if task.cancelled() {
@@ -395,15 +432,19 @@ func (c *controller) setNodeStateAndRetask(task *probeTask, new HealthState) boo
 
 	// retask with new schedule
 	task.time = addPeriodAndJitter(task.time, period, jitter)
+	klog.Infof("Retask probing %s on %s", task.node, task.time)
 	c.probeTaskQueue.Push(task)
 
 	return updated
 }
 
 func (c *controller) cancelProbeWithState(node string, state HealthState) bool {
+	klog.Infof("HEALTH cancelProbeWithState")
 	on := time.Now()
 	c.Lock()
 	defer c.Unlock()
+	klog.Infof("HEALTH cancelProbeWithState Lock")
+	defer klog.Infof("HEALTH cancelProbeWithState Unlock")
 
 	nodeInfo, exists := c.nodeInfo[node]
 	if exists {

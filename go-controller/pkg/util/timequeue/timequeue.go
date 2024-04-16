@@ -5,6 +5,8 @@ import (
 	"context"
 	"sync"
 	"time"
+
+	"k8s.io/klog/v2"
 )
 
 // TimeItem is the type of item stored by TimeQueue. Each item has an associated
@@ -49,7 +51,11 @@ func (tq *TimeQueue[T]) Pop(ctx context.Context) T {
 	var timeout <-chan time.Time
 	signal := make(chan struct{})
 
+	klog.Info("In pop item")
+	defer klog.Info("Out pop item")
+
 	pop := func() (T, bool) {
+		klog.Info("In inner pop item")
 		tq.pop.Lock()
 		defer tq.pop.Unlock()
 
@@ -62,6 +68,7 @@ func (tq *TimeQueue[T]) Pop(ctx context.Context) T {
 			itemTime = item.Time()
 			d := time.Until(itemTime)
 			if d <= 0 {
+				klog.Info("Out inner pop item")
 				return item, true
 			}
 			if timer == nil {
@@ -76,10 +83,13 @@ func (tq *TimeQueue[T]) Pop(ctx context.Context) T {
 		// when we are pending for an item to consume or when a new item has a
 		// time earlier than the one we are tracking
 		tq.consumers[signal] = itemTime
+		klog.Info("Out inner pop item")
 		return item, false
 	}
 
 	unpop := func(item T) {
+		klog.Info("In inner unpop item")
+		defer klog.Info("Out inner unpop item")
 		tq.pop.Lock()
 		delete(tq.consumers, signal)
 		tq.pop.Unlock()
@@ -121,6 +131,9 @@ func (tq *TimeQueue[T]) Push(item T) {
 	// no concurrent push
 	tq.push.Lock()
 	defer tq.push.Unlock()
+
+	klog.Info("In push item")
+	defer klog.Info("Out push item")
 
 	// pop lock while we insert the item and evaluate consumers
 	tq.pop.Lock()
