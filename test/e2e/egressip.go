@@ -17,6 +17,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/ginkgo/v2/dsl/table"
 	"github.com/onsi/gomega"
+	"github.com/ovn-org/ovn-kubernetes/test/e2e/diagnostics"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -475,6 +476,7 @@ var _ = ginkgo.Describe("e2e egress IP validation", func() {
 	}
 
 	f := wrappedTestFramework(egressIPName)
+	d := diagnostics.New(f)
 
 	// Determine what mode the CI is running in and get relevant endpoint information for the tests
 	ginkgo.BeforeEach(func() {
@@ -530,6 +532,10 @@ var _ = ginkgo.Describe("e2e egress IP validation", func() {
 				setNodeReachable("ip6tables", node.Name, true)
 			}
 		}
+
+		d.ConntrackDumpingDaemonSet()
+		d.IPTablesDumpingDaemonSet()
+		d.TCPDumpDaemonSet([]string{"genev_sys_6081", "eth0"}, "port 80")
 	})
 
 	ginkgo.AfterEach(func() {

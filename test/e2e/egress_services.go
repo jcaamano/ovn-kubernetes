@@ -11,6 +11,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/ovn-org/ovn-kubernetes/test/e2e/diagnostics"
 	"golang.org/x/sync/errgroup"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -434,6 +435,11 @@ spec:
 
 	ginkgo.DescribeTable("Should validate pods' egress is SNATed to the LB's ingress ip with selectors",
 		func(protocol v1.IPFamily, dstIP *string) {
+			d := diagnostics.New(f)
+			d.ConntrackDumpingDaemonSet()
+			d.IPTablesDumpingDaemonSet()
+			d.TCPDumpDaemonSet([]string{"genev_sys_6081", "eth0"}, "port 80")
+
 			ginkgo.By("Creating the backend pods")
 			podsCreateSync := errgroup.Group{}
 			index := 0
