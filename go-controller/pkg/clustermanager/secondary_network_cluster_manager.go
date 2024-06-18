@@ -51,8 +51,7 @@ func newSecondaryNetworkClusterManager(ovnClient *util.OVNClusterManagerClientse
 		networkIDAllocator: networkIDAllocator,
 	}
 
-	sncm.nadController, err = nad.NewNetAttachDefinitionController(
-		"cluster-manager", sncm, ovnClient.NetworkAttchDefClient, recorder)
+	sncm.nadController, err = nad.NewNetAttachDefinitionController("cluster-manager", sncm, wf.NADInformer(), recorder)
 	if err != nil {
 		return nil, err
 	}

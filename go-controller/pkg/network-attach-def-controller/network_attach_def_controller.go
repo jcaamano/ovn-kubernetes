@@ -4,43 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
-	kapi "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 
 	nettypes "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
-	nadclientset "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned"
-	nadinformers "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/informers/externalversions"
+	nadinformer "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/informers/externalversions/k8s.cni.cncf.io/v1"
 	nadlisters "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/listers/k8s.cni.cncf.io/v1"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/controller"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/syncmap"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
-	"golang.org/x/sync/errgroup"
-	"golang.org/x/time/rate"
-)
-
-const (
-	// maxRetries is the number of times a object will be retried before it is dropped out of the queue.
-	// With the current rate-limiter in use (5ms*2^(maxRetries-1)) the following numbers represent the
-	// sequence of delays between successive queuings of an object.
-	//
-	// 5ms, 10ms, 20ms, 40ms, 80ms, 160ms, 320ms, 640ms, 1.3s, 2.6s, 5.1s, 10.2s, 20.4s, 41s, 82s
-	// maxRetries = 15
-
-	avoidResync     = 0
-	numberOfWorkers = 2
-	qps             = 15
-	maxRetries      = 10
 )
 
 var ErrNetworkControllerTopologyNotManaged = errors.New("no cluster network controller to manage topology")
@@ -80,13 +60,8 @@ type NetAttachDefinitionController struct {
 	name               string
 	recorder           record.EventRecorder
 	ncm                NetworkControllerManager
-	nadFactory         nadinformers.SharedInformerFactory
 	netAttachDefLister nadlisters.NetworkAttachmentDefinitionLister
-	netAttachDefSynced cache.InformerSynced
-	queue              workqueue.RateLimitingInterface
-	loopPeriod         time.Duration
-	stopChan           chan struct{}
-	wg                 sync.WaitGroup
+	controller         controller.Controller
 
 	// key is nadName, value is BasicNetInfo
 	perNADNetInfo *syncmap.SyncMap[util.BasicNetInfo]
@@ -96,83 +71,42 @@ type NetAttachDefinitionController struct {
 	perNetworkNADInfo *syncmap.SyncMap[*networkNADInfo]
 }
 
-func NewNetAttachDefinitionController(name string, ncm NetworkControllerManager, networkAttchDefClient nadclientset.Interface,
-	recorder record.EventRecorder) (*NetAttachDefinitionController, error) {
-	nadFactory := nadinformers.NewSharedInformerFactoryWithOptions(
-		networkAttchDefClient,
-		avoidResync,
-	)
-	netAttachDefInformer := nadFactory.K8sCniCncfIo().V1().NetworkAttachmentDefinitions()
-	rateLimiter := workqueue.NewMaxOfRateLimiter(
-		workqueue.NewItemExponentialFailureRateLimiter(5*time.Millisecond, 1000*time.Second),
-		&workqueue.BucketRateLimiter{Limiter: rate.NewLimiter(rate.Limit(qps), qps*5)})
-
+func NewNetAttachDefinitionController(name string, ncm NetworkControllerManager, nadInformer nadinformer.NetworkAttachmentDefinitionInformer, recorder record.EventRecorder) (*NetAttachDefinitionController, error) {
 	nadController := &NetAttachDefinitionController{
 		name:               name,
 		recorder:           recorder,
 		ncm:                ncm,
-		nadFactory:         nadFactory,
-		netAttachDefLister: netAttachDefInformer.Lister(),
-		netAttachDefSynced: netAttachDefInformer.Informer().HasSynced,
-		queue:              workqueue.NewNamedRateLimitingQueue(rateLimiter, "net-attach-def"),
-		loopPeriod:         time.Second,
-		stopChan:           make(chan struct{}),
+		netAttachDefLister: nadInformer.Lister(),
 		perNADNetInfo:      syncmap.NewSyncMap[util.BasicNetInfo](),
 		perNetworkNADInfo:  syncmap.NewSyncMap[*networkNADInfo](),
 	}
-	_, err := netAttachDefInformer.Informer().AddEventHandler(
-		cache.ResourceEventHandlerFuncs{
-			AddFunc:    nadController.onNetworkAttachDefinitionAdd,
-			UpdateFunc: nadController.onNetworkAttachDefinitionUpdate,
-			DeleteFunc: nadController.onNetworkAttachDefinitionDelete,
-		})
-	if err != nil {
-		return nil, err
+	config := &controller.Config[nettypes.NetworkAttachmentDefinition]{
+		RateLimiter: workqueue.DefaultControllerRateLimiter(),
+		Informer:    nadInformer.Informer(),
+		Lister:      nadController.netAttachDefLister.List,
+		Reconcile:   nadController.sync,
+		Threadiness: 2,
 	}
-	return nadController, nil
 
+	nadController.controller = controller.NewController(
+		fmt.Sprintf("NAD controller %s", nadController.name),
+		config,
+	)
+
+	return nadController, nil
 }
 
 func (nadController *NetAttachDefinitionController) Start() error {
 	klog.Infof("Starting %s NAD controller", nadController.name)
-	g := errgroup.Group{}
-	// run on a goroutine so that we can be stopped if we happen to
-	// be stuck waiting for cache sync
-	g.Go(nadController.start)
-	return g.Wait()
-}
-
-func (nadController *NetAttachDefinitionController) start() error {
-	nadController.nadFactory.Start(nadController.stopChan)
-	if !util.WaitForInformerCacheSyncWithTimeout(nadController.name, nadController.stopChan, nadController.netAttachDefSynced) {
-		return fmt.Errorf("stop requested while syncing %s caches", nadController.name)
-	}
-
-	err := nadController.SyncNetworkControllers()
-	if err != nil {
-		return fmt.Errorf("failed to sync all existing NAD entries: %v", err)
-	}
-
-	klog.Infof("Starting workers for %s NAD controller", nadController.name)
-	for i := 0; i < numberOfWorkers; i++ {
-		nadController.wg.Add(1)
-		go func() {
-			defer nadController.wg.Done()
-			wait.Until(nadController.worker, nadController.loopPeriod, nadController.stopChan)
-		}()
-	}
-
-	return nil
+	return controller.StartControllersWithInitialSync(
+		nadController.SyncNetworkControllers,
+		nadController.controller,
+	)
 }
 
 func (nadController *NetAttachDefinitionController) Stop() {
 	klog.Infof("Shutting down %s NAD controller", nadController.name)
-
-	close(nadController.stopChan)
-	nadController.queue.ShutDown()
-
-	// wait for the workers to terminate
-	nadController.wg.Wait()
+	controller.StopControllers(nadController.controller)
 
 	// stop each network controller
 	started := func(nni *networkNADInfo) bool { return nni.isStarted }
@@ -208,23 +142,6 @@ func (nadController *NetAttachDefinitionController) SyncNetworkControllers() (er
 
 	all := func(nn *networkNADInfo) bool { return true }
 	return nadController.ncm.CleanupDeletedNetworks(nadController.getNetworkControllers(all))
-}
-
-func (nadController *NetAttachDefinitionController) worker() {
-	for nadController.processNextWorkItem() {
-	}
-}
-
-func (nadController *NetAttachDefinitionController) processNextWorkItem() bool {
-	key, quit := nadController.queue.Get()
-	if quit {
-		return false
-	}
-	defer nadController.queue.Done(key)
-
-	err := nadController.sync(key.(string))
-	nadController.handleErr(err, key)
-	return true
 }
 
 func (nadController *NetAttachDefinitionController) sync(key string) error {
@@ -267,95 +184,6 @@ func (nadController *NetAttachDefinitionController) sync(key string) error {
 	}
 
 	return nadController.AddNetAttachDef(nadController.ncm, nad, true)
-}
-
-func (nadController *NetAttachDefinitionController) handleErr(err error, key interface{}) {
-	ns, name, keyErr := cache.SplitMetaNamespaceKey(key.(string))
-	if keyErr != nil {
-		klog.ErrorS(err, "Failed to split meta namespace cache key", "key", key)
-	}
-
-	if errors.Is(err, ErrNetworkControllerTopologyNotManaged) {
-		klog.V(2).Infof("%s: Dropping net-attach-def %q out of the queue. No network controller to manage it.", nadController.name, key)
-		err = nil
-	}
-
-	if err == nil {
-		nadController.queue.Forget(key)
-		return
-	}
-
-	if nadController.queue.NumRequeues(key) < maxRetries {
-		nadController.queue.AddRateLimited(key)
-		klog.V(2).InfoS("Error syncing net-attach-def, retrying", "net-attach-def", klog.KRef(ns, name), "err", err)
-		return
-	}
-
-	klog.Warningf("%s: Dropping net-attach-def %q out of the queue: %v", nadController.name, key, err)
-	nadController.queue.Forget(key)
-	utilruntime.HandleError(err)
-}
-
-func (nadController *NetAttachDefinitionController) queueNetworkAttachDefinition(obj interface{}) {
-	key, err := cache.MetaNamespaceKeyFunc(obj)
-	if err != nil {
-		utilruntime.HandleError(fmt.Errorf("%s: couldn't get key for net-attach-def %+v: %v", nadController.name, obj, err))
-		return
-	}
-	nadController.queue.Add(key)
-}
-
-func (nadController *NetAttachDefinitionController) onNetworkAttachDefinitionAdd(obj interface{}) {
-	nad := obj.(*nettypes.NetworkAttachmentDefinition)
-	if nad == nil {
-		utilruntime.HandleError(fmt.Errorf("%s: invalid net-attach-def provided to onNetworkAttachDefinitionAdd()", nadController.name))
-		return
-	}
-
-	klog.V(4).Infof("%s: Adding net-attach-def %s/%s", nadController.name, nad.Namespace, nad.Name)
-	nadController.queueNetworkAttachDefinition(obj)
-}
-
-func (nadController *NetAttachDefinitionController) onNetworkAttachDefinitionUpdate(oldObj, newObj interface{}) {
-	oldNAD := oldObj.(*nettypes.NetworkAttachmentDefinition)
-	newNAD := newObj.(*nettypes.NetworkAttachmentDefinition)
-	if oldNAD == nil || newNAD == nil {
-		utilruntime.HandleError(fmt.Errorf("%s: invalid net-attach-def provided to onNetworkAttachDefinitionUpdate()", nadController.name))
-		return
-	}
-
-	// don't process resync or objects that are marked for deletion
-	if oldNAD.ResourceVersion == newNAD.ResourceVersion ||
-		!newNAD.GetDeletionTimestamp().IsZero() {
-		return
-	}
-
-	err := fmt.Sprintf("%s: Updating net-attach-def %s/%s is not supported", nadController.name, newNAD.Namespace, newNAD.Name)
-	nadRef := kapi.ObjectReference{
-		Kind:      "NetworkAttachmentDefinition",
-		Namespace: newNAD.Namespace,
-		Name:      newNAD.Name,
-	}
-	nadController.recorder.Eventf(&nadRef, kapi.EventTypeWarning, "ErrorUpdatingResource", err)
-	klog.Warningf(err)
-}
-
-func (nadController *NetAttachDefinitionController) onNetworkAttachDefinitionDelete(obj interface{}) {
-	nad, ok := obj.(*nettypes.NetworkAttachmentDefinition)
-	if !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
-		if !ok {
-			utilruntime.HandleError(fmt.Errorf("couldn't get object from tombstone %#v", obj))
-			return
-		}
-		nad, ok = tombstone.Obj.(*nettypes.NetworkAttachmentDefinition)
-		if !ok {
-			utilruntime.HandleError(fmt.Errorf("tombstone contained object that is not a NetworkAttachmentDefinition object %#v", obj))
-			return
-		}
-	}
-	klog.V(4).Infof("%s: Deleting net-attach-def %s/%s", nadController.name, nad.Namespace, nad.Name)
-	nadController.queueNetworkAttachDefinition(nad)
 }
 
 // getNetworkControllers returns a snapshot of all managed NAD associated
