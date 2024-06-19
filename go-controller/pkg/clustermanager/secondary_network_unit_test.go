@@ -64,7 +64,7 @@ var _ = ginkgo.Describe("Cluster Controller Manager", func() {
 					IPAMClaimsClient: fakeipamclaimclient.NewSimpleClientset(),
 				}
 
-				gomega.Expect(initConfig(ctx, ovnkconfig.OVNKubernetesFeatureConfig{})).To(gomega.Succeed())
+				gomega.Expect(initConfig(ctx, ovnkconfig.OVNKubernetesFeatureConfig{EnableMultiNetwork: true})).To(gomega.Succeed())
 				var err error
 				f, err = factory.NewClusterManagerWatchFactory(fakeClient)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -185,7 +185,7 @@ var _ = ginkgo.Describe("Cluster Controller Manager", func() {
 					KubeClient: kubeFakeClient,
 				}
 
-				gomega.Expect(initConfig(ctx, ovnkconfig.OVNKubernetesFeatureConfig{})).To(gomega.Succeed())
+				gomega.Expect(initConfig(ctx, ovnkconfig.OVNKubernetesFeatureConfig{EnableMultiNetwork: true})).To(gomega.Succeed())
 				var err error
 				f, err = factory.NewClusterManagerWatchFactory(fakeClient)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())

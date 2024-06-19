@@ -357,6 +357,6 @@ func newDummyNetInfo(namespace, networkName string) NetInfo {
 	netInfo, _ := newLayer2NetConfInfo(&ovncnitypes.NetConf{
 		NetConf: cnitypes.NetConf{Name: networkName},
 	})
-	netInfo.AddNAD(GetNADName(namespace, networkName))
+	netInfo.AddNADs(GetNADName(namespace, networkName))
 	return netInfo
 }

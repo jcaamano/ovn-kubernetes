@@ -19,6 +19,7 @@ const maxRetries = 15
 
 // Controller is a level-driven controller that is shut down after Stop() call.
 type Controller interface {
+	Reconcile(key string)
 	ReconcileAll()
 	addHandler() error
 	startWorkers() error
@@ -66,6 +67,10 @@ func NewController[T any](name string, config *Config[T]) Controller {
 }
 
 func (c *controller[T]) addHandler() error {
+	if c.config.Informer == nil {
+		return nil
+	}
+
 	klog.Infof("Adding controller %v event handlers", c.name)
 
 	var err error
@@ -193,6 +198,10 @@ func (c *controller[T]) processNextQueueItem() bool {
 	}
 	c.queue.Forget(key)
 	return true
+}
+
+func (c *controller[T]) Reconcile(key string) {
+	c.queue.Add(key)
 }
 
 func (c *controller[T]) ReconcileAll() {
