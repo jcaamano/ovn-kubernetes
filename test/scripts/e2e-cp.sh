@@ -18,7 +18,6 @@ export KUBECONFIG=${KUBECONFIG:-${HOME}/ovn.conf}
 # https://github.com/ovn-org/ovn-kubernetes/issues/4131 for details.
 # TODO: Fix EIP tests. See https://github.com/ovn-org/ovn-kubernetes/issues/4130 for details.
 # TODO: Fix EFW tests. See https://github.com/ovn-org/ovn-kubernetes/issues/4133 for details.
-# TODO: Fix CPU Pinning tests. See https://github.com/ovn-org/ovn-kubernetes/issues/4134 for details.
 # TODO: Fix MTU tests. See https://github.com/ovn-org/ovn-kubernetes/issues/4160 for details.
 IPV6_SKIPPED_TESTS="Should be allowed by externalip services|\
 should provide connection to external host by DNS name from a pod|\
@@ -38,7 +37,6 @@ can retrieve multicast IGMP query|\
 test node readiness according to its defaults interface MTU size|\
 egress IP validation|\
 e2e egress firewall policy validation|\
-OVS CPU affinity pinning|\
 Pod to pod TCP with low MTU|\
 queries to the hostNetworked server pod on another node shall work for TCP|\
 queries to the hostNetworked server pod on another node shall work for UDP|\
@@ -161,6 +159,15 @@ if [ "${WHAT}" != "${KV_LIVE_MIGRATION_TESTS}" ]; then
 	SKIPPED_TESTS+="|"
   fi
   SKIPPED_TESTS+=$KV_LIVE_MIGRATION_TESTS
+fi
+
+# Only run network segmentation tests if they are explicitly requested
+NETWORK_SEGMENTATION_TESTS="Network Segmentation"
+if [ "${WHAT}" != "${NETWORK_SEGMENTATION_TESTS}" ]; then
+  if [ "$SKIPPED_TESTS" != "" ]; then
+	SKIPPED_TESTS+="|"
+  fi
+  SKIPPED_TESTS+=$NETWORK_SEGMENTATION_TESTS
 fi
 
 # setting these is required to make RuntimeClass tests work ... :/

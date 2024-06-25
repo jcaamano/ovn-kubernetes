@@ -26,11 +26,11 @@ spec:
   template:
     metadata:
       labels:
-        ovn-db-pod: "true"
         name: ovnkube-db
         component: network
         type: infra
         kubernetes.io/os: "linux"
+        ovn-db-pod: "true"
     spec:
       priorityClassName: "system-cluster-critical"
       # Requires fairly broad permissions - ability to read all services and network functions as well
@@ -78,7 +78,7 @@ spec:
             memory: 300Mi
         env:
         - name: OVN_DAEMONSET_VERSION
-          value: "3"
+          value: "1.0.0"
         - name: OVN_LOGLEVEL_NB
           value: {{ default "-vconsole:info -vfile:info" .Values.nbLogLevel }}
         - name: K8S_APISERVER
@@ -142,7 +142,7 @@ spec:
             memory: 300Mi
         env:
         - name: OVN_DAEMONSET_VERSION
-          value: "3"
+          value: "1.0.0"
         - name: OVN_LOGLEVEL_SB
           value: {{ default "-vconsole:info -vfile:info" .Values.sbLogLevel }}
         - name: K8S_APISERVER

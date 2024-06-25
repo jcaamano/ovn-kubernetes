@@ -12,6 +12,11 @@ import (
 	"k8s.io/klog/v2"
 )
 
+const (
+	nbConnectionStatus = "nb-connection-status"
+	sbConnectionStatus = "sb-connection-status"
+)
+
 var (
 	ovnNorthdVersion       string
 	ovnNorthdOvsLibVersion string
@@ -33,6 +38,22 @@ func getOvnNorthdVersionInfo() {
 			ovnNorthdOvsLibVersion = strings.Fields(line)[3]
 		}
 	}
+}
+
+func getOvnNorthdConnectionStatusInfo(command string) float64 {
+	stdout, stderr, err := util.RunOVNNorthAppCtl(command)
+	if err != nil {
+		klog.Errorf("Failed to get ovn-northd %s stderr(%s): (%v)", command, stderr, err)
+		return -1
+	}
+	connectionStatusMap := map[string]float64{
+		"not connected": 0,
+		"connected":     1,
+	}
+	if value, ok := connectionStatusMap[stdout]; ok {
+		return value
+	}
+	return -1
 }
 
 var ovnNorthdCoverageShowMetricsMap = map[string]*metricDetails{
@@ -92,7 +113,7 @@ var ovnNorthdStopwatchShowMetricsMap = map[string]*stopwatchMetricDetails{
 
 func RegisterOvnNorthdMetrics(clientset kubernetes.Interface, k8sNodeName string, stopChan <-chan struct{}) {
 	err := wait.PollUntilContextTimeout(context.Background(), 1*time.Second, 300*time.Second, true, func(ctx context.Context) (bool, error) {
-		return checkPodRunsOnGivenNode(clientset, []string{"app=ovnkube-master", "name=ovnkube-master"}, k8sNodeName, true)
+		return checkPodRunsOnGivenNode(clientset, []string{"ovn-db-pod=true"}, k8sNodeName, true)
 	})
 	if err != nil {
 		klog.Infof("Not registering OVN North Metrics because OVNKube Master Pod was not found running on this "+
@@ -142,6 +163,26 @@ func RegisterOvnNorthdMetrics(clientset kubernetes.Interface, k8sNodeName string
 				}
 			}
 			return -1
+		},
+	))
+	ovnRegistry.MustRegister(prometheus.NewGaugeFunc(
+		prometheus.GaugeOpts{
+			Namespace: MetricOvnNamespace,
+			Subsystem: MetricOvnSubsystemNorthd,
+			Name:      "nb_connection_status",
+			Help:      "Specifies nb-connection-status of ovn-northd, not connected(0) or connected(1).",
+		}, func() float64 {
+			return getOvnNorthdConnectionStatusInfo(nbConnectionStatus)
+		},
+	))
+	ovnRegistry.MustRegister(prometheus.NewGaugeFunc(
+		prometheus.GaugeOpts{
+			Namespace: MetricOvnNamespace,
+			Subsystem: MetricOvnSubsystemNorthd,
+			Name:      "sb_connection_status",
+			Help:      "Specifies sb-connection-status of ovn-northd, not connected(0) or connected(1).",
+		}, func() float64 {
+			return getOvnNorthdConnectionStatusInfo(sbConnectionStatus)
 		},
 	))
 

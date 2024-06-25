@@ -138,7 +138,7 @@ global:
   libovsdbClientLogFile: ""
   image:
     # -- Image repository for ovn-kubernetes components
-    repository: ghcr.io/ovn-org/ovn-kubernetes/ovn-kube-u
+    repository: ghcr.io/ovn-org/ovn-kubernetes/ovn-kube-ubuntu
     # -- Specify image tag to run
     tag: master
     # -- Image pull policy
@@ -147,3 +147,12 @@ global:
 ovnkube-identity:
     # -- number of ovnube-identity pods, co-located with kube-apiserver process, so need to be the same number of control plane nodes
     replicas: 1
+
+# -- prometheus monitoring related fields
+monitoring:
+  # -- specify the labels for serviceMonitors to be selected for target discovery.
+  # Prometheus operator defines what namespaces and what servicemonitors within these
+  # namespaces must be selected for target discovery. The fields defined below helps
+  # in defining that.
+  commonServiceMonitorSelectorLabels:
+    release: kube-prometheus-stack
