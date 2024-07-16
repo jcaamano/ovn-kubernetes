@@ -38,7 +38,7 @@ type nodeNetworkControllerManager struct {
 
 	// net-attach-def controller handle net-attach-def and create/delete secondary controllers
 	// nil in dpu-host mode
-	nadController *nad.NetAttachDefinitionController
+	nadController *nad.NADController
 	// vrf manager that creates and manages vrfs for all UDNs
 	vrfManager *vrfmanager.Controller
 }
@@ -99,6 +99,7 @@ func (ncm *nodeNetworkControllerManager) newCommonNetworkControllerInfo() *node.
 // (2) primary user defined networks is enabled (all modes)
 func isNodeNADControllerRequired() bool {
 	return ((config.OVNKubernetesFeature.EnableMultiNetwork && config.OvnKubeNode.Mode == ovntypes.NodeModeDPU) ||
+		(config.OVNKubernetesFeature.EnableRouteAdvertisements && config.OvnKubeNode.Mode == ovntypes.NodeModeFull) ||
 		util.IsNetworkSegmentationSupportEnabled())
 }
 
@@ -119,7 +120,7 @@ func NewNodeNetworkControllerManager(ovnClient *util.OVNClientset, wf factory.No
 	// need to start NAD controller on node side for programming gateway pieces for UDNs
 	var err error
 	if isNodeNADControllerRequired() {
-		ncm.nadController, err = nad.NewNetAttachDefinitionController("node-network-controller-manager", ncm, wf)
+		ncm.nadController, err = nad.NewNodeNADController("node-network-controller-manager", ncm, wf, name)
 	}
 	if util.IsNetworkSegmentationSupportEnabled() {
 		ncm.vrfManager = vrfmanager.NewController()
@@ -127,6 +128,7 @@ func NewNodeNetworkControllerManager(ovnClient *util.OVNClientset, wf factory.No
 	if err != nil {
 		return nil, err
 	}
+
 	return ncm, nil
 }
 
@@ -178,18 +180,20 @@ func (ncm *nodeNetworkControllerManager) Start(ctx context.Context) (err error) 
 	if err != nil {
 		return fmt.Errorf("failed to init default node network controller: %v", err)
 	}
-	err = ncm.defaultNodeNetworkController.Start(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to start default node network controller: %v", err)
-	}
 
 	// nadController is nil if multi-network is disabled
 	if ncm.nadController != nil {
 		err = ncm.nadController.Start()
 		if err != nil {
-			return fmt.Errorf("failed to start NAD controller: %w", err)
+			return fmt.Errorf("failed to start default node network NAD controller: %v", err)
 		}
 	}
+
+	err = ncm.defaultNodeNetworkController.Start(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start default node network controller: %v", err)
+	}
+
 	if ncm.vrfManager != nil {
 		// Let's create VRF manager that will manage VRFs for all UDNs
 		err = ncm.vrfManager.Run(ncm.stopChan, ncm.wg)
