@@ -374,7 +374,6 @@ func expectedLayer2EgressEntities(netInfo util.NetInfo, gwConfig util.L3GatewayC
 	const (
 		nat1              = "nat1-UUID"
 		nat2              = "nat2-UUID"
-		nat3              = "nat3-UUID"
 		perPodSNAT        = "pod-snat-UUID"
 		sr1               = "sr1-UUID"
 		sr2               = "sr2-UUID"
@@ -389,7 +388,7 @@ func expectedLayer2EgressEntities(netInfo util.NetInfo, gwConfig util.L3GatewayC
 	if config.Gateway.DisableSNATMultipleGWs {
 		nat = append(nat, nat1, perPodSNAT)
 	} else {
-		nat = append(nat, nat1, nat2, nat3)
+		nat = append(nat, nat1, nat2)
 	}
 	expectedEntities := []libovsdbtest.TestData{
 		&nbdb.LogicalRouter{
@@ -418,7 +417,6 @@ func expectedLayer2EgressEntities(netInfo util.NetInfo, gwConfig util.L3GatewayC
 	} else {
 		expectedEntities = append(expectedEntities, newNATEntry(nat1, dummyMasqueradeIP().IP.String(), gwRouterJoinIPAddress().IP.String(), standardNonDefaultNetworkExtIDs(netInfo)))
 		expectedEntities = append(expectedEntities, newNATEntry(nat2, dummyMasqueradeIP().IP.String(), layer2Subnet().String(), standardNonDefaultNetworkExtIDs(netInfo)))
-		expectedEntities = append(expectedEntities, newNATEntry(nat3, dummyMasqueradeIP().IP.String(), layer2SubnetGWAddr().IP.String(), standardNonDefaultNetworkExtIDs(netInfo)))
 	}
 	return expectedEntities
 }
