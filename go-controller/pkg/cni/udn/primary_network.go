@@ -74,18 +74,28 @@ func (p *UserDefinedPrimaryNetwork) WaitForPrimaryAnnotationFn(namespace string,
 		if annotation == nil {
 			return nil, false
 		}
-		if nadName != types.DefaultNetworkName || annotation.Role == types.NetworkRolePrimary {
+
+		// CmdAdd from non default network is not realted to primary UDNs
+		if nadName != types.DefaultNetworkName {
+			return annotation, isReady
+		}
+
+		// If these are pods created before primary UDN functionality the
+		// default network without role is the primary network
+		if annotation.Role == "" {
+			annotation.Role = types.NetworkRolePrimary
+		}
+
+		if annotation.Role == types.NetworkRolePrimary {
 			return annotation, isReady
 		}
 
 		if err := p.ensureAnnotation(annotations); err != nil {
-			//TODO: Event ?
-			klog.Warningf("Failed looking for primary network annotation: %v", err)
+			klog.Errorf("Failed looking for primary network annotation: %v", err)
 			return nil, false
 		}
 		if err := p.ensureActiveNetwork(namespace); err != nil {
-			//TODO: Event ?
-			klog.Warningf("Failed looking for primary network name: %v", err)
+			klog.Errorf("Failed looking for primary network name: %v", err)
 			return nil, false
 		}
 		return annotation, isReady

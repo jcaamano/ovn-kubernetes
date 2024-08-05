@@ -69,6 +69,8 @@ var _ = Describe("Node IP Handler event tests", func() {
 	)
 
 	BeforeEach(func() {
+		// Restore global default values before each testcase
+		Expect(config.PrepareTestConfig()).To(Succeed())
 		fexec := ovntest.NewFakeExec()
 		fexec.AddFakeCmd(&ovntest.ExpectedCmd{
 			Cmd:    "ovs-vsctl --timeout=15 get Open_vSwitch . external_ids:ovn-encap-ip",
@@ -187,6 +189,8 @@ var _ = Describe("Node IP Handler tests", func() {
 			Output: dummyBrInternalIPv4,
 		})
 		Expect(util.SetExec(fexec)).ShouldNot(HaveOccurred())
+		// Restore global default values before each testcase
+		Expect(config.PrepareTestConfig()).To(Succeed())
 		config.IPv4Mode = true
 		config.IPv6Mode = true
 		tc = configureKubeOVNContextWithNs(nodeName)
@@ -360,13 +364,11 @@ func configureKubeOVNContext(nodeName string, useNetlink bool) *testCtx {
 		link:      nil,
 		routerMAC: nil,
 		ipv4: &managementPortIPFamilyConfig{
-			ipt:        nil,
 			allSubnets: nil,
 			ifAddr:     tc.mgmtPortIP4,
 			gwIP:       tc.mgmtPortIP4.IP,
 		},
 		ipv6: &managementPortIPFamilyConfig{
-			ipt:        nil,
 			allSubnets: nil,
 			ifAddr:     tc.mgmtPortIP6,
 			gwIP:       tc.mgmtPortIP6.IP,

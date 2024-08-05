@@ -34,7 +34,7 @@ type nodeNetworkControllerManager struct {
 
 	// net-attach-def controller handle net-attach-def and create/delete secondary controllers
 	// nil in dpu-host mode
-	nadController *nad.NetAttachDefinitionController
+	nadController *nad.NADController
 }
 
 // NewNetworkController create secondary node network controllers for the given NetInfo
@@ -47,6 +47,10 @@ func (ncm *nodeNetworkControllerManager) NewNetworkController(nInfo util.NetInfo
 	return nil, fmt.Errorf("topology type %s not supported", topoType)
 }
 
+func (cm *nodeNetworkControllerManager) GetDefaultNetworkController() nad.ReconcilableNetworkController {
+	return cm.defaultNodeNetworkController
+}
+
 // CleanupDeletedNetworks cleans up all stale entities giving list of all existing secondary network controllers
 func (ncm *nodeNetworkControllerManager) CleanupDeletedNetworks(validNetworks ...util.BasicNetInfo) error {
 	return nil
@@ -55,6 +59,15 @@ func (ncm *nodeNetworkControllerManager) CleanupDeletedNetworks(validNetworks ..
 // newCommonNetworkControllerInfo creates and returns the base node network controller info
 func (ncm *nodeNetworkControllerManager) newCommonNetworkControllerInfo() *node.CommonNodeNetworkControllerInfo {
 	return node.NewCommonNodeNetworkControllerInfo(ncm.ovnNodeClient.KubeClient, ncm.ovnNodeClient.AdminPolicyRouteClient, ncm.watchFactory, ncm.recorder, ncm.name)
+}
+
+// NAD controller should be started on the node side under the following conditions:
+// (1) dpu mode is enabled when secondary networks feature is enabled
+// (2) primary user defined networks is enabled (all modes)
+func isNodeNADControllerRequired() bool {
+	return ((config.OVNKubernetesFeature.EnableMultiNetwork && config.OvnKubeNode.Mode == ovntypes.NodeModeDPU) ||
+		(config.OVNKubernetesFeature.EnableRouteAdvertisements && config.OvnKubeNode.Mode == ovntypes.NodeModeFull) ||
+		util.IsNetworkSegmentationSupportEnabled())
 }
 
 // NewNodeNetworkControllerManager creates a new OVN controller manager to manage all the controller for all networks
@@ -70,13 +83,15 @@ func NewNodeNetworkControllerManager(ovnClient *util.OVNClientset, wf factory.No
 	}
 
 	// need to configure OVS interfaces for Pods on secondary networks in the DPU mode
+	// need to start NAD controller on node side for programming gateway pieces for UDNs
 	var err error
-	if config.OVNKubernetesFeature.EnableMultiNetwork && config.OvnKubeNode.Mode == ovntypes.NodeModeDPU {
-		ncm.nadController, err = nad.NewNetAttachDefinitionController("node-network-controller-manager", ncm, wf)
+	if isNodeNADControllerRequired() {
+		ncm.nadController, err = nad.NewNodeNADController("node-network-controller-manager", ncm, wf, name)
 	}
 	if err != nil {
 		return nil, err
 	}
+
 	return ncm, nil
 }
 
@@ -128,17 +143,21 @@ func (ncm *nodeNetworkControllerManager) Start(ctx context.Context) (err error) 
 	if err != nil {
 		return fmt.Errorf("failed to init default node network controller: %v", err)
 	}
+
+	// nadController is nil if multi-network is disabled
+	if ncm.nadController != nil {
+		err = ncm.nadController.Start()
+		if err != nil {
+			return fmt.Errorf("failed to start default node network NAD controller: %v", err)
+		}
+	}
+
 	err = ncm.defaultNodeNetworkController.Start(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to start default node network controller: %v", err)
 	}
 
-	// nadController is nil if multi-network is disabled
-	if ncm.nadController != nil {
-		err = ncm.nadController.Start()
-	}
-
-	return err
+	return nil
 }
 
 // Stop gracefully stops all managed controllers

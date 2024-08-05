@@ -1,6 +1,8 @@
 package node
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -8,8 +10,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
 
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/factory"
+	factoryMocks "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/factory/mocks"
 	ovntest "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
+	coreinformermocks "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/mocks/k8s.io/client-go/informers/core/v1"
+	v1mocks "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing/mocks/k8s.io/client-go/listers/core/v1"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
 )
@@ -33,9 +39,9 @@ var _ = Describe("SecondaryNodeNetworkController", func() {
 		controller := SecondaryNodeNetworkController{}
 		var err error
 		controller.watchFactory, err = factory.NewNodeWatchFactory(fakeClient, "worker1")
+		Expect(err).NotTo(HaveOccurred())
 		Expect(controller.watchFactory.Start()).To(Succeed())
 
-		Expect(err).NotTo(HaveOccurred())
 		controller.NetInfo, err = util.ParseNADInfo(nad)
 		Expect(err).NotTo(HaveOccurred())
 
@@ -58,14 +64,93 @@ var _ = Describe("SecondaryNodeNetworkController", func() {
 		controller := SecondaryNodeNetworkController{}
 		var err error
 		controller.watchFactory, err = factory.NewNodeWatchFactory(fakeClient, "worker1")
+		Expect(err).NotTo(HaveOccurred())
 		Expect(controller.watchFactory.Start()).To(Succeed())
 
-		Expect(err).NotTo(HaveOccurred())
 		controller.NetInfo, err = util.ParseNADInfo(nad)
 		Expect(err).NotTo(HaveOccurred())
 
 		networkID, err := controller.getNetworkID()
 		Expect(err).To(HaveOccurred())
 		Expect(networkID).To(Equal(util.InvalidNetworkID))
+	})
+	It("ensure UDNGateway is not invoked when feature gate is OFF", func() {
+		config.OVNKubernetesFeature.EnableNetworkSegmentation = false
+		config.OVNKubernetesFeature.EnableMultiNetwork = true
+		factoryMock := factoryMocks.NodeWatchFactory{}
+		nodeList := []*corev1.Node{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "worker1",
+					Annotations: map[string]string{
+						"k8s.ovn.org/network-ids": `{"bluenet": "3"}`,
+					},
+				},
+			},
+		}
+		cnnci := CommonNodeNetworkControllerInfo{name: "worker1", watchFactory: &factoryMock}
+		factoryMock.On("GetNode", "worker1").Return(nodeList[0], nil)
+		factoryMock.On("GetNodes").Return(nodeList, nil)
+		NetInfo, err := util.ParseNADInfo(nad)
+		Expect(err).NotTo(HaveOccurred())
+		controller := NewSecondaryNodeNetworkController(&cnnci, NetInfo)
+		err = controller.Start(context.Background())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(controller.gateway).To(BeNil())
+	})
+	It("ensure UDNGateway is invoked for Primary UDNs when feature gate is ON", func() {
+		config.OVNKubernetesFeature.EnableNetworkSegmentation = true
+		config.OVNKubernetesFeature.EnableMultiNetwork = true
+		factoryMock := factoryMocks.NodeWatchFactory{}
+		nodeList := []*corev1.Node{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "worker1",
+					Annotations: map[string]string{
+						"k8s.ovn.org/network-ids": `{"bluenet": "3"}`,
+					},
+				},
+			},
+		}
+		cnnci := CommonNodeNetworkControllerInfo{name: "worker1", watchFactory: &factoryMock}
+		factoryMock.On("GetNode", "worker1").Return(nodeList[0], nil)
+		factoryMock.On("GetNodes").Return(nodeList, nil)
+		nodeInformer := coreinformermocks.NodeInformer{}
+		factoryMock.On("NodeCoreInformer").Return(&nodeInformer)
+		nodeLister := v1mocks.NodeLister{}
+		nodeInformer.On("Lister").Return(&nodeLister)
+		NetInfo, err := util.ParseNADInfo(nad)
+		Expect(err).NotTo(HaveOccurred())
+		controller := NewSecondaryNodeNetworkController(&cnnci, NetInfo)
+		err = controller.Start(context.Background())
+		Expect(err).To(HaveOccurred()) // we don't have the gateway pieces setup so its expected to fail here
+		Expect(err.Error()).To(ContainSubstring("no annotation found"))
+		Expect(controller.gateway).To(Not(BeNil()))
+	})
+	It("ensure UDNGateway is not invoked for Primary UDNs when feature gate is ON but network is not Primary", func() {
+		config.OVNKubernetesFeature.EnableNetworkSegmentation = true
+		config.OVNKubernetesFeature.EnableMultiNetwork = true
+		factoryMock := factoryMocks.NodeWatchFactory{}
+		nodeList := []*corev1.Node{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "worker1",
+					Annotations: map[string]string{
+						"k8s.ovn.org/network-ids": `{"bluenet": "3"}`,
+					},
+				},
+			},
+		}
+		cnnci := CommonNodeNetworkControllerInfo{name: "worker1", watchFactory: &factoryMock}
+		factoryMock.On("GetNode", "worker1").Return(nodeList[0], nil)
+		factoryMock.On("GetNodes").Return(nodeList, nil)
+		nad = ovntest.GenerateNAD("bluenet", "rednad", "greenamespace",
+			types.Layer3Topology, "100.128.0.0/16", types.NetworkRoleSecondary)
+		NetInfo, err := util.ParseNADInfo(nad)
+		Expect(err).NotTo(HaveOccurred())
+		controller := NewSecondaryNodeNetworkController(&cnnci, NetInfo)
+		err = controller.Start(context.Background())
+		Expect(err).NotTo(HaveOccurred())
+		Expect(controller.gateway).To(BeNil())
 	})
 })

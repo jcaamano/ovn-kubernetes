@@ -5,7 +5,8 @@ import (
 	"net"
 	"time"
 
-	"k8s.io/apimachinery/pkg/util/wait"
+	v1 "k8s.io/api/core/v1"
+	listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/klog/v2"
 
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
@@ -30,7 +31,8 @@ func newManagementPortRepresentor(nodeName string, hostSubnets []*net.IPNet, rep
 	}
 }
 
-func (mp *managementPortRepresentor) Create(_ *routemanager.Controller, nodeAnnotator kube.Annotator, waiter *startupWaiter) (*managementPortConfig, error) {
+func (mp *managementPortRepresentor) Create(isRoutingAdvertised bool, _ *routemanager.Controller, node *v1.Node,
+	nodeLister listers.NodeLister, kubeInterface kube.Interface, waiter *startupWaiter) (*managementPortConfig, error) {
 	k8sMgmtIntfName := types.K8sMgmtIntfName
 	if config.OvnKubeNode.Mode == types.NodeModeFull {
 		k8sMgmtIntfName += "_0"
@@ -106,60 +108,55 @@ func (mp *managementPortRepresentor) Create(_ *routemanager.Controller, nodeAnno
 	}
 
 	mpcfg := &managementPortConfig{
-		ifName: k8sMgmtIntfName,
-		link:   link,
+		ifName:          k8sMgmtIntfName,
+		link:            link,
+		reconcilePeriod: 5 * time.Second,
 	}
+	mpcfg.isRoutingAdvertised.Store(isRoutingAdvertised)
 
 	mgmtPortMac := util.IPAddrToHWAddr(util.GetNodeManagementIfAddr(mp.hostSubnets[0]).IP)
-	if err := util.SetNodeManagementPortMACAddress(nodeAnnotator, mgmtPortMac); err != nil {
+	if err := util.UpdateNodeManagementPortMACAddressesWithRetry(node, nodeLister, kubeInterface, mgmtPortMac, types.DefaultNetworkName); err != nil {
 		return nil, err
 	}
 	waiter.AddWait(managementPortReady, nil)
 	return mpcfg, nil
 }
 
-func (mp *managementPortRepresentor) checkRepresentorPortHealth(cfg *managementPortConfig) {
+func (mp *managementPortRepresentor) checkRepresentorPortHealth(cfg *managementPortConfig) error {
 	// After host reboot, management port link name changes back to default name.
 	link, err := util.GetNetLinkOps().LinkByName(cfg.ifName)
 	if err != nil {
-		klog.Errorf("Failed to get link device %s, error: %v", cfg.ifName, err)
+		klog.Warningf("Failed to get link device %s: %v", cfg.ifName, err)
 		// Get management port representor by name
 		link, err := util.GetNetLinkOps().LinkByName(mp.repName)
 		if err != nil {
-			klog.Errorf("Failed to get link device %s, error: %v", mp.repName, err)
-			return
+			return fmt.Errorf("failed to get link device %s: %w", mp.repName, err)
 		}
 		if err = util.GetNetLinkOps().LinkSetDown(link); err != nil {
-			klog.Errorf("Failed to set link down for device %s. %v", mp.repName, err)
-			return
+			return fmt.Errorf("failed to set link down for device %s: %w", mp.repName, err)
 		}
 		if err = util.GetNetLinkOps().LinkSetName(link, cfg.ifName); err != nil {
-			klog.Errorf("Rename link from %s to %s failed: %v", mp.repName, cfg.ifName, err)
-			return
+			return fmt.Errorf("failed to rename link from %s to %s: %w", mp.repName, cfg.ifName, err)
 		}
 		if link.Attrs().MTU != config.Default.MTU {
 			if err = util.GetNetLinkOps().LinkSetMTU(link, config.Default.MTU); err != nil {
-				klog.Errorf("Failed to set link MTU for device %s. %v", cfg.ifName, err)
+				return fmt.Errorf("failed to set link MTU for device %s: %w", cfg.ifName, err)
 			}
 		}
 		if err = util.GetNetLinkOps().LinkSetUp(link); err != nil {
-			klog.Errorf("Failed to set link up for device %s. %v", cfg.ifName, err)
+			return fmt.Errorf("failed to set link up for device %s: %w", cfg.ifName, err)
 		}
 		cfg.link = link
 	} else if (link.Attrs().Flags & net.FlagUp) != net.FlagUp {
 		if err = util.GetNetLinkOps().LinkSetUp(link); err != nil {
-			klog.Errorf("Failed to set link up for device %s. %v", cfg.ifName, err)
+			return fmt.Errorf("failed to set link up for device %s: %w", cfg.ifName, err)
 		}
 	}
+	return nil
 }
 
-func (mp *managementPortRepresentor) CheckManagementPortHealth(_ *routemanager.Controller, cfg *managementPortConfig, stopChan chan struct{}) {
-	go wait.Until(
-		func() {
-			mp.checkRepresentorPortHealth(cfg)
-		},
-		5*time.Second,
-		stopChan)
+func (mp *managementPortRepresentor) CheckManagementPortHealth(_ *routemanager.Controller, cfg *managementPortConfig) error {
+	return mp.checkRepresentorPortHealth(cfg)
 }
 
 // Port representors should not have any IP address assignable to them, thus always return false.
@@ -180,7 +177,8 @@ func newManagementPortNetdev(hostSubnets []*net.IPNet, netdevName string) Manage
 	}
 }
 
-func (mp *managementPortNetdev) Create(routeManager *routemanager.Controller, nodeAnnotator kube.Annotator, waiter *startupWaiter) (*managementPortConfig, error) {
+func (mp *managementPortNetdev) Create(isRoutingAdvertised bool, routeManager *routemanager.Controller, node *v1.Node,
+	nodeLister listers.NodeLister, kubeInterface kube.Interface, waiter *startupWaiter) (*managementPortConfig, error) {
 	klog.Infof("Lookup netdevice link and existing management port using '%v'", mp.netdevName)
 	link, err := util.GetNetLinkOps().LinkByName(mp.netdevName)
 	if err != nil {
@@ -245,20 +243,15 @@ func (mp *managementPortNetdev) Create(routeManager *routemanager.Controller, no
 	}
 
 	// Setup Iptable and routes
-	cfg, err := createPlatformManagementPort(routeManager, types.K8sMgmtIntfName, mp.hostSubnets)
+	cfg, err := createPlatformManagementPort(routeManager, types.K8sMgmtIntfName, mp.hostSubnets, isRoutingAdvertised)
 	if err != nil {
 		return nil, err
 	}
 	return cfg, nil
 }
 
-func (mp *managementPortNetdev) CheckManagementPortHealth(routeManager *routemanager.Controller, cfg *managementPortConfig, stopChan chan struct{}) {
-	go wait.Until(
-		func() {
-			checkManagementPortHealth(routeManager, cfg)
-		},
-		30*time.Second,
-		stopChan)
+func (mp *managementPortNetdev) CheckManagementPortHealth(routeManager *routemanager.Controller, cfg *managementPortConfig) error {
+	return checkManagementPortHealth(routeManager, cfg)
 }
 
 // Management port Netdev should have IP addresses assignable to them.

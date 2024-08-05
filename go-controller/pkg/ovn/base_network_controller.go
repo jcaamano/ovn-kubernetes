@@ -179,6 +179,11 @@ type BaseSecondaryNetworkController struct {
 	policyHandler *factory.Handler
 }
 
+func (oc *BaseSecondaryNetworkController) Reconcile(netInfo util.ReconcilableNetInfo) error {
+	oc.SetNADs(netInfo.GetNADs()...)
+	return nil
+}
+
 func getNetworkControllerName(netName string) string {
 	return netName + "-network-controller"
 }
@@ -625,7 +630,7 @@ func (bnc *BaseNetworkController) deleteNamespaceLocked(ns string) (*namespaceIn
 }
 
 func (bnc *BaseNetworkController) syncNodeManagementPort(node *kapi.Node, switchName string, hostSubnets []*net.IPNet, routeHostSubnets bool) ([]net.IP, error) {
-	macAddress, err := util.ParseNodeManagementPortMACAddress(node)
+	macAddress, err := util.ParseNodeManagementPortMACAddresses(node, bnc.GetNetworkName())
 	if err != nil {
 		return nil, err
 	}
