@@ -74,27 +74,24 @@ func NewNetAttachDefinitionController(
 	wf watchFactory,
 	recorder record.EventRecorder,
 ) (*NetAttachDefinitionController, error) {
+	nadInformer := wf.NADInformer()
 	nadController := &NetAttachDefinitionController{
-		name:           fmt.Sprintf("[%s NAD controller]", name),
-		recorder:       recorder,
-		networkManager: newNetworkManager(name, ncm),
-		networks:       map[string]util.NetInfo{},
-		nads:           map[string]string{},
+		name:               fmt.Sprintf("[%s NAD controller]", name),
+		recorder:           recorder,
+		netAttachDefLister: nadInformer.Lister(),
+		networkManager:     newNetworkManager(name, ncm),
+		networks:           map[string]util.NetInfo{},
+		nads:               map[string]string{},
 	}
 
 	config := &controller.ControllerConfig[nettypes.NetworkAttachmentDefinition]{
 		RateLimiter:    workqueue.DefaultControllerRateLimiter(),
+		Informer:       nadInformer.Informer(),
+		Lister:         nadController.netAttachDefLister.List,
 		Reconcile:      nadController.sync,
 		ObjNeedsUpdate: nadNeedsUpdate,
 		// this controller is not thread safe
 		Threadiness: 1,
-	}
-
-	nadInformer := wf.NADInformer()
-	if nadInformer != nil {
-		nadController.netAttachDefLister = nadInformer.Lister()
-		config.Informer = nadInformer.Informer()
-		config.Lister = nadController.netAttachDefLister.List
 	}
 
 	nadController.controller = controller.NewController(
