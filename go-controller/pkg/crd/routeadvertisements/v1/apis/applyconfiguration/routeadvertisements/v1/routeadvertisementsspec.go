@@ -18,20 +18,20 @@ limitations under the License.
 package v1
 
 import (
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
-// RouteAdvertisementsSpecApplyConfiguration represents an declarative configuration of the RouteAdvertisementsSpec type for use
+// RouteAdvertisementsSpecApplyConfiguration represents a declarative configuration of the RouteAdvertisementsSpec type for use
 // with apply.
 type RouteAdvertisementsSpecApplyConfiguration struct {
-	TargetVRF                *string                           `json:"targetVRF,omitempty"`
-	NetworkSelector          *v1.LabelSelector                 `json:"networkSelector,omitempty"`
-	NodeSelector             *v1.LabelSelector                 `json:"nodeSelector,omitempty"`
-	FrrConfigurationSelector *v1.LabelSelector                 `json:"frrConfigurationSelector,omitempty"`
-	Advertisements           *AdvertisementsApplyConfiguration `json:"advertisements,omitempty"`
+	TargetVRF                *string                             `json:"targetVRF,omitempty"`
+	NetworkSelector          *v1.LabelSelectorApplyConfiguration `json:"networkSelector,omitempty"`
+	NodeSelector             *v1.LabelSelectorApplyConfiguration `json:"nodeSelector,omitempty"`
+	FrrConfigurationSelector *v1.LabelSelectorApplyConfiguration `json:"frrConfigurationSelector,omitempty"`
+	Advertisements           *AdvertisementsApplyConfiguration   `json:"advertisements,omitempty"`
 }
 
-// RouteAdvertisementsSpecApplyConfiguration constructs an declarative configuration of the RouteAdvertisementsSpec type for use with
+// RouteAdvertisementsSpecApplyConfiguration constructs a declarative configuration of the RouteAdvertisementsSpec type for use with
 // apply.
 func RouteAdvertisementsSpec() *RouteAdvertisementsSpecApplyConfiguration {
 	return &RouteAdvertisementsSpecApplyConfiguration{}
@@ -48,24 +48,24 @@ func (b *RouteAdvertisementsSpecApplyConfiguration) WithTargetVRF(value string) 
 // WithNetworkSelector sets the NetworkSelector field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NetworkSelector field is set to the value of the last call.
-func (b *RouteAdvertisementsSpecApplyConfiguration) WithNetworkSelector(value v1.LabelSelector) *RouteAdvertisementsSpecApplyConfiguration {
-	b.NetworkSelector = &value
+func (b *RouteAdvertisementsSpecApplyConfiguration) WithNetworkSelector(value *v1.LabelSelectorApplyConfiguration) *RouteAdvertisementsSpecApplyConfiguration {
+	b.NetworkSelector = value
 	return b
 }
 
 // WithNodeSelector sets the NodeSelector field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the NodeSelector field is set to the value of the last call.
-func (b *RouteAdvertisementsSpecApplyConfiguration) WithNodeSelector(value v1.LabelSelector) *RouteAdvertisementsSpecApplyConfiguration {
-	b.NodeSelector = &value
+func (b *RouteAdvertisementsSpecApplyConfiguration) WithNodeSelector(value *v1.LabelSelectorApplyConfiguration) *RouteAdvertisementsSpecApplyConfiguration {
+	b.NodeSelector = value
 	return b
 }
 
 // WithFrrConfigurationSelector sets the FrrConfigurationSelector field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the FrrConfigurationSelector field is set to the value of the last call.
-func (b *RouteAdvertisementsSpecApplyConfiguration) WithFrrConfigurationSelector(value v1.LabelSelector) *RouteAdvertisementsSpecApplyConfiguration {
-	b.FrrConfigurationSelector = &value
+func (b *RouteAdvertisementsSpecApplyConfiguration) WithFrrConfigurationSelector(value *v1.LabelSelectorApplyConfiguration) *RouteAdvertisementsSpecApplyConfiguration {
+	b.FrrConfigurationSelector = value
 	return b
 }
 

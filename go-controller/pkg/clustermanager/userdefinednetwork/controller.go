@@ -12,6 +12,7 @@ import (
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	metaapplyv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	corev1informer "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
@@ -303,9 +304,20 @@ func (c *Controller) updateUserDefinedNetworkStatus(udn *userdefinednetworkv1.Us
 
 	if updated {
 		var err error
+		conditionsApply := make([]*metaapplyv1.ConditionApplyConfiguration, len(conditions))
+		for i, condition := range conditions {
+			conditionsApply[i] = &metaapplyv1.ConditionApplyConfiguration{
+				Type:               &condition.Type,
+				Status:             &condition.Status,
+				ObservedGeneration: &condition.ObservedGeneration,
+				LastTransitionTime: &condition.LastTransitionTime,
+				Reason:             &condition.Reason,
+				Message:            &condition.Message,
+			}
+		}
 		udnApplyConf := udnapplyconfkv1.UserDefinedNetwork(udn.Name, udn.Namespace).
 			WithStatus(udnapplyconfkv1.UserDefinedNetworkStatus().
-				WithConditions(conditions...))
+				WithConditions(conditionsApply...))
 		opts := metav1.ApplyOptions{FieldManager: "user-defined-network-controller"}
 		udn, err = c.udnClient.K8sV1().UserDefinedNetworks(udn.Namespace).ApplyStatus(context.Background(), udnApplyConf, opts)
 		if err != nil {

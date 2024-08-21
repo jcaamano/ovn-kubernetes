@@ -19,8 +19,8 @@ package v1
 
 import (
 	v1 "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/routeadvertisements/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/listers"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -38,30 +38,10 @@ type RouteAdvertisementsLister interface {
 
 // routeAdvertisementsLister implements the RouteAdvertisementsLister interface.
 type routeAdvertisementsLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*v1.RouteAdvertisements]
 }
 
 // NewRouteAdvertisementsLister returns a new RouteAdvertisementsLister.
 func NewRouteAdvertisementsLister(indexer cache.Indexer) RouteAdvertisementsLister {
-	return &routeAdvertisementsLister{indexer: indexer}
-}
-
-// List lists all RouteAdvertisements in the indexer.
-func (s *routeAdvertisementsLister) List(selector labels.Selector) (ret []*v1.RouteAdvertisements, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1.RouteAdvertisements))
-	})
-	return ret, err
-}
-
-// Get retrieves the RouteAdvertisements from the index for a given name.
-func (s *routeAdvertisementsLister) Get(name string) (*v1.RouteAdvertisements, error) {
-	obj, exists, err := s.indexer.GetByKey(name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1.Resource("routeadvertisements"), name)
-	}
-	return obj.(*v1.RouteAdvertisements), nil
+	return &routeAdvertisementsLister{listers.New[*v1.RouteAdvertisements](indexer, v1.Resource("routeadvertisements"))}
 }

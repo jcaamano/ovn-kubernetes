@@ -17,14 +17,14 @@ limitations under the License.
 
 package v1
 
-// AdvertisementsApplyConfiguration represents an declarative configuration of the Advertisements type for use
+// AdvertisementsApplyConfiguration represents a declarative configuration of the Advertisements type for use
 // with apply.
 type AdvertisementsApplyConfiguration struct {
 	PodNetwork *bool `json:"podNetwork,omitempty"`
 	EgressIP   *bool `json:"egressIP,omitempty"`
 }
 
-// AdvertisementsApplyConfiguration constructs an declarative configuration of the Advertisements type for use with
+// AdvertisementsApplyConfiguration constructs a declarative configuration of the Advertisements type for use with
 // apply.
 func Advertisements() *AdvertisementsApplyConfiguration {
 	return &AdvertisementsApplyConfiguration{}

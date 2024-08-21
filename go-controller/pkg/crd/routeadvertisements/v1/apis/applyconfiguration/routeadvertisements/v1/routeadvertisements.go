@@ -23,7 +23,7 @@ import (
 	v1 "k8s.io/client-go/applyconfigurations/meta/v1"
 )
 
-// RouteAdvertisementsApplyConfiguration represents an declarative configuration of the RouteAdvertisements type for use
+// RouteAdvertisementsApplyConfiguration represents a declarative configuration of the RouteAdvertisements type for use
 // with apply.
 type RouteAdvertisementsApplyConfiguration struct {
 	v1.TypeMetaApplyConfiguration    `json:",inline"`
@@ -32,7 +32,7 @@ type RouteAdvertisementsApplyConfiguration struct {
 	Status                           *RouteAdvertisementsStatusApplyConfiguration `json:"status,omitempty"`
 }
 
-// RouteAdvertisements constructs an declarative configuration of the RouteAdvertisements type for use with
+// RouteAdvertisements constructs a declarative configuration of the RouteAdvertisements type for use with
 // apply.
 func RouteAdvertisements(name string) *RouteAdvertisementsApplyConfiguration {
 	b := &RouteAdvertisementsApplyConfiguration{}
@@ -214,4 +214,10 @@ func (b *RouteAdvertisementsApplyConfiguration) WithSpec(value *RouteAdvertiseme
 func (b *RouteAdvertisementsApplyConfiguration) WithStatus(value *RouteAdvertisementsStatusApplyConfiguration) *RouteAdvertisementsApplyConfiguration {
 	b.Status = value
 	return b
+}
+
+// GetName retrieves the value of the Name field in the declarative configuration.
+func (b *RouteAdvertisementsApplyConfiguration) GetName() *string {
+	b.ensureObjectMetaApplyConfigurationExists()
+	return b.Name
 }

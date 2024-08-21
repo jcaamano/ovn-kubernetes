@@ -21,7 +21,7 @@ BINS=(
     informer-gen
     lister-gen
 )
-GO111MODULE=on go install $(printf "k8s.io/code-generator/cmd/%s@release-1.29 " "${BINS[@]}")
+GO111MODULE=on go install $(printf "k8s.io/code-generator/cmd/%s@release-1.31 " "${BINS[@]}")
 cd "${olddir}"
 if [[ "${builddir}" == /tmp/* ]]; then #paranoia
     rm -rf "${builddir}"
@@ -31,17 +31,17 @@ for crd in ${crds}; do
   echo "Generating deepcopy funcs for $crd"
   deepcopy-gen \
     --go-header-file hack/boilerplate.go.txt \
-    --input-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
-    --output-base "${SCRIPT_ROOT}" \
-    -O zz_generated.deepcopy \
-    --bounding-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd
+    --output-file zz_generated.deepcopy.go \
+    --bounding-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd \
+    github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
+    "$@"
 
   echo "Generating apply configuration for $crd"
   applyconfiguration-gen \
     --go-header-file hack/boilerplate.go.txt \
-    --input-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
-    --output-base "${SCRIPT_ROOT}" \
-    --output-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/applyconfiguration \
+    --output-dir "${SCRIPT_ROOT}"/pkg/crd/$crd/v1/apis/applyconfiguration \
+    --output-pkg github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/applyconfiguration \
+    github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
     "$@"
 
   echo "Generating clientset for $crd"
@@ -50,8 +50,8 @@ for crd in ${crds}; do
     --clientset-name "${CLIENTSET_NAME_VERSIONED:-versioned}" \
     --input-base "" \
     --input github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
-    --output-base "${SCRIPT_ROOT}" \
-    --output-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/clientset \
+    --output-dir "${SCRIPT_ROOT}"/pkg/crd/$crd/v1/apis/clientset \
+    --output-pkg github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/clientset \
     --apply-configuration-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/applyconfiguration \
     --plural-exceptions="EgressQoS:EgressQoSes,RouteAdvertisements:RouteAdvertisements" \
     "$@"
@@ -59,33 +59,24 @@ for crd in ${crds}; do
   echo "Generating listers for $crd"
   lister-gen \
     --go-header-file hack/boilerplate.go.txt \
-    --input-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
-    --output-base "${SCRIPT_ROOT}" \
-    --output-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/listers \
+    --output-dir "${SCRIPT_ROOT}"/pkg/crd/$crd/v1/apis/listers \
+    --output-pkg github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/listers \
     --plural-exceptions="EgressQoS:EgressQoSes,RouteAdvertisements:RouteAdvertisements" \
+    github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
     "$@"
 
   echo "Generating informers for $crd"
   informer-gen \
     --go-header-file hack/boilerplate.go.txt \
-    --input-dirs github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
     --versioned-clientset-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/clientset/versioned \
     --listers-package  github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/listers \
-    --output-base "${SCRIPT_ROOT}" \
-    --output-package github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/informers \
+    --output-dir "${SCRIPT_ROOT}"/pkg/crd/$crd/v1/apis/informers \
+    --output-pkg github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis/informers \
     --plural-exceptions="EgressQoS:EgressQoSes,RouteAdvertisements:RouteAdvertisements" \
+    github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1 \
     "$@"
 
-  echo "Copying apis for $crd"
-  rm -rf $SCRIPT_ROOT/pkg/crd/$crd/v1/apis
-  cp -r github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/apis $SCRIPT_ROOT/pkg/crd/$crd/v1
-
-  echo "Copying zz_generated for $crd"
-  cp github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/$crd/v1/zz_generated.deepcopy.go $SCRIPT_ROOT/pkg/crd/$crd/v1
-
 done
-
-rm -rf "${SCRIPT_ROOT}/github.com/"
 
 echo "Generating CRDs"
 mkdir -p _output/crds
