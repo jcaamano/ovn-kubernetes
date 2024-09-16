@@ -222,7 +222,7 @@ func (gw *GatewayManager) cleanupStalePodSNATs(nodeName string, nodeIPs []*net.I
 		}
 		logicalIP := net.ParseIP(routerNat.LogicalIP)
 		if logicalIP == nil {
-			// this is probably a IPNet so can't be a pod IP
+			// this is probably a CIDR so not a pod IP
 			continue
 		}
 		if gw.containsJoinIP(logicalIP) {
