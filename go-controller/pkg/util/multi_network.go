@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"slices"
 	"strings"
 	"sync"
 
@@ -63,14 +64,112 @@ type BasicNetInfo interface {
 // network information
 type NetInfo interface {
 	BasicNetInfo
+	ReconcilableNetInfo
+}
+
+type ReconcilableNetInfo interface {
 	GetNADs() []string
 	HasNAD(nadName string) bool
 	SetNADs(nadName ...string)
 	AddNADs(nadName ...string)
 	DeleteNADs(nadName ...string)
+	SetVRFs(vrfs map[string][]string)
+	GetVRFs() map[string][]string
+	GetNodeVRFs(node string) []string
 }
 
-type DefaultNetInfo struct{}
+type reconcilableNetInfo struct {
+	sync.Mutex
+	vrfs map[string][]string
+	nads sets.Set[string]
+}
+
+func (nInfo *reconcilableNetInfo) SetVRFs(vrfs map[string][]string) {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	nInfo.vrfs = make(map[string][]string, len(vrfs))
+	for node, vrfList := range vrfs {
+		nInfo.vrfs[node] = slices.Clone(sets.New(vrfList...).UnsortedList())
+	}
+}
+
+func (nInfo *reconcilableNetInfo) GetNodeVRFs(node string) []string {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	return nInfo.getVRFs()[node]
+}
+
+func (nInfo *reconcilableNetInfo) GetVRFs() map[string][]string {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	return nInfo.getVRFs()
+}
+
+func (nInfo *reconcilableNetInfo) getVRFs() map[string][]string {
+	if nInfo.vrfs == nil {
+		nInfo.vrfs = map[string][]string{}
+	}
+	return nInfo.vrfs
+}
+
+// GetNADs returns all the NADs associated with this network
+func (nInfo *reconcilableNetInfo) GetNADs() []string {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	return nInfo.getNads().UnsortedList()
+}
+
+// HasNAD returns true if the given NAD exists, used
+// to check if the network needs to be plumbed over
+func (nInfo *reconcilableNetInfo) HasNAD(nadName string) bool {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	return nInfo.getNads().Has(nadName)
+}
+
+// SetNADs replaces the NADs associated with the network
+func (nInfo *reconcilableNetInfo) SetNADs(nadName ...string) {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	nInfo.nads = sets.New(nadName...)
+}
+
+// AddNAD adds the specified NAD
+func (nInfo *reconcilableNetInfo) AddNADs(nadName ...string) {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	nInfo.getNads().Insert(nadName...)
+}
+
+// DeleteNAD deletes the specified NAD
+func (nInfo *reconcilableNetInfo) DeleteNADs(nadName ...string) {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	nInfo.getNads().Delete(nadName...)
+}
+
+func (nInfo *reconcilableNetInfo) getNads() sets.Set[string] {
+	if nInfo.nads == nil {
+		nInfo.nads = sets.New[string]()
+	}
+	return nInfo.nads
+}
+
+type DefaultNetInfo struct {
+	reconcilableNetInfo
+}
+
+func (nInfo *DefaultNetInfo) copy() *DefaultNetInfo {
+	nInfo.Lock()
+	defer nInfo.Unlock()
+	c := &DefaultNetInfo{
+		reconcilableNetInfo: reconcilableNetInfo{
+			nads: nInfo.nads.Clone(),
+		},
+	}
+	c.SetVRFs(nInfo.getVRFs())
+	return c
+}
 
 // GetNetworkName returns the network name
 func (nInfo *DefaultNetInfo) GetNetworkName() string {
@@ -146,34 +245,6 @@ func (nInfo *DefaultNetInfo) GetNetworkScopedLoadBalancerName(lbName string) str
 
 func (nInfo *DefaultNetInfo) GetNetworkScopedLoadBalancerGroupName(lbGroupName string) string {
 	return nInfo.GetNetworkScopedName(lbGroupName)
-}
-
-// GetNADs returns the NADs associated with the network, no op for default
-// network
-func (nInfo *DefaultNetInfo) GetNADs() []string {
-	panic("unexpected call for default network")
-}
-
-// HasNAD returns true if the given NAD exists, already return true for
-// default network
-func (nInfo *DefaultNetInfo) HasNAD(nadName string) bool {
-	panic("unexpected call for default network")
-}
-
-// SetNADs replaces the NADs associated with the network, no op for default
-// network
-func (nInfo *DefaultNetInfo) SetNADs(nadName ...string) {
-	panic("unexpected call for default network")
-}
-
-// AddNAD adds the specified NAD, no op for default network
-func (nInfo *DefaultNetInfo) AddNADs(nadName ...string) {
-	panic("unexpected call for default network")
-}
-
-// DeleteNAD deletes the specified NAD, no op for default network
-func (nInfo *DefaultNetInfo) DeleteNADs(nadName ...string) {
-	panic("unexpected call for default network")
 }
 
 func (nInfo *DefaultNetInfo) Equals(netBasicInfo BasicNetInfo) bool {
@@ -260,6 +331,8 @@ func (nInfo *DefaultNetInfo) AllowsPersistentIPs() bool {
 
 // SecondaryNetInfo holds the network name information for secondary network if non-nil
 type secondaryNetInfo struct {
+	reconcilableNetInfo
+
 	netName string
 	// Should this secondary network be used
 	// as the pod's primary network?
@@ -273,11 +346,6 @@ type secondaryNetInfo struct {
 	subnets            []config.CIDRNetworkEntry
 	excludeSubnets     []*net.IPNet
 	joinSubnets        []*net.IPNet
-
-	// all net-attach-def NAD names for this network, used to determine if a pod needs
-	// to be plumbed for this network
-	sync.Mutex
-	nadNames sets.Set[string]
 }
 
 // GetNetworkName returns the network name
@@ -358,42 +426,6 @@ func (nInfo *secondaryNetInfo) GetNetworkScopedLoadBalancerGroupName(lbGroupName
 // getPrefix returns if the logical entities prefix for this network
 func (nInfo *secondaryNetInfo) getPrefix() string {
 	return GetSecondaryNetworkPrefix(nInfo.netName)
-}
-
-// GetNADs returns all the NADs associated with this network
-func (nInfo *secondaryNetInfo) GetNADs() []string {
-	nInfo.Lock()
-	defer nInfo.Unlock()
-	return nInfo.nadNames.UnsortedList()
-}
-
-// HasNAD returns true if the given NAD exists, used
-// to check if the network needs to be plumbed over
-func (nInfo *secondaryNetInfo) HasNAD(nadName string) bool {
-	nInfo.Lock()
-	defer nInfo.Unlock()
-	return nInfo.nadNames.Has(nadName)
-}
-
-// SetNADs replaces the NADs associated with the network
-func (nInfo *secondaryNetInfo) SetNADs(nadName ...string) {
-	nInfo.Lock()
-	defer nInfo.Unlock()
-	nInfo.nadNames = sets.New(nadName...)
-}
-
-// AddNAD adds the specified NAD
-func (nInfo *secondaryNetInfo) AddNADs(nadName ...string) {
-	nInfo.Lock()
-	defer nInfo.Unlock()
-	nInfo.nadNames.Insert(nadName...)
-}
-
-// DeleteNAD deletes the specified NAD
-func (nInfo *secondaryNetInfo) DeleteNADs(nadName ...string) {
-	nInfo.Lock()
-	defer nInfo.Unlock()
-	nInfo.nadNames.Delete(nadName...)
 }
 
 // TopologyType returns the topology type
@@ -512,8 +544,11 @@ func (nInfo *secondaryNetInfo) copy() *secondaryNetInfo {
 		subnets:            nInfo.subnets,
 		excludeSubnets:     nInfo.excludeSubnets,
 		joinSubnets:        nInfo.joinSubnets,
-		nadNames:           nInfo.nadNames.Clone(),
+		reconcilableNetInfo: reconcilableNetInfo{
+			nads: nInfo.nads.Clone(),
+		},
 	}
+	c.SetVRFs(nInfo.getVRFs())
 
 	return c
 }
@@ -534,7 +569,9 @@ func newLayer3NetConfInfo(netconf *ovncnitypes.NetConf) (NetInfo, error) {
 		subnets:        subnets,
 		joinSubnets:    joinSubnets,
 		mtu:            netconf.MTU,
-		nadNames:       sets.Set[string]{},
+		reconcilableNetInfo: reconcilableNetInfo{
+			nads: sets.Set[string]{},
+		},
 	}
 	ni.ipv4mode, ni.ipv6mode = getIPMode(subnets)
 	return ni, nil
@@ -558,7 +595,9 @@ func newLayer2NetConfInfo(netconf *ovncnitypes.NetConf) (NetInfo, error) {
 		excludeSubnets:     excludes,
 		mtu:                netconf.MTU,
 		allowPersistentIPs: netconf.AllowPersistentIPs,
-		nadNames:           sets.Set[string]{},
+		reconcilableNetInfo: reconcilableNetInfo{
+			nads: sets.Set[string]{},
+		},
 	}
 	ni.ipv4mode, ni.ipv6mode = getIPMode(subnets)
 	return ni, nil
@@ -578,7 +617,9 @@ func newLocalnetNetConfInfo(netconf *ovncnitypes.NetConf) (NetInfo, error) {
 		mtu:                netconf.MTU,
 		vlan:               uint(netconf.VLANID),
 		allowPersistentIPs: netconf.AllowPersistentIPs,
-		nadNames:           sets.Set[string]{},
+		reconcilableNetInfo: reconcilableNetInfo{
+			nads: sets.Set[string]{},
+		},
 	}
 	ni.ipv4mode, ni.ipv6mode = getIPMode(subnets)
 	return ni, nil
@@ -700,17 +741,32 @@ func NewNetInfo(netconf *ovncnitypes.NetConf) (NetInfo, error) {
 	if netconf.Name == types.DefaultNetworkName {
 		return &DefaultNetInfo{}, nil
 	}
+	var ni NetInfo
+	var err error
 	switch netconf.Topology {
 	case types.Layer3Topology:
-		return newLayer3NetConfInfo(netconf)
+		ni, err = newLayer3NetConfInfo(netconf)
 	case types.Layer2Topology:
-		return newLayer2NetConfInfo(netconf)
+		ni, err = newLayer2NetConfInfo(netconf)
 	case types.LocalnetTopology:
-		return newLocalnetNetConfInfo(netconf)
+		ni, err = newLocalnetNetConfInfo(netconf)
 	default:
 		// other topology NAD can be supported later
 		return nil, fmt.Errorf("topology %s not supported", netconf.Topology)
 	}
+	if err != nil {
+		return nil, err
+	}
+	if ni.IsPrimaryNetwork() && ni.IsSecondary() {
+		ipv4Mode, ipv6Mode := ni.IPMode()
+		if ipv4Mode && !config.IPv4Mode {
+			return nil, fmt.Errorf("network %s is attempting to use ipv4 subnets but the cluster does not support ipv4", ni.GetNetworkName())
+		}
+		if ipv6Mode && !config.IPv6Mode {
+			return nil, fmt.Errorf("network %s is attempting to use ipv6 subnets but the cluster does not support ipv6", ni.GetNetworkName())
+		}
+	}
+	return ni, nil
 }
 
 // ParseNADInfo parses config in NAD spec and return a NetAttachDefInfo object for secondary networks
@@ -840,8 +896,7 @@ func subnetOverlapCheck(netconf *ovncnitypes.NetConf) error {
 func CopyNetInfo(netInfo NetInfo) NetInfo {
 	switch t := netInfo.(type) {
 	case *DefaultNetInfo:
-		// immutable
-		return netInfo
+		return t.copy()
 	case *secondaryNetInfo:
 		return t.copy()
 	default:
@@ -939,8 +994,16 @@ func GetPodNADToNetworkMappingWithActiveNetwork(pod *kapi.Pod, nInfo NetInfo, ac
 		Name:      activeNetworkNADKey[1],
 	}
 
+	if nInfo.IsPrimaryNetwork() && AllowsPersistentIPs(nInfo) {
+		ipamClaimName, wasPersistentIPRequested := pod.Annotations[OvnUDNIPAMClaimName]
+		if wasPersistentIPRequested {
+			networkSelections[activeNetworkNADs[0]].IPAMClaimReference = ipamClaimName
+		}
+	}
+
 	return true, networkSelections, nil
 }
+
 func IsMultiNetworkPoliciesSupportEnabled() bool {
 	return config.OVNKubernetesFeature.EnableMultiNetwork && config.OVNKubernetesFeature.EnableMultiNetworkPolicy
 }
@@ -956,4 +1019,22 @@ func DoesNetworkRequireIPAM(netInfo NetInfo) bool {
 func DoesNetworkRequireTunnelIDs(netInfo NetInfo) bool {
 	// Layer2Topology with IC require that we allocate tunnel IDs for each pod
 	return netInfo.TopologyType() == types.Layer2Topology && config.OVNKubernetesFeature.EnableInterconnect
+}
+
+func AllowsPersistentIPs(netInfo NetInfo) bool {
+	switch {
+	case netInfo.IsPrimaryNetwork():
+		return netInfo.TopologyType() == types.Layer2Topology && netInfo.AllowsPersistentIPs()
+
+	case netInfo.IsSecondary():
+		return (netInfo.TopologyType() == types.Layer2Topology || netInfo.TopologyType() == types.LocalnetTopology) &&
+			netInfo.AllowsPersistentIPs()
+
+	default:
+		return false
+	}
+}
+
+func IsRoutingAdvertised(netInfo NetInfo, node string) bool {
+	return len(netInfo.GetNodeVRFs(node)) > 0
 }

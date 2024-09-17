@@ -406,6 +406,7 @@ type OVNKubernetesFeatureConfig struct {
 	EgressIPNodeHealthCheckPort     int  `gcfg:"egressip-node-healthcheck-port"`
 	EnableMultiNetwork              bool `gcfg:"enable-multi-network"`
 	EnableNetworkSegmentation       bool `gcfg:"enable-network-segmentation"`
+	EnableRouteAdvertisements       bool `gcfg:"enable-route-advertisements"`
 	EnableMultiNetworkPolicy        bool `gcfg:"enable-multi-networkpolicy"`
 	EnableStatelessNetPol           bool `gcfg:"enable-stateless-netpol"`
 	EnableInterconnect              bool `gcfg:"enable-interconnect"`
@@ -413,6 +414,7 @@ type OVNKubernetesFeatureConfig struct {
 	EnablePersistentIPs             bool `gcfg:"enable-persistent-ips"`
 	EnableDNSNameResolver           bool `gcfg:"enable-dns-name-resolver"`
 	EnableServiceTemplateSupport    bool `gcfg:"enable-svc-template-support"`
+	EnableObservability             bool `gcfg:"enable-observability"`
 }
 
 // GatewayMode holds the node gateway mode
@@ -1042,6 +1044,12 @@ var OVNK8sFeatureFlags = []cli.Flag{
 		Value:       OVNKubernetesFeature.EnableNetworkSegmentation,
 	},
 	&cli.BoolFlag{
+		Name:        "enable-route-advertisements",
+		Usage:       "Configure to use route advertisements feature with ovn-kubernetes.",
+		Destination: &cliConfig.OVNKubernetesFeature.EnableRouteAdvertisements,
+		Value:       OVNKubernetesFeature.EnableRouteAdvertisements,
+	},
+	&cli.BoolFlag{
 		Name:        "enable-stateless-netpol",
 		Usage:       "Configure to use stateless network policy feature with ovn-kubernetes.",
 		Destination: &cliConfig.OVNKubernetesFeature.EnableStatelessNetPol,
@@ -1082,6 +1090,12 @@ var OVNK8sFeatureFlags = []cli.Flag{
 		Usage:       "Configure to use svc-template with ovn-kubernetes.",
 		Destination: &cliConfig.OVNKubernetesFeature.EnableServiceTemplateSupport,
 		Value:       OVNKubernetesFeature.EnableServiceTemplateSupport,
+	},
+	&cli.BoolFlag{
+		Name:        "enable-observability",
+		Usage:       "Configure to use OVN sampling with ovn-kubernetes.",
+		Destination: &cliConfig.OVNKubernetesFeature.EnableObservability,
+		Value:       OVNKubernetesFeature.EnableObservability,
 	},
 }
 

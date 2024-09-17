@@ -17,6 +17,7 @@ import (
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/metrics"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	nad "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/network-attach-def-controller"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/observability"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn"
 	ovntypes "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
@@ -52,7 +53,7 @@ type NetworkControllerManager struct {
 	defaultNetworkController nad.BaseNetworkController
 
 	// net-attach-def controller handle net-attach-def and create/delete network controllers
-	nadController *nad.NetAttachDefinitionController
+	nadController *nad.NADController
 }
 
 func (cm *NetworkControllerManager) NewNetworkController(nInfo util.NetInfo) (nad.NetworkController, error) {
@@ -117,6 +118,10 @@ func findAllSecondaryNetworkLogicalEntities(nbClient libovsdbclient.Client) ([]*
 		return nil, nil, err
 	}
 	return nodeSwitches, clusterRouters, nil
+}
+
+func (cm *NetworkControllerManager) GetDefaultNetworkController() nad.ReconcilableNetworkController {
+	return cm.defaultNetworkController
 }
 
 func (cm *NetworkControllerManager) CleanupDeletedNetworks(validNetworks ...util.BasicNetInfo) error {
@@ -204,12 +209,13 @@ func NewNetworkControllerManager(ovnClient *util.OVNClientset, wf *factory.Watch
 	}
 
 	var err error
-	if config.OVNKubernetesFeature.EnableMultiNetwork {
-		cm.nadController, err = nad.NewNetAttachDefinitionController("network-controller-manager", cm, wf)
+	if config.OVNKubernetesFeature.EnableMultiNetwork || config.OVNKubernetesFeature.EnableRouteAdvertisements {
+		cm.nadController, err = nad.NewZoneNADController("network-controller-manager", config.Default.Zone, cm, wf)
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	return cm, nil
 }
 
@@ -284,12 +290,12 @@ func (cm *NetworkControllerManager) newCommonNetworkControllerInfo() (*ovn.Commo
 }
 
 // initDefaultNetworkController creates the controller for default network
-func (cm *NetworkControllerManager) initDefaultNetworkController() error {
+func (cm *NetworkControllerManager) initDefaultNetworkController(observManager *observability.Manager) error {
 	cnci, err := cm.newCommonNetworkControllerInfo()
 	if err != nil {
 		return fmt.Errorf("failed to create common network controller info: %w", err)
 	}
-	defaultController, err := ovn.NewDefaultNetworkController(cnci)
+	defaultController, err := ovn.NewDefaultNetworkController(cnci, observManager)
 	if err != nil {
 		return err
 	}
@@ -385,18 +391,34 @@ func (cm *NetworkControllerManager) Start(ctx context.Context) error {
 	}
 	cm.podRecorder.Run(cm.sbClient, cm.stopChan)
 
-	err = cm.initDefaultNetworkController()
+	var observabilityManager *observability.Manager
+	if config.OVNKubernetesFeature.EnableObservability {
+		observabilityManager = observability.NewManager(cm.nbClient)
+		if err = observabilityManager.Init(); err != nil {
+			return fmt.Errorf("failed to init observability manager: %w", err)
+		}
+	} else {
+		err = observability.Cleanup(cm.nbClient)
+		if err != nil {
+			klog.Warningf("Observability cleanup failed, expected if not all Samples ware deleted yet: %v", err)
+		}
+	}
+	err = cm.initDefaultNetworkController(observabilityManager)
 	if err != nil {
 		return fmt.Errorf("failed to init default network controller: %v", err)
-	}
-	err = cm.defaultNetworkController.Start(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to start default network controller: %v", err)
 	}
 
 	// nadController is nil if multi-network is disabled
 	if cm.nadController != nil {
-		return cm.nadController.Start()
+		err = cm.nadController.Start()
+		if err != nil {
+			return fmt.Errorf("failed to start default network NAD controller: %v", err)
+		}
+	}
+
+	err = cm.defaultNetworkController.Start(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start default network controller: %v", err)
 	}
 
 	return nil

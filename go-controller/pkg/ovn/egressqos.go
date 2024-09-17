@@ -17,11 +17,13 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
+	metaapplyv1 "k8s.io/client-go/applyconfigurations/meta/v1"
 	v1coreinformers "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 	utilnet "k8s.io/utils/net"
+	"k8s.io/utils/ptr"
 
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	egressqosapi "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/egressqos/v1"
@@ -1088,20 +1090,22 @@ func (oc *DefaultNetworkController) updateEgressQoSZoneStatusCondition(newCondit
 	if err != nil {
 		return err
 	}
-	existingCondition := meta.FindStatusCondition(eq.Status.Conditions, newCondition.Type)
-	if existingCondition == nil {
-		newCondition.LastTransitionTime = metav1.NewTime(time.Now())
-	} else {
-		if existingCondition.Status != newCondition.Status {
-			existingCondition.Status = newCondition.Status
-			existingCondition.LastTransitionTime = metav1.NewTime(time.Now())
-		}
-		existingCondition.Reason = newCondition.Reason
-		existingCondition.Message = newCondition.Message
-		newCondition = *existingCondition
+
+	newConditionApply := &metaapplyv1.ConditionApplyConfiguration{
+		Type:               &newCondition.Type,
+		Status:             &newCondition.Status,
+		ObservedGeneration: &newCondition.ObservedGeneration,
+		Reason:             &newCondition.Reason,
+		Message:            &newCondition.Message,
 	}
+
+	existingCondition := meta.FindStatusCondition(eq.Status.Conditions, newCondition.Type)
+	if existingCondition == nil || existingCondition.Status != newCondition.Status {
+		newConditionApply.LastTransitionTime = ptr.To(metav1.NewTime(time.Now()))
+	}
+
 	applyObj := egressqosapply.EgressQoS(name, namespace).
-		WithStatus(egressqosapply.EgressQoSStatus().WithConditions(newCondition))
+		WithStatus(egressqosapply.EgressQoSStatus().WithConditions(newConditionApply))
 	_, err = oc.kube.EgressQoSClient.K8sV1().EgressQoSes(namespace).ApplyStatus(context.TODO(),
 		applyObj, metav1.ApplyOptions{FieldManager: oc.zone, Force: true})
 	return err

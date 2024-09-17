@@ -15,6 +15,7 @@ import (
 	egressqoslisters "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/crd/egressqos/v1/apis/listers/egressqos/v1"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/factory"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/metrics"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/observability"
 	addressset "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/address_set"
 	anpcontroller "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/controller/admin_network_policy"
 	apbroutecontroller "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/ovn/controller/apbroute"
@@ -142,15 +143,15 @@ type DefaultNetworkController struct {
 
 // NewDefaultNetworkController creates a new OVN controller for creating logical network
 // infrastructure and policy for default l3 network
-func NewDefaultNetworkController(cnci *CommonNetworkControllerInfo) (*DefaultNetworkController, error) {
+func NewDefaultNetworkController(cnci *CommonNetworkControllerInfo, observManager *observability.Manager) (*DefaultNetworkController, error) {
 	stopChan := make(chan struct{})
 	wg := &sync.WaitGroup{}
-	return newDefaultNetworkControllerCommon(cnci, stopChan, wg, nil)
+	return newDefaultNetworkControllerCommon(cnci, stopChan, wg, nil, observManager)
 }
 
 func newDefaultNetworkControllerCommon(cnci *CommonNetworkControllerInfo,
 	defaultStopChan chan struct{}, defaultWg *sync.WaitGroup,
-	addressSetFactory addressset.AddressSetFactory) (*DefaultNetworkController, error) {
+	addressSetFactory addressset.AddressSetFactory, observManager *observability.Manager) (*DefaultNetworkController, error) {
 
 	if addressSetFactory == nil {
 		addressSetFactory = addressset.NewOvnAddressSetFactory(cnci.nbClient, config.IPv4Mode, config.IPv6Mode)
@@ -214,6 +215,7 @@ func newDefaultNetworkControllerCommon(cnci *CommonNetworkControllerInfo,
 			localZoneNodes:              &sync.Map{},
 			zoneICHandler:               zoneICHandler,
 			cancelableCtx:               util.NewCancelableContext(),
+			observManager:               observManager,
 		},
 		externalGatewayRouteInfo: apbExternalRouteController.ExternalGWRouteInfoCache,
 		eIPC: egressIPZoneController{
@@ -579,6 +581,55 @@ func (oc *DefaultNetworkController) Run(ctx context.Context) error {
 	metrics.RunOVNKubeFeatureDBObjectsMetricsUpdater(oc.nbClient, oc.controllerName, 30*time.Second, oc.stopChan)
 
 	return nil
+}
+
+func (oc *DefaultNetworkController) Reconcile(netInfo util.ReconcilableNetInfo) error {
+	var err error
+	var retryNodes []*kapi.Node
+	oc.localZoneNodes.Range(func(key, value any) bool {
+		nodeName := key.(string)
+		wasAdvertised := len(oc.GetNodeVRFs(nodeName)) > 0
+		isAdvertised := len(netInfo.GetNodeVRFs(nodeName)) > 0
+		if wasAdvertised == isAdvertised {
+			// noop
+			return true
+		}
+		var node *kapi.Node
+		node, err = oc.watchFactory.GetNode(nodeName)
+		if err != nil {
+			return false
+		}
+		retryNodes = append(retryNodes, node)
+		return true
+	})
+	if err != nil {
+		return fmt.Errorf("failed to reconcile: %w", err)
+	}
+
+	oc.SetNADs(netInfo.GetNADs()...)
+	oc.SetVRFs(netInfo.GetVRFs())
+
+	var errs []error
+	for _, node := range retryNodes {
+		oc.gatewaysFailed.Store(node.Name, true)
+		err = oc.retryNodes.AddRetryObjWithAddNoBackoff(node)
+		if err != nil {
+			err := fmt.Errorf("failed to reconcile network for node %s: %w", node.Name, err)
+			errs = append(errs, err)
+		}
+	}
+	if len(retryNodes) > 0 {
+		oc.retryNodes.RequestRetryObjs()
+	}
+	if len(errs) > 0 {
+		klog.Errorf("Failed to reconcile network %s: %v", oc.GetNetworkName(), utilerrors.Join(errs...))
+	}
+
+	return nil
+}
+
+func (oc *DefaultNetworkController) isRoutingAdvertised(node string) bool {
+	return util.IsRoutingAdvertised(oc, node)
 }
 
 func WithSyncDurationMetric(resourceName string, f func() error) error {

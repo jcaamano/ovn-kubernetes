@@ -26,6 +26,11 @@ func newLocalGateway(nodeName string, hostSubnets []*net.IPNet, gwNextHops []net
 	klog.Info("Creating new local gateway")
 	gw := &gateway{}
 
+	if util.IsNetworkSegmentationSupportEnabled() {
+		if err := ensureChain("nat", iptableUDNMasqueradeChain); err != nil {
+			return nil, fmt.Errorf("failed to ensure chain %s in NAT table: %w", iptableUDNMasqueradeChain, err)
+		}
+	}
 	for _, hostSubnet := range hostSubnets {
 		// local gateway mode uses mp0 as default path for all ingress traffic into OVN
 		var nextHop *net.IPNet
@@ -130,7 +135,7 @@ func newLocalGateway(nodeName string, hostSubnets []*net.IPNet, gwNextHops []net
 		// resync flows on IP change
 		gw.nodeIPManager.OnChanged = func() {
 			klog.V(5).Info("Node addresses changed, re-syncing bridge flows")
-			if err := gw.openflowManager.updateBridgeFlowCache(hostSubnets, gw.nodeIPManager.ListAddresses()); err != nil {
+			if err := gw.openflowManager.updateBridgeFlowCache(hostSubnets, gw.nodeIPManager.ListAddresses(), gw.isRoutingAdvertised); err != nil {
 				// very unlikely - somehow node has lost its IP address
 				klog.Errorf("Failed to re-generate gateway flows after address change: %v", err)
 			}
