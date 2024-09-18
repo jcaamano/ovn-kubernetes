@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sync"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -55,6 +56,8 @@ type watchFactory interface {
 // Unexpected situations are handled on best effort basis but improper NAD
 // adminstration can lead to undefined behavior in referred from running pods.
 type NetAttachDefinitionController struct {
+	sync.Mutex
+
 	name               string
 	netAttachDefLister nadlisters.NetworkAttachmentDefinitionLister
 	controller         controller.Controller
@@ -66,6 +69,9 @@ type NetAttachDefinitionController struct {
 
 	// nads to network mapping
 	nads map[string]string
+
+	// namespace to primary nad
+	primaryNADs map[string]string
 }
 
 func NewNetAttachDefinitionController(
@@ -80,6 +86,7 @@ func NewNetAttachDefinitionController(
 		networkManager: newNetworkManager(name, ncm),
 		networks:       map[string]util.NetInfo{},
 		nads:           map[string]string{},
+		primaryNADs:    map[string]string{},
 	}
 
 	config := &controller.ControllerConfig[nettypes.NetworkAttachmentDefinition]{
@@ -148,7 +155,7 @@ func (nadController *NetAttachDefinitionController) syncAll() (err error) {
 			klog.Errorf("%s: failed to sync %v: %v", nadController.name, nad, err)
 			continue
 		}
-		err = nadController.syncNAD(key, nad)
+		err = nadController.syncNAD(key, nad.Namespace, nad)
 		if err != nil {
 			return fmt.Errorf("%s: failed to sync %s: %v", nadController.name, key, err)
 		}
@@ -175,10 +182,10 @@ func (nadController *NetAttachDefinitionController) sync(key string) error {
 		return err
 	}
 
-	return nadController.syncNAD(key, nad)
+	return nadController.syncNAD(key, namespace, nad)
 }
 
-func (nadController *NetAttachDefinitionController) syncNAD(key string, nad *nettypes.NetworkAttachmentDefinition) error {
+func (nadController *NetAttachDefinitionController) syncNAD(key, namespace string, nad *nettypes.NetworkAttachmentDefinition) error {
 	var nadNetworkName string
 	var nadNetwork, oldNetwork, ensureNetwork util.NetInfo
 	var err error
@@ -194,6 +201,15 @@ func (nadController *NetAttachDefinitionController) syncNAD(key string, nad *net
 			return nil
 		}
 		nadNetworkName = nadNetwork.GetNetworkName()
+	}
+
+	nadController.Lock()
+	defer nadController.Unlock()
+
+	// We can only have one primary NAD per namespace
+	primaryNAD := nadController.primaryNADs[namespace]
+	if nadNetwork != nil && nadNetwork.IsPrimaryNetwork() && primaryNAD != "" && primaryNAD != key {
+		return fmt.Errorf("%s: NAD %s is primary for the namespace, NAD %s can't be primary", nadController.name, primaryNAD, key)
 	}
 
 	// As multiple NADs may define networks with the same name, these networks
@@ -214,7 +230,6 @@ func (nadController *NetAttachDefinitionController) syncNAD(key string, nad *net
 	case currentNetwork == nil:
 		// the NAD refers to a new network, ensure it
 		ensureNetwork = nadNetwork
-		nadController.networks[nadNetworkName] = ensureNetwork
 	case currentNetwork.Equals(nadNetwork):
 		// the NAD refers to an existing compatible network, ensure that
 		// existing network holds a reference to this NAD
@@ -252,6 +267,9 @@ func (nadController *NetAttachDefinitionController) syncNAD(key string, nad *net
 	// this was a nad delete
 	if ensureNetwork == nil {
 		delete(nadController.nads, key)
+		if nadController.primaryNADs[namespace] == key {
+			delete(nadController.primaryNADs, namespace)
+		}
 		return err
 	}
 
@@ -260,11 +278,36 @@ func (nadController *NetAttachDefinitionController) syncNAD(key string, nad *net
 		return nil
 	}
 
-	// ensure the network associated with the NAD
+	// ensure the network is associated with the NAD
 	ensureNetwork.AddNADs(key)
 	nadController.nads[key] = ensureNetwork.GetNetworkName()
+	nadController.networks[nadNetworkName] = ensureNetwork
+
+	// track primary NAD
+	switch {
+	case ensureNetwork.IsPrimaryNetwork():
+		nadController.primaryNADs[namespace] = key
+	default:
+		if nadController.primaryNADs[namespace] == key {
+			delete(nadController.primaryNADs, namespace)
+		}
+	}
+
+	// reconcile the network
 	nadController.networkManager.EnsureNetwork(ensureNetwork)
+
 	return err
+}
+
+func (nadController *NetAttachDefinitionController) GetActiveNetworkForNamespace(namespace string) util.NetInfo {
+	nadController.Lock()
+	defer nadController.Unlock()
+
+	if nadController.primaryNADs[namespace] == "" {
+		return &util.DefaultNetInfo{}
+	}
+
+	return nadController.networks[nadController.nads[nadController.primaryNADs[namespace]]]
 }
 
 func nadNeedsUpdate(oldNAD, newNAD *nettypes.NetworkAttachmentDefinition) bool {

@@ -373,6 +373,7 @@ func TestNetAttachDefinitionController(t *testing.T) {
 			nadController := &NetAttachDefinitionController{
 				networks:       map[string]util.NetInfo{},
 				nads:           map[string]string{},
+				primaryNADs:    map[string]string{},
 				networkManager: newNetworkManager("", tncm),
 			}
 
@@ -390,7 +391,7 @@ func TestNetAttachDefinitionController(t *testing.T) {
 					g.Expect(err).ToNot(gomega.HaveOccurred())
 				}
 
-				err = nadController.syncNAD(args.nad, nad)
+				err = nadController.syncNAD(args.nad, namespace, nad)
 				if args.wantErr {
 					g.Expect(err).To(gomega.HaveOccurred())
 				} else {

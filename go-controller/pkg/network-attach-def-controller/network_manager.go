@@ -45,7 +45,7 @@ func newNetworkManager(name string, ncm NetworkControllerManager) networkManager
 	// added to the queue for processing
 	config := &controller.ReconcilerConfig{
 		RateLimiter: workqueue.DefaultControllerRateLimiter(),
-		Reconcile:   nc.syncLocked,
+		Reconcile:   nc.sync,
 		Threadiness: 1,
 	}
 	nc.controller = controller.NewReconciler(
@@ -84,23 +84,39 @@ func (nm *networkManagerImpl) Stop() {
 }
 
 func (nm *networkManagerImpl) EnsureNetwork(network util.NetInfo) {
-	nm.Lock()
-	defer nm.Unlock()
-	nm.networks[network.GetNetworkName()] = network
+	nm.setNetwork(network.GetNetworkName(), network)
 	nm.controller.Reconcile(network.GetNetworkName())
 }
 
 func (nm *networkManagerImpl) DeleteNetwork(network string) {
-	nm.Lock()
-	defer nm.Unlock()
-	delete(nm.networks, network)
+	nm.setNetwork(network, nil)
 	nm.controller.Reconcile(network)
 }
 
-func (nm *networkManagerImpl) syncLocked(network string) error {
+func (nm *networkManagerImpl) getNetwork(network string) util.NetInfo {
 	nm.Lock()
 	defer nm.Unlock()
-	return nm.sync(network)
+	return nm.networks[network]
+}
+
+func (nm *networkManagerImpl) getAllNetworks() []util.BasicNetInfo {
+	nm.Lock()
+	defer nm.Unlock()
+	networks := make([]util.BasicNetInfo, 0, len(nm.networks))
+	for _, network := range nm.networks {
+		networks = append(networks, network)
+	}
+	return networks
+}
+
+func (nm *networkManagerImpl) setNetwork(network string, netInfo util.NetInfo) {
+	nm.Lock()
+	defer nm.Unlock()
+	if netInfo == nil {
+		delete(nm.networks, network)
+		return
+	}
+	nm.networks[network] = netInfo
 }
 
 // sync must be called with nm mutex locked
@@ -111,7 +127,7 @@ func (nm *networkManagerImpl) sync(network string) error {
 		klog.V(4).Infof("%s: finished syncing network %s, took %v", nm.name, network, time.Since(startTime))
 	}()
 
-	want := nm.networks[network]
+	want := nm.getNetwork(network)
 	have := nm.networkControllers[network]
 
 	// we will dispose of the old network if deletion is in progress or if
@@ -157,16 +173,9 @@ func (nm *networkManagerImpl) sync(network string) error {
 }
 
 func (nm *networkManagerImpl) syncAll() error {
-	nm.Lock()
-	defer nm.Unlock()
 	// as we sync upon start, consider networks that have not been ensured as
 	// stale and clean them up
-	validNetworks := make([]util.BasicNetInfo, 0, len(nm.networks))
-	networkNames := make([]string, 0, len(nm.networks))
-	for name, network := range nm.networks {
-		validNetworks = append(validNetworks, network)
-		networkNames = append(networkNames, name)
-	}
+	validNetworks := nm.getAllNetworks()
 	if err := nm.ncm.CleanupDeletedNetworks(validNetworks...); err != nil {
 		return err
 	}
@@ -178,9 +187,9 @@ func (nm *networkManagerImpl) syncAll() error {
 	// as stale.
 	start := time.Now()
 	klog.Infof("%s: syncing all networks", nm.name)
-	for _, networkName := range networkNames {
-		if err := nm.sync(networkName); err != nil {
-			return fmt.Errorf("failed to sync network %s: %w", networkName, err)
+	for _, network := range validNetworks {
+		if err := nm.sync(network.GetNetworkName()); err != nil {
+			return fmt.Errorf("failed to sync network %s: %w", network.GetNetworkName(), err)
 		}
 	}
 	klog.Infof("%s: finished syncing all networks. Time taken: %s", nm.name, time.Since(start))
