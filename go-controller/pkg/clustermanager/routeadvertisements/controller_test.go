@@ -102,14 +102,16 @@ func (tn testNode) Node() *corev1.Node {
 type testNeighbor struct {
 	ASN       uint32
 	Address   string
+	DisableMP bool
 	Receive   []string
 	Advertise []string
 }
 
 func (tn testNeighbor) Neighbor() frrapi.Neighbor {
 	n := frrapi.Neighbor{
-		ASN:     tn.ASN,
-		Address: tn.Address,
+		ASN:       tn.ASN,
+		Address:   tn.Address,
+		DisableMP: tn.DisableMP,
 		ToReceive: frrapi.Receive{
 			Allowed: frrapi.AllowedInPrefixes{
 				Mode: frrapi.AllowRestricted,
@@ -782,6 +784,24 @@ func TestController_reconcile(t *testing.T) {
 				},
 			},
 			nodes:                []*testNode{{Name: "node", SubnetsAnnotation: "{\"red\":\"1.1.0.0/24\"}"}},
+			reconcile:            "ra",
+			expectAcceptedStatus: metav1.ConditionFalse,
+		},
+		{
+			name: "failos to reconcile if DisableMP is set",
+			ra:   &testRA{Name: "ra", AdvertisePods: true},
+			frrConfigs: []*testFRRConfig{
+				{
+					Name:      "frrConfig",
+					Namespace: frrNamespace,
+					Routers: []*testRouter{
+						{ASN: 1, Prefixes: []string{"1.1.1.0/24"}, Neighbors: []*testNeighbor{
+							{ASN: 1, Address: "1.0.0.100", DisableMP: true},
+						}},
+					},
+				},
+			},
+			nodes:                []*testNode{{Name: "node", SubnetsAnnotation: "{\"default\":\"1.1.0.0/24\"}"}},
 			reconcile:            "ra",
 			expectAcceptedStatus: metav1.ConditionFalse,
 		},
