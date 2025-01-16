@@ -42,12 +42,12 @@ func (c *openflowManager) getExGwBridgePortConfigurations() ([]*bridgeUDNConfigu
 	return c.externalGatewayBridge.getBridgePortConfigurations()
 }
 
-func (c *openflowManager) addNetwork(nInfo util.NetInfo, masqCTMark, pktMark uint, v6MasqIPs, v4MasqIPs *udn.MasqueradeIPs) error {
-	if err := c.defaultBridge.addNetworkBridgeConfig(nInfo, masqCTMark, pktMark, v6MasqIPs, v4MasqIPs, c.watchFactory); err != nil {
+func (c *openflowManager) addNetwork(nInfo util.NetInfo, nodeSubnets []*net.IPNet, masqCTMark, pktMark uint, v6MasqIPs, v4MasqIPs *udn.MasqueradeIPs) error {
+	if err := c.defaultBridge.addNetworkBridgeConfig(nInfo, nodeSubnets, masqCTMark, pktMark, v6MasqIPs, v4MasqIPs); err != nil {
 		return err
 	}
 	if c.externalGatewayBridge != nil {
-		if err := c.externalGatewayBridge.addNetworkBridgeConfig(nInfo, masqCTMark, pktMark, v6MasqIPs, v4MasqIPs, c.watchFactory); err != nil {
+		if err := c.externalGatewayBridge.addNetworkBridgeConfig(nInfo, nodeSubnets, masqCTMark, pktMark, v6MasqIPs, v4MasqIPs); err != nil {
 			return err
 		}
 	}

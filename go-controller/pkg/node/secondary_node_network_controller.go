@@ -142,9 +142,7 @@ func (oc *SecondaryNodeNetworkController) Reconcile(netInfo util.NetInfo) error 
 
 	if reconcilePodNetwork {
 		if oc.gateway != nil {
-			if err := oc.gateway.Reconcile(); err != nil {
-				klog.Errorf("Failed to reconcile gateway for network %s: %v", oc.GetNetworkName(), err)
-			}
+			oc.gateway.Reconcile()
 		}
 	}
 
