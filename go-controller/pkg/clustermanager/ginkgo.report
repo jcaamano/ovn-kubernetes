@@ -1,0 +1,4868 @@
+[
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver",
+    "SuiteDescription": "Cluster Manager DNS Name Resolver Controller Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 9,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:03.579565534Z",
+    "EndTime": "2025-02-10T15:02:03.579693643Z",
+    "RunTime": 128109,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3589507655020,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "on startup"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 127
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 128
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly sync existing egress firewall and dns name resolver objects",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579621028Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "on startup"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 127
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 141
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly sync existing objects to remove dns name resolver object not matching any egress firewall object",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579637559Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "on startup"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 127
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 150
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly sync existing objects to create dns name resolver object matching the existing egress firewall object",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579645514Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 163
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly create a dns name resolver",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579652787Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 179
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly delete a dns name resolver",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.57965955Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 203
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "on update of egress firewall correctly create and delete dns name resolvers",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579666943Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 237
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly recreate a dns name resolver when inadvertently deleted",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579673556Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 260
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly remove additional dns name resolver object not matching any egress firewall object",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.579680219Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager DNS Name Resolver Controller operations",
+          "during execution"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 22
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+            "LineNumber": 162
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/dnsnameresolver/controller_test.go",
+          "LineNumber": 275
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "correctly create dns name resolver and don't delete it until all egress firewall referencing it are deleted",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.57968676Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror",
+    "SuiteDescription": "EndpointSliceMirror Controller Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 4,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:03.737554143Z",
+    "EndTime": "2025-02-10T15:02:03.738063634Z",
+    "RunTime": 509491,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3589272403632,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager EndpointSlice mirror controller",
+          "on startup repair"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 28
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 78
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+          "LineNumber": 79
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should delete stale mirrored EndpointSlices and create missing ones",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.737999684Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager EndpointSlice mirror controller",
+          "on EndpointSlices changes"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 28
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 186
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+          "LineNumber": 187
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should not create mirrored EndpointSlices in namespaces that are not using user defined networks as primary",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.738014451Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager EndpointSlice mirror controller",
+          "on EndpointSlices changes"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 28
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 186
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+          "LineNumber": 279
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should update/delete mirrored EndpointSlices in namespaces that use user defined networks as primary ",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.738044558Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster manager EndpointSlice mirror controller",
+          "on EndpointSlices changes"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 28
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+            "LineNumber": 186
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/endpointslicemirror/endpointslice_mirror_controller_test.go",
+          "LineNumber": 448
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should create mirrored EndpointSlices for long endpointslice and network names",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:03.738057222Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager",
+    "SuiteDescription": "Cluster Manager Status Manager Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 10,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:16.89348919Z",
+    "EndTime": "2025-02-10T15:02:16.893657784Z",
+    "RunTime": 168594,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3576078947963,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 250
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressFirewall status with 1 zone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893562506Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 264
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressFirewall status with 2 zones",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893575471Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 284
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressFirewall status with UnknownZone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.89358583Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 306
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates APBRoute status with 1 zone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893599937Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 319
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates APBRoute status with 2 zones",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.89360736Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 338
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates APBRoute status with UnknownZone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893615005Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 360
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressQoS status with 1 zone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893622008Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 378
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressQoS status with 2 zones",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893631706Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 413
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "updates EgressQoS status with UnknownZone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893641765Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Status Manager"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+            "LineNumber": 207
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/status_manager_test.go",
+          "LineNumber": 451
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "test if APIServer lister/patcher is called for AdminNetworkPolicy when the zone is deleted",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.893651232Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker",
+    "SuiteDescription": "Cluster Manager Zone Tracker Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 9,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:16.933442852Z",
+    "EndTime": "2025-02-10T15:02:16.933535765Z",
+    "RunTime": 92913,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3576038119360,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 113
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles multiple nodes in the same zone",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933505538Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 133
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles multiple nodes in the different zones",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933510347Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 151
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles UnknownZone node that is never updated",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933514145Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 183
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles UnknownZone node that is updated before timeout",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933517491Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 210
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles UnknownZone node that is updated after timeout",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933520497Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 234
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles UnknownZone node that is re-created",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933523832Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 260
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "handles regular cluster start up",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933526788Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 280
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "adds node that already exists without triggering subscribers",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933529854Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Cluster Manager Zone Tracker"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+            "LineNumber": 32
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/status_manager/zone_tracker/zone_tracker_test.go",
+          "LineNumber": 291
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "deletes node that doesn't exists without triggering subscribers",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.933532849Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork",
+    "SuiteDescription": "User Defined Network Controller Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 59,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:16.977400593Z",
+    "EndTime": "2025-02-10T15:02:16.978676804Z",
+    "RunTime": 1276212,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3575998424190,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "PrimaryNetAttachDefNotExist"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 89
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 90
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should succeed given no primary UDN NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978268612Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "PrimaryNetAttachDefNotExist"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 89
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 107
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail given primary UDN NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978337861Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefNotInUse",
+          "should succeed"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 14
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 18
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "pods has no OVN annotation",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97834741Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefNotInUse",
+          "should succeed"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 14
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 31
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "no pod is connected",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97835329Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefNotInUse",
+          "should fail"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 49
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 53
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "1 pod is connected",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978358219Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefNotInUse",
+          "should fail"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+            "LineNumber": 49
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/nad_test.go",
+          "LineNumber": 70
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "1 pod has invalid annotation",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978362678Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 77
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should create NAD successfully",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978370603Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 100
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when required namespace label is missing for primary network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978374781Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 121
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should NOT fail when required namespace label is missing for secondary network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978379269Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 143
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when NAD render fail",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978384599Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 163
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when NAD create fail",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978388727Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 189
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when foreign NAD exist",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978392764Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 207
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should reconcile mutated NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978395941Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 235
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when update mutated NAD fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978399267Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 289
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "given primary UDN, should fail when primary NAD already exist",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978402613Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 309
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "given primary UDN, should fail when unmarshal primary NAD fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978405778Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 332
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should add finalizer to UDN",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978408603Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 344
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when add finalizer to UDN fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978428871Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile UDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 76
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 368
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, NAD exist, 2 pods using UDN, should delete NAD once no pod uses the network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978433911Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 403
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should create NAD according to spec in each namespace that applies to namespace selector",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97843888Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 508
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should reconcile mutated NADs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978444861Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 525
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when CR selector has selection added, should create NAD in matching namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978450021Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 567
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when CR selector has selection removed, should delete stale NADs in previously matching namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978453477Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 596
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when CR is being deleted, NADs used by pods, should not remove finalizers until no pod uses the network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978458847Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 660
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when new namespace is created with matching label, should create NAD in newly created namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978464368Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 687
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when new namespace is created without required UDN label, it should not create NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978469287Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 728
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when existing namespace is labeled with matching label, should create NAD in newly labeled matching namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978476019Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR",
+          "when CR exist, and few connected \u0026 disconnected namespaces"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 445
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 758
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when existing namespace's matching label removed, should delete stale NADs in previously matching namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978482932Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "manager",
+          "reconcile CUDN CR"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 69
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 402
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 794
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when started, CR exist, stale NADs exist, should deleted stale NADs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978488113Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 842
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when NAD owner-reference is malformed",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978491198Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 852
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, should not remove finalizer from non managed NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978494484Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 868
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, and NAD exist, should delete NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978499514Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 880
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, and NAD exist, should fail when remove NAD finalizer fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978504763Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 894
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, and NAD exist w/o finalizer, should remove finalizer from UDN",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978507668Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 904
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, and NAD not exist, should remove finalizer from UDN",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97851415Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 912
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, should fail removing finalizer from UDN when patch fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97851911Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 927
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when UDN is being deleted, NAD exist, pod exist, should delete NAD when network not being used",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978522095Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync",
+          "when UDN is being deleted, NAD exist, should not remove finalizers when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 952
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 979
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "pod connected to user-defined-network primary network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978527034Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync",
+          "when UDN is being deleted, NAD exist, should not remove finalizers when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 952
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 986
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "pod connected to default primary network, and user-defined-network secondary network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978561699Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork object sync",
+          "when UDN is being deleted, NAD exist, should not remove finalizers when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 841
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 952
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 993
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "1 pod connected to network, 1 pod has invalid annotation",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978566639Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork status update",
+          "should update status, when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1004
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1005
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1014
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "NAD exist",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978572099Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork status update",
+          "should update status, when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1004
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1005
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1028
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "NAD is being deleted",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978576918Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork status update",
+          "should update status, when"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1004
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1005
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1042
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "sync error occurred",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978583711Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1004
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1058
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should update status according to sync errors",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97858871Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "UserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1004
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1094
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when client update status fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978593679Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1109
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should succeed given no CR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978596615Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1114
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should succeed when no namespace match namespace-selector",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978603146Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1122
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should add finalizer to CR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978608025Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1135
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when update NAD fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97861087Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1145
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when CR is deleted, CR has no finalizer, should succeed",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978617353Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1155
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "when CR is deleted, should remove finalizer from CR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978622342Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync",
+          "CR is being deleted, associate NADs exists"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1165
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1187
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should delete NAD",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978627312Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync",
+          "CR is being deleted, associate NADs exists"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1165
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1197
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail remove NAD finalizer when update NAD fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978645406Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork object sync",
+          "CR is being deleted, associate NADs exists"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1108
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1165
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1206
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail remove NAD finalizer when delete NAD fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978652348Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1218
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1219
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should succeed given no CR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978655184Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1218
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1223
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail when CR apply status fails",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978659842Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1218
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1234
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should reflect active namespaces",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978664722Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1218
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1258
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should reflect deleted NADs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.97866958Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "User Defined Network Controller",
+          "ClusterUserDefinedNetwork status update"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 37
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+            "LineNumber": 1218
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/controller_test.go",
+          "LineNumber": 1284
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should reflect NAD sync state",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:16.978674169Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier",
+    "SuiteDescription": "Notifier Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 3,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:17.020221715Z",
+    "EndTime": "2025-02-10T15:02:17.020348199Z",
+    "RunTime": 126484,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3575952419319,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "NamespaceNotifier"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+            "LineNumber": 26
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+          "LineNumber": 76
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should notify namespace create events",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.020309287Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NamespaceNotifier"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+            "LineNumber": 26
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+          "LineNumber": 86
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should notify namespace delete events",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.020328624Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NamespaceNotifier"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+            "LineNumber": 26
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/notifier/namespace_test.go",
+          "LineNumber": 107
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should notify namespace labels change events",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.020340836Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  },
+  {
+    "SuitePath": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template",
+    "SuiteDescription": "NetworkAttachmentDefintion Template Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": null,
+    "PreRunStats": {
+      "TotalSpecs": 34,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2025-02-10T15:02:17.055260907Z",
+    "EndTime": "2025-02-10T15:02:17.05636669Z",
+    "RunTime": 1105783,
+    "SuiteConfig": {
+      "RandomSeed": 1739199712,
+      "RandomizeAllSpecs": false,
+      "FocusStrings": [
+        "OVN cluster-manager EgressIP Operations when RouteAdvertisements is enabled"
+      ],
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": false,
+      "FailOnEmpty": false,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 0,
+      "PollProgressInterval": 0,
+      "Timeout": 3575911748420,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 1,
+      "ParallelHost": ""
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 24
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid layer2 subnets",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055373156Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 32
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid layer3 cluster-subnet",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055387051Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 40
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid layer3 host-subnet mask",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055400897Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 50
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "layer3 host-subnet mask is smaller then cluster-subnet mask",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055536581Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 60
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "layer3 host-subnet mask equal to cluster-subnet mask",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.05557401Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 70
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "layer3 host-subnet mask is smaller then cluster-subnet mask",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055906752Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 80
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid layer3 host-subnet; IPv4 mask is bigger then 32",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.05592705Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 90
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid join subnets",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055959289Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 99
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid dual-stack join subnets, invalid IPv4 CIDR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055971893Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 108
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid dual-stack join subnets, invalid IPv6 CIDR",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055988203Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 117
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid dual-stack join subnets, multiple valid IPv4 CIDRs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.055998813Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 126
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid dual-stack join subnets, multiple valid IPv6 CIDRs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056011167Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 135
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid dual-stack join subnets, multiple valid IPv4 \u0026 IPv6 CIDRs",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056024742Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 144
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid join subnets, overlapping with cluster-default join-subnet, IPv4",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056034981Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 153
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid join subnets, overlapping with cluster-default join-subnet, IPv6",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056052874Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD spec given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 19
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 162
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "invalid join subnets, overlapping with cluster-default join-subnet, dual-stack",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.05606663Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 178
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "UDN, invalid topology: topology layer2 \u0026 layer3 config",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.05607751Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 182
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "UDN, invalid topology: topology layer3 \u0026 layer2 config",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056098359Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 186
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "UDN, invalid IPAM config: IPAM lifecycle \u0026 disabled ipam mode",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056128065Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 199
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "UDN, invalid IPAM config: IPAM enabled \u0026 no subnet",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.05614174Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 211
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "UDN, invalid IPAM config: IPAM disabled \u0026 subnet",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056153612Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 223
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "CUDN, invalid topology: topology layer2 \u0026 layer3 config",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056167498Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should fail to render NAD, given"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 173
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 227
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "CUDN, invalid topology: topology layer3 \u0026 layer2 config",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056182916Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 233
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should return no error given no UDN",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056222971Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 238
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail given no target namespace",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056260381Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 246
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "should fail given unknown type",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056269959Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create UDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 251
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 286
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, layer3",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056279427Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create UDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 251
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 310
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, layer2",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056292251Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create UDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 251
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 335
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, should override join-subnets when specified",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056301208Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create UDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 251
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 361
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "secondary network, no join-subnets should be set",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056320053Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create CUDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 387
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 421
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, layer3",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056328789Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create CUDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 387
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 445
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, layer2",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056340562Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create CUDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 387
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 470
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "primary network, should override join-subnets when specified",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056349337Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "NetAttachDefTemplate",
+          "should create CUDN NAD from spec"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 18
+          },
+          {
+            "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+            "LineNumber": 387
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/home/vagrant/dev/ovn-org/ovn-kubernetes/go-controller/pkg/clustermanager/userdefinednetwork/template/net-attach-def-template_test.go",
+          "LineNumber": 496
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "secondary network",
+        "State": "skipped",
+        "StartTime": "2025-02-10T15:02:17.056358053Z",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  }
+]
