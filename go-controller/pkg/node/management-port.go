@@ -8,12 +8,10 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/util/retry"
 	"k8s.io/klog/v2"
 
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
-	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/kube"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/routemanager"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/types"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/util"
@@ -23,7 +21,7 @@ import (
 type ManagementPort interface {
 	// Create Management port, use annotator to update node annotation with management port details
 	// and waiter to set up condition to wait on for management port creation
-	Create(isRoutingAdvertised bool, routeManager *routemanager.Controller, node *v1.Node, nodeLister listers.NodeLister, kubeInterface kube.Interface, waiter *startupWaiter) (*managementPortConfig, error)
+	Create(isRoutingAdvertised bool, routeManager *routemanager.Controller, node *v1.Node) (*managementPortConfig, error)
 	// CheckManagementPortHealth checks periodically for management port health until stopChan is posted
 	// or closed and reports any warnings/errors to log
 	CheckManagementPortHealth(routeManager *routemanager.Controller, cfg *managementPortConfig) error
@@ -78,8 +76,7 @@ func newManagementPort(nodeName string, hostSubnets []*net.IPNet) ManagementPort
 	}
 }
 
-func (mp *managementPort) Create(isRoutingAdvertised bool, routeManager *routemanager.Controller, node *v1.Node,
-	nodeLister listers.NodeLister, kubeInterface kube.Interface, waiter *startupWaiter) (*managementPortConfig, error) {
+func (mp *managementPort) Create(isRoutingAdvertised bool, routeManager *routemanager.Controller, node *v1.Node) (*managementPortConfig, error) {
 	for _, mgmtPortName := range []string{types.K8sMgmtIntfName, types.K8sMgmtIntfName + "_0"} {
 		if err := syncMgmtPortInterface(mp.hostSubnets, mgmtPortName, true); err != nil {
 			return nil, fmt.Errorf("failed to sync management port: %v", err)
@@ -119,7 +116,6 @@ func (mp *managementPort) Create(isRoutingAdvertised bool, routeManager *routema
 		return nil, err
 	}
 
-	waiter.AddWait(managementPortReady, nil)
 	return cfg, nil
 }
 
@@ -130,32 +126,6 @@ func (mp *managementPort) CheckManagementPortHealth(routeManager *routemanager.C
 // OVS Internal Port Netdev should have IP addresses assignable to them.
 func (mp *managementPort) HasIpAddr() bool {
 	return true
-}
-
-func managementPortReady() (bool, error) {
-	k8sMgmtIntfName := types.K8sMgmtIntfName
-	if config.OvnKubeNode.MgmtPortNetdev != "" {
-		k8sMgmtIntfName += "_0"
-	}
-	// Get the OVS interface name for the Management Port
-	ofport, _, err := util.RunOVSVsctl("--if-exists", "get", "interface", k8sMgmtIntfName, "ofport")
-	if err != nil {
-		return false, nil
-	}
-
-	// OpenFlow table 65 performs logical-to-physical translation. It matches the packet’s logical
-	// egress  port. Its actions output the packet to the port attached to the OVN integration bridge
-	// that represents that logical  port.
-	stdout, _, err := util.RunOVSOfctl("--no-stats", "--no-names", "dump-flows", "br-int",
-		"table=65,out_port="+ofport)
-	if err != nil {
-		return false, nil
-	}
-	if !strings.Contains(stdout, "actions=output:"+ofport) {
-		return false, nil
-	}
-	klog.Infof("Management port %s is ready", k8sMgmtIntfName)
-	return true, nil
 }
 
 type managementPortEntry struct {
