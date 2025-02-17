@@ -161,8 +161,7 @@ func (c *openflowManager) syncFlows() {
 //
 // -- to handle host -> service access, via masquerading from the host to OVN GR
 // -- to handle external -> service(ExternalTrafficPolicy: Local) -> host access without SNAT
-func newGatewayOpenFlowManager(gwBridge, exGWBridge *bridgeConfiguration,
-	extraIPs []net.IP) (*openflowManager, error) {
+func newGatewayOpenFlowManager(gwBridge, exGWBridge *bridgeConfiguration) (*openflowManager, error) {
 	// add health check function to check default OpenFlow flows are on the shared gateway bridge
 	ofm := &openflowManager{
 		defaultBridge:         gwBridge,
@@ -172,10 +171,6 @@ func newGatewayOpenFlowManager(gwBridge, exGWBridge *bridgeConfiguration,
 		exGWFlowCache:         make(map[string][]string),
 		exGWFlowMutex:         sync.Mutex{},
 		flowChan:              make(chan struct{}, 1),
-	}
-
-	if err := ofm.updateBridgeFlowCache(extraIPs); err != nil {
-		return nil, err
 	}
 
 	// defer flowSync until syncService() to prevent the existing service OpenFlows being deleted

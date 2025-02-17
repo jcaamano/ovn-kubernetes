@@ -29,7 +29,7 @@ import (
 type Gateway interface {
 	informer.ServiceAndEndpointsEventHandler
 	Init(<-chan struct{}, *sync.WaitGroup) error
-	Start()
+	Start() error
 	GetGatewayBridgeIface() string
 	SetDefaultGatewayBridgeMAC(addr net.HardwareAddr)
 	SetPodNetworkAdvertised(bool)
@@ -318,15 +318,21 @@ func (g *gateway) Init(stopChan <-chan struct{}, wg *sync.WaitGroup) error {
 	return nil
 }
 
-func (g *gateway) Start() {
+func (g *gateway) Start() error {
+	if g.openflowManager != nil {
+		klog.Info("Spawning Conntrack Rule Check Thread")
+		err := g.openflowManager.updateBridgeFlowCache(g.nodeIPManager.ListAddresses())
+		if err != nil {
+			return fmt.Errorf("failed to update bridge flow cache: %w", err)
+		}
+		g.openflowManager.Run(g.stopChan, g.wg)
+	}
+
 	if g.nodeIPManager != nil {
 		g.nodeIPManager.Run(g.stopChan, g.wg)
 	}
 
-	if g.openflowManager != nil {
-		klog.Info("Spawning Conntrack Rule Check Thread")
-		g.openflowManager.Run(g.stopChan, g.wg)
-	}
+	return nil
 }
 
 // sets up an uplink interface for UDP Generic Receive Offload forwarding as part of
