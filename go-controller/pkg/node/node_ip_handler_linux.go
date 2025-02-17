@@ -79,7 +79,7 @@ func newAddressManagerInternal(nodeName string, k kube.Interface, mgmtConfig *ma
 				return nil
 			}
 		}
-		if err = mgr.updateHostCIDRs(node, ifAddrs); err != nil {
+		if err = mgr.updateHostCIDRs(ifAddrs); err != nil {
 			klog.Errorf("Failed to update host-cidrs annotations on node %s: %v", nodeName, err)
 			return nil
 		}
@@ -282,7 +282,7 @@ func (c *addressManager) updateNodeAddressAnnotations() error {
 	}
 
 	// update k8s.ovn.org/host-cidrs
-	if err = c.updateHostCIDRs(node, ifAddrs); err != nil {
+	if err = c.updateHostCIDRs(ifAddrs); err != nil {
 		return err
 	}
 
@@ -312,7 +312,7 @@ func (c *addressManager) updateNodeAddressAnnotations() error {
 	return nil
 }
 
-func (c *addressManager) updateHostCIDRs(node *kapi.Node, ifAddrs []*net.IPNet) error {
+func (c *addressManager) updateHostCIDRs(ifAddrs []*net.IPNet) error {
 	if config.OvnKubeNode.Mode == types.NodeModeDPU {
 		// For DPU mode, here we need to use the DPU host's IP address which is the tenant cluster's
 		// host internal IP address instead.
