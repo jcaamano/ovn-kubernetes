@@ -591,7 +591,7 @@ func CleanupClusterNode(name string) error {
 	}
 
 	// Clean up legacy IPTables rules for management port
-	DelLegacyMgtPortIptRules()
+	managementport.DelLegacyMgtPortIptRules()
 
 	// Delete nftables rules
 	nodenft.CleanupNFTables()
