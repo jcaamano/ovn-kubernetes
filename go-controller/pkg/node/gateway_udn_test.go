@@ -30,6 +30,7 @@ import (
 	kubemocks "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/kube/mocks"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/networkmanager"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/iprulemanager"
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/managementport"
 	nodenft "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/nftables"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/routemanager"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/node/vrfmanager"
@@ -574,24 +575,9 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		_, _ = util.SetFakeIPTablesHelpers()
 		_ = nodenft.SetFakeNFTablesHelper()
 
-		// Make a fake MgmtPortConfig with only the fields we care about
-		fakeMgmtPortV4IPFamilyConfig := managementPortIPFamilyConfig{
-			ifAddr: ovntest.MustParseIPNet(v4NodeSubnet),
-			gwIP:   net.IP(v4NodeSubnet),
-		}
-		fakeMgmtPortV6IPFamilyConfig := managementPortIPFamilyConfig{
-			ifAddr: ovntest.MustParseIPNet(v6NodeSubnet),
-			gwIP:   net.IP(v6NodeSubnet),
-		}
-
-		fakeMgmtPortConfig := managementPortConfig{
-			ifName:    nodeName,
-			link:      nil,
-			routerMAC: nil,
-			ipv4:      &fakeMgmtPortV4IPFamilyConfig,
-			ipv6:      &fakeMgmtPortV6IPFamilyConfig,
-		}
-		err = setupManagementPortNFTables(&fakeMgmtPortConfig)
+		// Make Management port
+		nodeSubnets := ovntest.MustParseIPNets(v4NodeSubnet, v6NodeSubnet)
+		mp, err := managementport.NewManagementPortController(node, nodeSubnets, "", "", rm, netInfo)
 		Expect(err).NotTo(HaveOccurred())
 
 		nodeAnnotatorMock := &kubemocks.Annotator{}
@@ -622,17 +608,19 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 			defer GinkgoRecover()
 			gatewayNextHops, gatewayIntf, err := getGatewayNextHops()
 			Expect(err).NotTo(HaveOccurred())
+			err = mp.Start(stop)
+			Expect(err).NotTo(HaveOccurred())
 
 			// make preparations for creating openflow manager in DNCC which can be used for SNCC
 			localGw, err := newGateway(
 				nodeName,
-				ovntest.MustParseIPNets(v4NodeSubnet, v6NodeSubnet),
+				nodeSubnets,
 				gatewayNextHops,
 				gatewayIntf,
 				"",
 				ifAddrs,
 				nodeAnnotatorMock,
-				&fakeMgmtPortConfig,
+				mp,
 				&kubeMock,
 				wf,
 				rm,
@@ -798,24 +786,9 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 
 		Expect(err).NotTo(HaveOccurred())
 
-		// Make a fake MgmtPortConfig with only the fields we care about
-		fakeMgmtPortV4IPFamilyConfig := managementPortIPFamilyConfig{
-			ifAddr: ovntest.MustParseIPNet(v4NodeSubnet),
-			gwIP:   net.IP(v4NodeSubnet),
-		}
-		fakeMgmtPortV6IPFamilyConfig := managementPortIPFamilyConfig{
-			ifAddr: ovntest.MustParseIPNet(v6NodeSubnet),
-			gwIP:   net.IP(v6NodeSubnet),
-		}
-
-		fakeMgmtPortConfig := managementPortConfig{
-			ifName:    nodeName,
-			link:      nil,
-			routerMAC: nil,
-			ipv4:      &fakeMgmtPortV4IPFamilyConfig,
-			ipv6:      &fakeMgmtPortV6IPFamilyConfig,
-		}
-		err = setupManagementPortNFTables(&fakeMgmtPortConfig)
+		// Make Management port
+		nodeSubnets := ovntest.MustParseIPNets(v4NodeSubnet, v6NodeSubnet)
+		mp, err := managementport.NewManagementPortController(node, nodeSubnets, "", "", rm, netInfo)
 		Expect(err).NotTo(HaveOccurred())
 
 		nodeAnnotatorMock := &kubemocks.Annotator{}
@@ -846,6 +819,8 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 			defer GinkgoRecover()
 			gatewayNextHops, gatewayIntf, err := getGatewayNextHops()
 			Expect(err).NotTo(HaveOccurred())
+			err = mp.Start(stop)
+			Expect(err).NotTo(HaveOccurred())
 			// make preparations for creating openflow manager in DNCC which can be used for SNCC
 			localGw, err := newGateway(
 				nodeName,
@@ -855,7 +830,7 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 				"",
 				ifAddrs,
 				nodeAnnotatorMock,
-				&fakeMgmtPortConfig,
+				mp,
 				&kubeMock,
 				wf,
 				rm,
