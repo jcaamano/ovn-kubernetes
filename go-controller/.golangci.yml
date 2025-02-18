@@ -10,7 +10,9 @@ linters:
   disable-all: true
   enable:
     - errcheck
+    - exportloopref
     - gofmt
+    - goimports
     - gosimple
     - govet
     - ineffassign
