@@ -47,7 +47,6 @@ type managementPortController struct {
 	cfg   *managementPortConfig
 
 	nodeName string
-	netInfo  util.NetInfo
 
 	reconcile func()
 }
@@ -363,7 +362,7 @@ func setupManagementPortNFTChain(interfaceName string, cfg *managementPortConfig
 		),
 	})
 
-	isPodNetworkAdvertised := cfg.isPodNetworkAdvertised.Load()
+	isPodNetworkAdvertised := util.IsPodNetworkAdvertisedAtNode(cfg.netInfo, cfg.nodeName)
 
 	if cfg.ipv4 != nil {
 		if isPodNetworkAdvertised {
