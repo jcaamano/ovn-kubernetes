@@ -151,16 +151,18 @@ func (c *controller) ForgetNetwork(name string) {
 	c.log.V(5).Info("Stopped tracking network", "name", name)
 }
 
-func (c *controller) NeedsReconciliation(network util.NetInfo) bool {
+func (c *controller) NeedsReconciliation(newNetinfo util.NetInfo) bool {
 	c.RLock()
 	defer c.RUnlock()
 
-	if c.networks[network.GetNetworkName()] == nil {
+	oldNetInfo := c.networks[newNetinfo.GetNetworkName()]
+	if oldNetInfo == nil {
 		return false
 	}
-
 	// TODO check if overlay mode changed
-	return false
+	oldVRFs := sets.New(oldNetInfo.GetPodNetworkAdvertisedOnNodeVRFs(c.node)...)
+	newVRFs := sets.New(newNetinfo.GetPodNetworkAdvertisedOnNodeVRFs(c.node)...)
+	return !oldVRFs.Equal(newVRFs)
 }
 
 func (c *controller) ReconcileNetwork(name string) error {
@@ -339,11 +341,18 @@ func (c *controller) syncNetwork(network string) error {
 	}
 	router := info.GetNetworkScopedGWRouterName(c.node)
 
-	// skip routes in the pod network
+	// skip routes in the imported pod networks
 	// TODO do not skip these routes in no overlay mode
-	ignoreSubnets := make([]*net.IPNet, len(info.Subnets()))
-	for i, subnet := range info.Subnets() {
-		ignoreSubnets[i] = subnet.CIDR
+	vrfs := info.GetPodNetworkAdvertisedOnNodeVRFs(c.node)
+	networks, err := c.getNetworksFromVRFs(vrfs...)
+	if err != nil {
+		return err
+	}
+	var ignoreSubnets []*net.IPNet
+	for _, network := range networks {
+		for _, subnet := range network.Subnets() {
+			ignoreSubnets = append(ignoreSubnets, subnet.CIDR)
+		}
 	}
 
 	table := c.getTableForNetwork(info.GetNetworkID())

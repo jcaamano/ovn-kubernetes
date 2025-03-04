@@ -14,6 +14,7 @@ import (
 
 	"k8s.io/client-go/util/workqueue"
 
+	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/config"
 	controllerutil "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/controller"
 	"github.com/ovn-org/ovn-kubernetes/go-controller/pkg/nbdb"
 	ovntesting "github.com/ovn-org/ovn-kubernetes/go-controller/pkg/testing"
@@ -27,6 +28,23 @@ import (
 func Test_controller_syncNetwork(t *testing.T) {
 	node := "testnode"
 	defaultNetwork := &util.DefaultNetInfo{}
+
+	// some mocks to test transitive imports
+	importingNetwork := &multinetworkmocks.NetInfo{}
+	importingNetwork.On("GetNetworkName").Return("importingNetwork")
+	importingNetwork.On("GetNetworkID").Return(1)
+	importingNetwork.On("GetNetworkScopedGWRouterName", node).Return("Router")
+	importingNetwork.On("GetPodNetworkAdvertisedOnNodeVRFs", node).Return([]string{"importingNetwork", "mp2-udn-vrf", "importedCUDN"})
+	importingNetwork.On("Subnets").Return([]config.CIDRNetworkEntry{{CIDR: ovntesting.MustParseIPNet("2.2.2.1/24")}})
+	importedUDN := &multinetworkmocks.NetInfo{}
+	importedUDN.On("GetNetworkName").Return("importedUDN")
+	importedUDN.On("GetNetworkID").Return(2)
+	importedUDN.On("Subnets").Return([]config.CIDRNetworkEntry{{CIDR: ovntesting.MustParseIPNet("3.3.3.1/24")}})
+	importedCUDN := &multinetworkmocks.NetInfo{}
+	importedCUDN.On("GetNetworkName").Return("importedCUDN")
+	importedCUDN.On("GetNetworkID").Return(3)
+	importedCUDN.On("Subnets").Return([]config.CIDRNetworkEntry{{CIDR: ovntesting.MustParseIPNet("4.4.4.1/24")}})
+
 	type fields struct {
 		networkIDs map[int]string
 		networks   map[string]*netInfo
@@ -101,6 +119,35 @@ func Test_controller_syncNetwork(t *testing.T) {
 				&nbdb.LogicalRouterStaticRoute{UUID: "add-1", IPPrefix: "2.2.2.0/24", Nexthop: "2.2.2.1", ExternalIDs: map[string]string{controllerExternalIDKey: controllerName}},
 				&nbdb.LogicalRouterStaticRoute{UUID: "add-2", IPPrefix: "3.3.3.0/24", Nexthop: "3.3.3.1", ExternalIDs: map[string]string{controllerExternalIDKey: controllerName}},
 				&nbdb.LogicalRouterStaticRoute{UUID: "add-3", IPPrefix: "3.3.3.0/24", Nexthop: "3.3.3.2", ExternalIDs: map[string]string{controllerExternalIDKey: controllerName}},
+			},
+		},
+		{
+			name: "does not import own routes or routes that have been imported from other VRFs if there is overlay",
+			args: args{importingNetwork.GetNetworkName()},
+			fields: fields{
+				networkIDs: map[int]string{
+					importingNetwork.GetNetworkID(): importingNetwork.GetNetworkName(),
+					importedUDN.GetNetworkID():      importedUDN.GetNetworkName(),
+					importedCUDN.GetNetworkID():     importedCUDN.GetNetworkName(),
+				},
+				networks: map[string]*netInfo{
+					importingNetwork.GetNetworkName(): {NetInfo: importingNetwork, table: 1000},
+					importedUDN.GetNetworkName():      {NetInfo: importedUDN, table: 1001},
+					importedCUDN.GetNetworkName():     {NetInfo: importedCUDN, table: 1002},
+				},
+			},
+			initial: []libovsdb.TestData{
+				&nbdb.LogicalRouter{Name: importingNetwork.GetNetworkScopedGWRouterName(node)},
+			},
+			routes: []netlink.Route{
+				{Dst: ovntesting.MustParseIPNet("1.1.1.0/24"), Gw: ovntesting.MustParseIP("1.1.1.1")},
+				{Dst: importedUDN.Subnets()[0].CIDR, Gw: ovntesting.MustParseIP("2.2.2.1")},      // imported from udn, ignored
+				{Dst: importedCUDN.Subnets()[0].CIDR, Gw: ovntesting.MustParseIP("3.3.3.1")},     // imported from cudn, ignored
+				{Dst: importingNetwork.Subnets()[0].CIDR, Gw: ovntesting.MustParseIP("4.4.4.1")}, // own subnet, ignored
+			},
+			expected: []libovsdb.TestData{
+				&nbdb.LogicalRouter{UUID: "router", Name: importingNetwork.GetNetworkScopedGWRouterName(node), StaticRoutes: []string{"route-1"}},
+				&nbdb.LogicalRouterStaticRoute{UUID: "route-1", IPPrefix: "1.1.1.0/24", Nexthop: "1.1.1.1", ExternalIDs: map[string]string{controllerExternalIDKey: controllerName}},
 			},
 		},
 	}
@@ -494,4 +541,61 @@ func Test_controller_subscribe(t *testing.T) {
 
 	g.Eventually(isLinkEventChSet).WithTimeout(subscribePeriod * 3).Should(gomega.Succeed())
 	g.Expect(c.tables).To(gomega.BeEmpty())
+}
+
+func Test_controller_NeedsReconciliation(t *testing.T) {
+	node := "test-node"
+	importedVRFsChangeNetwork := &multinetworkmocks.NetInfo{}
+	importedVRFsChangeNetwork.On("GetNetworkName").Return("self")
+	importedVRFsChangeNetwork.On("GetPodNetworkAdvertisedOnNodeVRFs", node).Return([]string{"self"}).Once()
+	importedVRFsChangeNetwork.On("GetPodNetworkAdvertisedOnNodeVRFs", node).Return([]string{"self", "imported"})
+	importedVRFsSameNetwork := &multinetworkmocks.NetInfo{}
+	importedVRFsSameNetwork.On("GetNetworkName").Return("self")
+	importedVRFsSameNetwork.On("GetPodNetworkAdvertisedOnNodeVRFs", node).Return([]string{"self"}).Once()
+	importedVRFsSameNetwork.On("GetPodNetworkAdvertisedOnNodeVRFs", node).Return([]string{"self"})
+
+	type fields struct {
+		networks map[string]*netInfo
+	}
+	type args struct {
+		newNetinfo util.NetInfo
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "does not need reconciliation if imported VRFs did not change",
+			fields: fields{
+				networks: map[string]*netInfo{importedVRFsSameNetwork.GetNetworkName(): {NetInfo: importedVRFsSameNetwork}},
+			},
+			args: args{
+				newNetinfo: importedVRFsSameNetwork,
+			},
+			want: false,
+		},
+		{
+			name: "does need reconciliation if imported VRFs changed",
+			fields: fields{
+				networks: map[string]*netInfo{importedVRFsChangeNetwork.GetNetworkName(): {NetInfo: importedVRFsChangeNetwork}},
+			},
+			args: args{
+				newNetinfo: importedVRFsChangeNetwork,
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &controller{
+				node:     node,
+				networks: tt.fields.networks,
+			}
+			if got := c.NeedsReconciliation(tt.args.newNetinfo); got != tt.want {
+				t.Errorf("controller.NeedsReconciliation() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
