@@ -58,13 +58,6 @@ func getCreationFakeCommands(fexec *ovntest.FakeExec, mgtPort, mgtPortMAC, netNa
 	})
 }
 
-func getVRFCreationFakeOVSCommands(fexec *ovntest.FakeExec) {
-	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
-		Cmd:    "ovs-vsctl --timeout=15 port-to-br eth0",
-		Output: "breth0",
-	})
-}
-
 func getRPFilterLooseModeFakeCommands(fexec *ovntest.FakeExec) {
 	fexec.AddFakeCmd(&ovntest.ExpectedCmd{
 		Cmd:    "sysctl -w net.ipv4.conf.ovn-k8s-mp3.rp_filter=2",
@@ -584,7 +577,6 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		Expect(err).NotTo(HaveOccurred())
 		mgtPortMAC = util.IPAddrToHWAddr(util.GetNodeManagementIfAddr(ipNet).IP).String()
 		getCreationFakeCommands(fexec, mgtPort, mgtPortMAC, netName, nodeName, netInfo.MTU())
-		getVRFCreationFakeOVSCommands(fexec)
 		getRPFilterLooseModeFakeCommands(fexec)
 		setUpUDNOpenflowManagerFakeOVSCommands(fexec)
 		setUpUDNOpenflowManagerCheckPortsFakeOVSCommands(fexec)
@@ -820,7 +812,6 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		setManagementPortFakeCommands(fexec, nodeName)
 		setUpGatewayFakeOVSCommands(fexec)
 		getCreationFakeCommands(fexec, mgtPort, mgtPortMAC, netName, nodeName, netInfo.MTU())
-		getVRFCreationFakeOVSCommands(fexec)
 		getRPFilterLooseModeFakeCommands(fexec)
 		setUpUDNOpenflowManagerFakeOVSCommands(fexec)
 		setUpUDNOpenflowManagerCheckPortsFakeOVSCommands(fexec)
@@ -1031,9 +1022,15 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		ovntest.AnnotateNADWithNetworkID(netID, nad)
 		netInfo, err := util.ParseNADInfo(nad)
 		Expect(err).NotTo(HaveOccurred())
-		udnGateway, err := NewUserDefinedNetworkGateway(netInfo, node, nil, nil, vrf, nil, &gateway{})
+		gwBridge := &bridgeConfiguration{
+			gwIface:    "",
+			bridgeName: "breth0",
+		}
+		ofm := &openflowManager{
+			defaultBridge: gwBridge,
+		}
+		udnGateway, err := NewUserDefinedNetworkGateway(netInfo, node, nil, nil, vrf, nil, &gateway{openflowManager: ofm})
 		Expect(err).NotTo(HaveOccurred())
-		getVRFCreationFakeOVSCommands(fexec)
 		err = testNS.Do(func(ns.NetNS) error {
 			defer GinkgoRecover()
 			mplink, err := netlink.LinkByName(mgtPort)
@@ -1041,8 +1038,9 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 			bridgelink, err := netlink.LinkByName("breth0")
 			Expect(err).NotTo(HaveOccurred())
 			vrfTableId := util.CalculateRouteTableID(mplink.Attrs().Index)
+			udnGateway.vrfTableId = vrfTableId
 
-			routes, err := udnGateway.computeRoutesForUDN(vrfTableId, mplink)
+			routes, err := udnGateway.computeRoutesForUDN(mplink)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(routes).To(HaveLen(7))
 			Expect(err).NotTo(HaveOccurred())
@@ -1100,9 +1098,15 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		ovntest.AnnotateNADWithNetworkID(netID, nad)
 		netInfo, err := util.ParseNADInfo(nad)
 		Expect(err).NotTo(HaveOccurred())
-		udnGateway, err := NewUserDefinedNetworkGateway(netInfo, node, nil, nil, vrf, nil, &gateway{})
+		gwBridge := &bridgeConfiguration{
+			gwIface:    "",
+			bridgeName: "breth0",
+		}
+		ofm := &openflowManager{
+			defaultBridge: gwBridge,
+		}
+		udnGateway, err := NewUserDefinedNetworkGateway(netInfo, node, nil, nil, vrf, nil, &gateway{openflowManager: ofm})
 		Expect(err).NotTo(HaveOccurred())
-		getVRFCreationFakeOVSCommands(fexec)
 		err = testNS.Do(func(ns.NetNS) error {
 			defer GinkgoRecover()
 			link, err := netlink.LinkByName("breth0")
@@ -1111,8 +1115,9 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 			mplink, err := netlink.LinkByName(mgtPort)
 			Expect(err).NotTo(HaveOccurred())
 			vrfTableId := util.CalculateRouteTableID(mplink.Attrs().Index)
+			udnGateway.vrfTableId = vrfTableId
 
-			routes, err := udnGateway.computeRoutesForUDN(vrfTableId, mplink)
+			routes, err := udnGateway.computeRoutesForUDN(mplink)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(routes).To(HaveLen(8))
 			Expect(err).NotTo(HaveOccurred())
@@ -1154,6 +1159,108 @@ var _ = Describe("UserDefinedNetworkGateway", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(fexec.CalledMatchesExpected()).To(BeTrue(), fexec.ErrorDesc)
 	})
+
+	ovntest.OnSupportedPlatformsIt("should have default route when network is advertised on default VRF", func() {
+		config.Gateway.Interface = "eth0"
+		config.IPv4Mode = true
+		config.IPv6Mode = true
+		config.Gateway.NextHop = "10.0.0.11"
+		node := &corev1.Node{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: nodeName,
+				Annotations: map[string]string{
+					"k8s.ovn.org/node-subnets": fmt.Sprintf("{\"%s\":[\"%s\", \"%s\"]}", netName, v4NodeSubnet, v6NodeSubnet),
+				},
+			},
+		}
+		nad := ovntest.GenerateNAD(netName, "rednad", "greenamespace",
+			types.Layer3Topology, "100.128.0.0/16/24,ae70::/60/64", types.NetworkRolePrimary)
+		ovntest.AnnotateNADWithNetworkID(netID, nad)
+		netInfo, err := util.ParseNADInfo(nad)
+		Expect(err).NotTo(HaveOccurred())
+		mutableNetInfo := util.NewMutableNetInfo(netInfo)
+		mutableNetInfo.SetPodNetworkAdvertisedVRFs(map[string][]string{node.Name: {types.DefaultNetworkName}})
+		gwBridge := &bridgeConfiguration{
+			gwIface:    "",
+			bridgeName: "breth0",
+			nextHops:   ovntest.MustParseIPs(config.Gateway.NextHop),
+		}
+		ofm := &openflowManager{
+			defaultBridge: gwBridge,
+		}
+		udnGateway, err := NewUserDefinedNetworkGateway(mutableNetInfo, node, nil, nil, vrf, nil, &gateway{openflowManager: ofm})
+		Expect(err).NotTo(HaveOccurred())
+		err = testNS.Do(func(ns.NetNS) error {
+			defer GinkgoRecover()
+			mplink, err := netlink.LinkByName(mgtPort)
+			Expect(err).NotTo(HaveOccurred())
+			bridgelink, err := netlink.LinkByName("breth0")
+			Expect(err).NotTo(HaveOccurred())
+			vrfTableId := util.CalculateRouteTableID(mplink.Attrs().Index)
+			udnGateway.vrfTableId = vrfTableId
+
+			routes, err := udnGateway.computeRoutesForUDN(mplink)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(routes).To(HaveLen(8))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(*routes[1].Dst).To(Equal(*ovntest.MustParseIPNet("0.0.0.0/0")))
+			Expect(routes[1].LinkIndex).To(Equal(bridgelink.Attrs().Index))
+			Expect(routes[1].Gw.Equal(ovntest.MustParseIP(config.Gateway.NextHop))).To(BeTrue())
+			return nil
+		})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(fexec.CalledMatchesExpected()).To(BeTrue(), fexec.ErrorDesc)
+	})
+
+	ovntest.OnSupportedPlatformsIt("should omit default route when network is advertised on any other vrf than default", func() {
+		config.Gateway.Interface = "eth0"
+		config.IPv4Mode = true
+		config.IPv6Mode = true
+		config.Gateway.NextHop = "10.0.0.11"
+		node := &corev1.Node{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: nodeName,
+				Annotations: map[string]string{
+					"k8s.ovn.org/node-subnets": fmt.Sprintf("{\"%s\":[\"%s\", \"%s\"]}", netName, v4NodeSubnet, v6NodeSubnet),
+				},
+			},
+		}
+		nad := ovntest.GenerateNAD(netName, "rednad", "greenamespace",
+			types.Layer3Topology, "100.128.0.0/16/24,ae70::/60/64", types.NetworkRolePrimary)
+		ovntest.AnnotateNADWithNetworkID(netID, nad)
+		netInfo, err := util.ParseNADInfo(nad)
+		Expect(err).NotTo(HaveOccurred())
+		mutableNetInfo := util.NewMutableNetInfo(netInfo)
+		mutableNetInfo.SetPodNetworkAdvertisedVRFs(map[string][]string{node.Name: {netName}})
+		gwBridge := &bridgeConfiguration{
+			gwIface:    "",
+			bridgeName: "breth0",
+		}
+		ofm := &openflowManager{
+			defaultBridge: gwBridge,
+		}
+		udnGateway, err := NewUserDefinedNetworkGateway(mutableNetInfo, node, nil, nil, vrf, nil, &gateway{openflowManager: ofm})
+		Expect(err).NotTo(HaveOccurred())
+		err = testNS.Do(func(ns.NetNS) error {
+			defer GinkgoRecover()
+			mplink, err := netlink.LinkByName(mgtPort)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
+			vrfTableId := util.CalculateRouteTableID(mplink.Attrs().Index)
+			udnGateway.vrfTableId = vrfTableId
+
+			routes, err := udnGateway.computeRoutesForUDN(mplink)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(routes).To(HaveLen(7))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(*routes[1].Dst).To(Not(Equal(*ovntest.MustParseIPNet("0.0.0.0/0"))))
+			Expect(routes[1].Gw.Equal(ovntest.MustParseIP(config.Gateway.NextHop))).To(BeFalse())
+			return nil
+		})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(fexec.CalledMatchesExpected()).To(BeTrue(), fexec.ErrorDesc)
+	})
+
 	ovntest.OnSupportedPlatformsIt("should set rp filer to loose mode for management port interface", func() {
 		getRPFilterLooseModeFakeCommands(fexec)
 		err := testNS.Do(func(ns.NetNS) error {
@@ -1320,7 +1427,8 @@ func TestConstructUDNVRFIPRules(t *testing.T) {
 			g.Expect(err).NotTo(HaveOccurred())
 			udnGateway, err := NewUserDefinedNetworkGateway(netInfo, node, nil, nil, nil, nil, &gateway{})
 			g.Expect(err).NotTo(HaveOccurred())
-			rules, delRules, err := udnGateway.constructUDNVRFIPRules(test.vrftableID)
+			udnGateway.vrfTableId = test.vrftableID
+			rules, delRules, err := udnGateway.constructUDNVRFIPRules()
 			g.Expect(err).ToNot(HaveOccurred())
 			for i, rule := range rules {
 				g.Expect(rule.Priority).To(Equal(test.expectedRules[i].priority))
@@ -1491,7 +1599,8 @@ func TestConstructUDNVRFIPRulesPodNetworkAdvertised(t *testing.T) {
 			mutableNetInfo.SetPodNetworkAdvertisedVRFs(map[string][]string{node.Name: {"bluenet"}})
 			udnGateway, err := NewUserDefinedNetworkGateway(mutableNetInfo, node, nil, nil, nil, nil, &gateway{})
 			g.Expect(err).NotTo(HaveOccurred())
-			rules, delRules, err := udnGateway.constructUDNVRFIPRules(test.vrftableID)
+			udnGateway.vrfTableId = test.vrftableID
+			rules, delRules, err := udnGateway.constructUDNVRFIPRules()
 			g.Expect(err).ToNot(HaveOccurred())
 			for i, rule := range rules {
 				g.Expect(rule.Priority).To(Equal(test.expectedRules[i].priority))
