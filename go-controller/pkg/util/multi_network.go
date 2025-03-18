@@ -1531,7 +1531,7 @@ func GenerateUDNNetworkName(namespace, name string) string {
 }
 
 func GenerateCUDNNetworkName(name string) string {
-	return "cluster_udn_" + name
+	return types.CUDNPrefix + name
 }
 
 // ParseNetworkName parses the network name into UDN namespace and name OR CUDN name.
@@ -1542,8 +1542,8 @@ func GenerateCUDNNetworkName(name string) string {
 // This function has a copy in go-controller/observability-lib/sampledecoder/sample_decoder.go
 // Please update together with this function.
 func ParseNetworkName(networkName string) (udnNamespace, udnName string) {
-	if strings.HasPrefix(networkName, "cluster_udn_") {
-		return "", networkName[len("cluster_udn_"):]
+	if strings.HasPrefix(networkName, types.CUDNPrefix) {
+		return "", networkName[len(types.CUDNPrefix):]
 	}
 	parts := strings.Split(networkName, "_")
 	if len(parts) == 2 {

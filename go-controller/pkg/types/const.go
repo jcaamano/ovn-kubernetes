@@ -277,4 +277,7 @@ const (
 	// NoNetworkID is used to signal internally that an ID is empty and should, updates
 	// with this value should be ignored
 	NoNetworkID = -2
+
+	// CUDNPrefix of all CUDN network names
+	CUDNPrefix = "cluster_udn_"
 )
