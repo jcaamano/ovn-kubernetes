@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/vishvananda/netlink"
+	"golang.org/x/sys/unix"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -656,7 +657,27 @@ func (udng *UserDefinedNetworkGateway) computeRoutesForUDN(mpLink netlink.Link) 
 			}
 		}
 	}
-
+	hasV4Subnet, hasV6Subnet := udng.IPMode()
+	if hasV4Subnet {
+		_, v4AnyCIDR, _ := net.ParseCIDR("0.0.0.0/0")
+		retVal = append(retVal, netlink.Route{
+			LinkIndex: mpLink.Attrs().Index,
+			Dst:       v4AnyCIDR,
+			Table:     udng.vrfTableId,
+			Priority:  4278198272,
+			Type:      unix.RTN_UNREACHABLE,
+		})
+	}
+	if hasV6Subnet {
+		_, v6AnyCIDR, _ := net.ParseCIDR("::/0")
+		retVal = append(retVal, netlink.Route{
+			LinkIndex: mpLink.Attrs().Index,
+			Dst:       v6AnyCIDR,
+			Table:     udng.vrfTableId,
+			Priority:  4278198272,
+			Type:      unix.RTN_UNREACHABLE,
+		})
+	}
 	return retVal, nil
 }
 
