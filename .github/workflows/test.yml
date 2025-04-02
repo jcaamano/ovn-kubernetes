@@ -222,11 +222,10 @@ jobs:
       continue-on-error: true
       env:
         COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GO111MODULE: off
       run: |
         set -x
-        go get github.com/mattn/goveralls
-        go get github.com/modocache/gover
+        go install github.com/mattn/goveralls@latest
+        go install github.com/modocache/gover@latest
         PATH=$PATH:$(go env GOPATH)/bin
 
         mkdir -p $(go env GOPATH)/src/github.com/ovn-kubernetes
