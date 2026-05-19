@@ -575,11 +575,6 @@ func (c *networkController) setAdvertisements(network util.MutableNetInfo) error
 			return err
 		}
 
-		advertisements := sets.New(ra.Spec.Advertisements...)
-		if !advertisements.Has(ratypes.PodNetwork) {
-			continue
-		}
-
 		accepted := meta.FindStatusCondition(ra.Status.Conditions, "Accepted")
 		if accepted == nil || accepted.Status != metav1.ConditionTrue || accepted.ObservedGeneration != ra.Generation {
 			// if the RA is not accepted, we commit to no change, best to
@@ -607,6 +602,7 @@ func (c *networkController) setAdvertisements(network util.MutableNetInfo) error
 			vrf = types.DefaultNetworkName
 		}
 
+		advertisements := sets.New(ra.Spec.Advertisements...)
 		for _, node := range nodes {
 			if !c.isNodeManaged(node) {
 				continue
