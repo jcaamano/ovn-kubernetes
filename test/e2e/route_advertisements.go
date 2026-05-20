@@ -1093,6 +1093,97 @@ var _ = ginkgo.DescribeTableSubtree("BGP: isolation between advertised networks"
 				gomega.Eventually(clusterUserDefinedNetworkReadyFunc(f.DynamicClient, cudnA.Name), 5*time.Second, time.Second).Should(gomega.Succeed())
 				gomega.Eventually(clusterUserDefinedNetworkReadyFunc(f.DynamicClient, cudnB.Name), 5*time.Second, time.Second).Should(gomega.Succeed())
 
+				exposeNetworks := func() {
+					ginkgo.GinkgoHelper()
+					ginkgo.By("Expose networks")
+					ra = &rav1.RouteAdvertisements{
+						ObjectMeta: metav1.ObjectMeta{
+							GenerateName: "advertised-networks-isolation-ra",
+						},
+						Spec: rav1.RouteAdvertisementsSpec{
+							NetworkSelectors: apitypes.NetworkSelectors{
+								apitypes.NetworkSelector{
+									NetworkSelectionType: apitypes.ClusterUserDefinedNetworks,
+									ClusterUserDefinedNetworkSelector: &apitypes.ClusterUserDefinedNetworkSelector{
+										NetworkSelector: metav1.LabelSelector{
+											MatchLabels: map[string]string{"advertised-networks-isolation": ""},
+										},
+									},
+								},
+							},
+							NodeSelector:             metav1.LabelSelector{},
+							FRRConfigurationSelector: metav1.LabelSelector{},
+							Advertisements: []rav1.AdvertisementType{
+								rav1.PodNetwork,
+							},
+						},
+					}
+
+					raClient, err := raclientset.NewForConfig(f.ClientConfig())
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+					ra, err = raClient.K8sV1().RouteAdvertisements().Create(context.TODO(), ra, metav1.CreateOptions{})
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+
+					ginkgo.By("ensure route advertisement matching both networks was created successfully")
+					gomega.Eventually(func() string {
+						ra, err := raClient.K8sV1().RouteAdvertisements().Get(context.TODO(), ra.Name, metav1.GetOptions{})
+						if err != nil {
+							return ""
+						}
+						condition := meta.FindStatusCondition(ra.Status.Conditions, "Accepted")
+						if condition == nil {
+							return ""
+						}
+						return condition.Reason
+					}, 30*time.Second, time.Second).Should(gomega.Equal("Accepted"))
+
+					// Check CUDN TransportAccepted condition is True after RA is created
+					expectedTransportMsg := func(t udnv1.TransportOption) string {
+						switch t {
+						case udnv1.TransportOptionNoOverlay:
+							return "Transport has been configured as 'no-overlay'."
+						case udnv1.TransportOptionEVPN:
+							return "Transport has been configured as 'EVPN'."
+						default:
+							return ""
+						}
+					}
+					expectedMsgByCUDN := map[string]string{
+						cudnA.Name: expectedTransportMsg(cudnATemplate.Spec.Network.Transport),
+						cudnB.Name: expectedTransportMsg(cudnBTemplate.Spec.Network.Transport),
+					}
+					if expectedMsgByCUDN[cudnA.Name] != "" || expectedMsgByCUDN[cudnB.Name] != "" {
+						ginkgo.By("ensure CUDN TransportAccepted condition is True")
+						for _, cudnName := range []string{cudnA.Name, cudnB.Name} {
+							gomega.Eventually(func(g gomega.Gomega) {
+								cudnObj, err := f.DynamicClient.Resource(clusterUDNGVR).Get(context.Background(), cudnName, metav1.GetOptions{}, "status")
+								g.Expect(err).NotTo(gomega.HaveOccurred())
+								conditions, err := getConditions(cudnObj)
+								g.Expect(err).NotTo(gomega.HaveOccurred())
+								for _, condition := range conditions {
+									if condition.Type == "TransportAccepted" {
+										g.Expect(string(condition.Status)).To(gomega.Equal("True"))
+										g.Expect(condition.Message).To(gomega.Equal(expectedMsgByCUDN[cudnName]))
+										return
+									}
+								}
+								g.Expect(false).To(gomega.BeTrue(), "TransportAccepted condition not found in CUDN %s", cudnName)
+							}, 30*time.Second, time.Second).Should(gomega.Succeed())
+						}
+					}
+				}
+
+				// For non standard transport, expose networks before running
+				// pods as pods should not be expected to run before transport
+				// is accepted. As opposed to the VRF-Lite/EVPN specific tests
+				// that create the RA before the networks, create it after the
+				// networks in these tests to have some coverage for the
+				// different sequence.
+				if cudnA.Spec.Network.Transport != "" || cudnB.Spec.Network.Transport != "" {
+					exposeNetworks()
+				}
+
 				ginkgo.By("Selecting 3 schedulable nodes")
 				nodes, err = e2enode.GetReadySchedulableNodes(context.TODO(), f.ClientSet)
 				gomega.Expect(err).NotTo(gomega.HaveOccurred())
@@ -1197,82 +1288,10 @@ var _ = ginkgo.DescribeTableSubtree("BGP: isolation between advertised networks"
 				podNetDefault, err = f.ClientSet.CoreV1().Pods(podNetDefault.Namespace).Get(context.TODO(), podNetDefault.Name, metav1.GetOptions{})
 				framework.ExpectNoError(err)
 
-				ginkgo.By("Expose networks")
-				ra = &rav1.RouteAdvertisements{
-					ObjectMeta: metav1.ObjectMeta{
-						GenerateName: "advertised-networks-isolation-ra",
-					},
-					Spec: rav1.RouteAdvertisementsSpec{
-						NetworkSelectors: apitypes.NetworkSelectors{
-							apitypes.NetworkSelector{
-								NetworkSelectionType: apitypes.ClusterUserDefinedNetworks,
-								ClusterUserDefinedNetworkSelector: &apitypes.ClusterUserDefinedNetworkSelector{
-									NetworkSelector: metav1.LabelSelector{
-										MatchLabels: map[string]string{"advertised-networks-isolation": ""},
-									},
-								},
-							},
-						},
-						NodeSelector:             metav1.LabelSelector{},
-						FRRConfigurationSelector: metav1.LabelSelector{},
-						Advertisements: []rav1.AdvertisementType{
-							rav1.PodNetwork,
-						},
-					},
-				}
-
-				raClient, err := raclientset.NewForConfig(f.ClientConfig())
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-				ra, err = raClient.K8sV1().RouteAdvertisements().Create(context.TODO(), ra, metav1.CreateOptions{})
-				gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-				ginkgo.By("ensure route advertisement matching both networks was created successfully")
-				gomega.Eventually(func() string {
-					ra, err := raClient.K8sV1().RouteAdvertisements().Get(context.TODO(), ra.Name, metav1.GetOptions{})
-					if err != nil {
-						return ""
-					}
-					condition := meta.FindStatusCondition(ra.Status.Conditions, "Accepted")
-					if condition == nil {
-						return ""
-					}
-					return condition.Reason
-				}, 30*time.Second, time.Second).Should(gomega.Equal("Accepted"))
-
-				// Check CUDN TransportAccepted condition is True after RA is created
-				expectedTransportMsg := func(t udnv1.TransportOption) string {
-					switch t {
-					case udnv1.TransportOptionNoOverlay:
-						return "Transport has been configured as 'no-overlay'."
-					case udnv1.TransportOptionEVPN:
-						return "Transport has been configured as 'EVPN'."
-					default:
-						return ""
-					}
-				}
-				expectedMsgByCUDN := map[string]string{
-					cudnA.Name: expectedTransportMsg(cudnATemplate.Spec.Network.Transport),
-					cudnB.Name: expectedTransportMsg(cudnBTemplate.Spec.Network.Transport),
-				}
-				if expectedMsgByCUDN[cudnA.Name] != "" || expectedMsgByCUDN[cudnB.Name] != "" {
-					ginkgo.By("ensure CUDN TransportAccepted condition is True")
-					for _, cudnName := range []string{cudnA.Name, cudnB.Name} {
-						gomega.Eventually(func(g gomega.Gomega) {
-							cudnObj, err := f.DynamicClient.Resource(clusterUDNGVR).Get(context.Background(), cudnName, metav1.GetOptions{}, "status")
-							g.Expect(err).NotTo(gomega.HaveOccurred())
-							conditions, err := getConditions(cudnObj)
-							g.Expect(err).NotTo(gomega.HaveOccurred())
-							for _, condition := range conditions {
-								if condition.Type == "TransportAccepted" {
-									g.Expect(string(condition.Status)).To(gomega.Equal("True"))
-									g.Expect(condition.Message).To(gomega.Equal(expectedMsgByCUDN[cudnName]))
-									return
-								}
-							}
-							g.Expect(false).To(gomega.BeTrue(), "TransportAccepted condition not found in CUDN %s", cudnName)
-						}, 30*time.Second, time.Second).Should(gomega.Succeed())
-					}
+				// For standard unicast, expose networks at the very end to have
+				// some coverage on network/pod reconfiguration
+				if cudnA.Spec.Network.Transport == "" && cudnB.Spec.Network.Transport == "" {
+					exposeNetworks()
 				}
 
 				ginkgo.By("ensure routes from UDNs are learned by the external FRR router")
