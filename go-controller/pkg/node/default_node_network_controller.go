@@ -42,6 +42,7 @@ import (
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/networkmanager"
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/controllers/egressip"
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/controllers/egressservice"
+	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/controllers/macbinding"
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/dpulease"
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/linkmanager"
 	"github.com/ovn-kubernetes/ovn-kubernetes/go-controller/pkg/node/managementport"
@@ -143,6 +144,8 @@ type DefaultNodeNetworkController struct {
 	udnHostIsolationManager *UDNHostIsolationManager
 
 	masqReconciler *masqueradeReconciler
+
+	macBindingController *macbinding.MACBindingController
 
 	nodeAddress net.IP
 }
@@ -281,6 +284,18 @@ func (oc *DefaultNodeNetworkController) Reconcile(netInfo util.NetInfo) error {
 	}
 
 	return nil
+}
+
+func (oc *DefaultNodeNetworkController) GetOpenflowManager() OpenflowManager {
+	gw := oc.Gateway.(*gateway)
+	fmops := &OpenflowManagerOps{
+		UpdateExBridgeFlowCacheEntryFn: gw.openflowManager.updateFlowCacheEntry,
+		DeleteExBridgeFlowsByKeyFn:     gw.openflowManager.deleteFlowsByKey,
+		RequestFlowSyncFn:              gw.openflowManager.requestFlowSync,
+		GetDefaultBridgeNameFn:         gw.openflowManager.getDefaultBridgeName,
+		FlowskeysFn:                    gw.openflowManager.flowskeys,
+	}
+	return fmops
 }
 
 func clearOVSFlowTargets() error {
@@ -972,6 +987,16 @@ func (nc *DefaultNodeNetworkController) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start gateway: %w", err)
 	}
 	klog.Infof("Gateway and management port readiness took %v", time.Since(start))
+
+	if nc.macBindingController != nil {
+		nc.wg.Add(1)
+		go func() {
+			defer nc.wg.Done()
+			if err := nc.macBindingController.Run(nc.stopChan); err != nil {
+				klog.Errorf("MAC binding controller failed: %v", err)
+			}
+		}()
+	}
 
 	// Note(adrianc): DPU deployments are expected to support the new shared gateway changes, upgrade flow
 	// is not needed. Future upgrade flows will need to take DPUs into account.
