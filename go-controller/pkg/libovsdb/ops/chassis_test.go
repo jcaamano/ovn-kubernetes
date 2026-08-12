@@ -162,6 +162,12 @@ func TestDeleteChassis(t *testing.T) {
 			}
 			t.Cleanup(cleanup.Cleanup)
 
+			// The seeded DatapathBinding is asserted against the client cache
+			// below; the harness no longer monitors that table by default.
+			if err := libovsdbtest.MonitorDatapathBindings(sbClient); err != nil {
+				t.Fatalf("%s: failed to monitor datapath bindings: %v", tt.desc, err)
+			}
+
 			if tt.chassis != nil {
 				err = DeleteChassis(sbClient, tt.chassis)
 			} else if tt.chassisPredicate != nil {

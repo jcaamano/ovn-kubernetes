@@ -211,14 +211,6 @@ func newSBClient(sockPath string, testCtx *Context) (libovsdbclient.Client, erro
 	if err != nil {
 		return nil, err
 	}
-
-	// we require additional monitoring for testing
-	// see CreateTransitSwitchPortBindings
-	_, err = sbClient.Monitor(context.Background(), sbClient.NewMonitor(libovsdbclient.WithTable(&sbdb.DatapathBinding{})))
-	if err != nil {
-		return nil, err
-	}
-
 	clientWaitOnCleanup(testCtx, sbClient, stopChan)
 	return sbClient, err
 }
