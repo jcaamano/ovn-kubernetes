@@ -133,6 +133,7 @@ func NewSBClientWithEndpoint(endpoint string, promRegistry prometheus.Registerer
 	// Only Monitor Required SBDB tables to reduce memory overhead
 	chassisPrivate := sbdb.ChassisPrivate{}
 	igmpGroup := sbdb.IGMPGroup{}
+	macBinding := sbdb.MACBinding{}
 	_, err = c.Monitor(ctx,
 		c.NewMonitor(
 			// used by unidling controller
@@ -149,6 +150,13 @@ func NewSBClientWithEndpoint(endpoint string, promRegistry prometheus.Registerer
 			client.WithTable(&sbdb.SBGlobal{}),
 			// used for metrics
 			client.WithTable(&sbdb.PortBinding{}),
+			client.WithTable(
+				&macBinding,
+				&macBinding.LogicalPort,
+				&macBinding.IP,
+				&macBinding.MAC,
+				&macBinding.Timestamp,
+			),
 		),
 	)
 	if err != nil {

@@ -1105,3 +1105,23 @@ func SetIPv6KeepAddrOnDownForInterface(ifName string) error {
 	}
 	return nil
 }
+
+func SetAcceptUnsolicitedNeighborForInterface(ifName string) error {
+	if config.IPv4Mode {
+		setVal := fmt.Sprintf("net.ipv4.conf.%s.arp_accept = 1", sysctlIfName(ifName))
+		stdout, stderr, err := RunSysctl("-w", setVal)
+		if err != nil || stdout != setVal {
+			return fmt.Errorf("could not enable accept_unsolicited_na for interface %s: stdout: %v, stderr: %v, err: %v",
+				ifName, stdout, stderr, err)
+		}
+	}
+	if config.IPv6Mode {
+		setVal := fmt.Sprintf("net.ipv6.conf.%s.accept_untracked_na = 1", sysctlIfName(ifName))
+		stdout, stderr, err := RunSysctl("-w", setVal)
+		if err != nil || stdout != setVal {
+			return fmt.Errorf("could not enable accept_untracked_na for interface %s: stdout: %v, stderr: %v, err: %v",
+				ifName, stdout, stderr, err)
+		}
+	}
+	return nil
+}
