@@ -736,6 +736,13 @@ func bridgedGatewayNodeSetup(ovsClient libovsdbclient.Client, nodeName, bridgeNa
 	if err != nil {
 		return "", err
 	}
+	if physicalNetworkName == types.PhysicalNetworkName {
+		// TODO: only if ARP proxy is enabled
+		err = util.SetAcceptUnsolicitedNeighborForInterface(bridgeName)
+		if err != nil {
+			return "", err
+		}
+	}
 
 	// ovn-bridge-mappings maps a physical network name to a local ovs bridge
 	// that provides connectivity to that network. It is in the form of physnet1:br1,physnet2:br2.
