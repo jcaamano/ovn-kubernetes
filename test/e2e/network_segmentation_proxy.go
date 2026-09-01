@@ -83,6 +83,7 @@ var _ = Describe("Network Segmentation: ARP Proxy Flow Counter Regression", feat
 	)
 
 	BeforeEach(func() {
+		framework.TestContext.DeleteNamespace = false
 		if os.Getenv("ENABLE_UDN_ARP_PROXY") != "true" {
 			ginkgo.Skip("requires ENABLE_UDN_ARP_PROXY=true")
 		}
@@ -125,9 +126,10 @@ var _ = Describe("Network Segmentation: ARP Proxy Flow Counter Regression", feat
 		By("creating the primary UDN")
 		udnName := "l3-primary-udn"
 		udnManifest := newPrimaryUserDefinedNetworkManifest(cs, udnName)
-		udnCleanup, err := createManifest(primaryNamespace, udnManifest)
+		//udnCleanup, err := createManifest(primaryNamespace, udnManifest)
+		_, err = createManifest(primaryNamespace, udnManifest)
 		framework.ExpectNoError(err)
-		DeferCleanup(udnCleanup)
+		//DeferCleanup(udnCleanup)
 		Eventually(userDefinedNetworkReadyFunc(f.DynamicClient, primaryNamespace, udnName),
 			proxyUDNReadyTimeout, proxyUDNReadyPollInterval).Should(Succeed())
 
@@ -153,9 +155,10 @@ var _ = Describe("Network Segmentation: ARP Proxy Flow Counter Regression", feat
 
 			extraName := fmt.Sprintf("extra-udn-%d", i)
 			extraManifest := newPrimaryUserDefinedNetworkManifest(cs, extraName)
-			extraCleanup, err := createManifest(extraNs.Name, extraManifest)
+			//extraCleanup, err := createManifest(extraNs.Name, extraManifest)
+			_, err = createManifest(extraNs.Name, extraManifest)
 			framework.ExpectNoError(err)
-			DeferCleanup(extraCleanup)
+			//DeferCleanup(extraCleanup)
 			Eventually(userDefinedNetworkReadyFunc(f.DynamicClient, extraNs.Name, extraName),
 				proxyUDNReadyTimeout, proxyUDNReadyPollInterval).Should(Succeed())
 
@@ -229,9 +232,11 @@ var _ = Describe("Network Segmentation: ARP Proxy Flow Counter Regression", feat
 		testPod.Spec.NodeSelector = map[string]string{"kubernetes.io/hostname": targetNodeName}
 		testPod, err := cs.CoreV1().Pods(f.Namespace.Name).Create(ctx, testPod, metav1.CreateOptions{})
 		framework.ExpectNoError(err)
-		DeferCleanup(func() {
-			_ = cs.CoreV1().Pods(f.Namespace.Name).Delete(ctx, testPod.Name, metav1.DeleteOptions{})
-		})
+		/*
+			DeferCleanup(func() {
+				_ = cs.CoreV1().Pods(f.Namespace.Name).Delete(ctx, testPod.Name, metav1.DeleteOptions{})
+			})
+		*/
 		err = e2epod.WaitForPodRunningInNamespace(ctx, cs, testPod)
 		framework.ExpectNoError(err)
 

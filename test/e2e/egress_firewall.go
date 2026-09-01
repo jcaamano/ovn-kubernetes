@@ -116,6 +116,7 @@ func egressFirewallPolicyValidationTests(useUDN bool, udnTopology string) {
 
 		// Determine what mode the CI is running in and get relevant endpoint information for the tests
 		ginkgo.BeforeEach(func() {
+			framework.TestContext.DeleteNamespaceOnFailure = false
 			nodes, err := e2enode.GetBoundedReadySchedulableNodes(context.TODO(), f.ClientSet, 2)
 			framework.ExpectNoError(err)
 			if len(nodes.Items) < 2 {
@@ -257,8 +258,8 @@ func egressFirewallPolicyValidationTests(useUDN bool, udnTopology string) {
 							return
 						}
 					}
-					err := deletePodWithWaitByName(context.TODO(), f.ClientSet, podName, f.Namespace.Name)
-					gomega.Expect(err).NotTo(gomega.HaveOccurred())
+					//err := deletePodWithWaitByName(context.TODO(), f.ClientSet, podName, f.Namespace.Name)
+					//gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				}
 				framework.Failf("Failed to create pod %s that can reach %s:%s after %d retries", podName, reachableDst, reachablePort, retries)
 			}
@@ -319,7 +320,7 @@ func egressFirewallPolicyValidationTests(useUDN bool, udnTopology string) {
 			ginkgo.It("Should validate the egress firewall policy functionality for allowed IP", func() {
 				srcPodName := "e2e-egress-fw-src-pod"
 				// create the pod that will be used as the source for the connectivity test
-				createSrcPodWithRetry(3, getExternalContainerIP(externalContainer1), externalContainer1.GetPortStr(),
+				createSrcPodWithRetry(1, getExternalContainerIP(externalContainer1), externalContainer1.GetPortStr(),
 					srcPodName, serverNodeInfo.name, retryInterval, retryTimeout, f)
 
 				// egress firewall crd yaml configuration

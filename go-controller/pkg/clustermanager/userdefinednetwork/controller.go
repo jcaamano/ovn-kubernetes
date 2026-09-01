@@ -405,13 +405,7 @@ func (c *Controller) recoverEVPNIDs(cudnNADs cudnToNADs) {
 	// When two CUDNs have conflicting VIDs, the oldest one wins.
 	// Use name as tie-breaker when timestamps are equal for consistent ordering.
 	slices.SortFunc(evpnCUDNs, func(a, b *cudnWithNADs) int {
-		if a.cudn.CreationTimestamp.Before(&b.cudn.CreationTimestamp) {
-			return -1
-		}
-		if b.cudn.CreationTimestamp.Before(&a.cudn.CreationTimestamp) {
-			return 1
-		}
-		return strings.Compare(a.cudn.Name, b.cudn.Name)
+		return util.CompareCUDNsByAge(a.cudn, b.cudn)
 	})
 
 	for _, entry := range evpnCUDNs {

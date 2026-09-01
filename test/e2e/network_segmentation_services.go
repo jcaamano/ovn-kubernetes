@@ -60,6 +60,7 @@ var _ = Describe("Network Segmentation: services", feature.NetworkSegmentation, 
 
 		BeforeEach(func() {
 			cs = f.ClientSet
+			framework.TestContext.DeleteNamespaceOnFailure = false
 
 			var err error
 			nadClient, err = nadclient.NewForConfig(f.ClientConfig())

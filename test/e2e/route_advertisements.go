@@ -1448,6 +1448,8 @@ var _ = ginkgo.Describe("BGP: isolation", feature.RouteAdvertisements, func() {
 
 		f := wrappedTestFramework("bgp-network-isolation")
 		f.SkipNamespaceCreation = true
+		framework.TestContext.DeleteNamespaceOnFailure = false
+		//framework.TestContext.DeleteNamespace = false
 		var udnNamespaceA, udnNamespaceB *corev1.Namespace
 		var nodes *corev1.NodeList
 		// podsNetA has 4 pods in cudnA, two on nodes[0], one on nodes[1], and one on nodes[2] - done in BeforeEach
@@ -1769,6 +1771,9 @@ var _ = ginkgo.Describe("BGP: isolation", feature.RouteAdvertisements, func() {
 			})
 
 			ginkgo.AfterAll(func() {
+				if !framework.TestContext.DeleteNamespaceOnFailure && ginkgo.CurrentSpecReport().Failed() {
+					return
+				}
 				if udnNamespaceA != nil {
 					gomega.Expect(f.ClientSet.CoreV1().Pods(udnNamespaceA.Name).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{})).To(gomega.Succeed())
 				}

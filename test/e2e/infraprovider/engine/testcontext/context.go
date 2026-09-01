@@ -7,6 +7,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/onsi/ginkgo/v2"
 	"k8s.io/kubernetes/test/e2e/framework"
 )
 
@@ -28,6 +29,12 @@ func (c *TestContext) addCleanUpFn(cleanUpFn func() error) {
 func (c *TestContext) CleanUp() error {
 	c.Lock()
 	defer c.Unlock()
+	if !framework.TestContext.DeleteNamespace {
+		return nil
+	}
+	if !framework.TestContext.DeleteNamespaceOnFailure && ginkgo.CurrentSpecReport().Failed() {
+		return nil
+	}
 	err := c.cleanUp()
 	if err != nil {
 		framework.Logf("Cleanup failed: %v", err)
